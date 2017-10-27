@@ -12,7 +12,7 @@ namespace Lykke.Job.SqlBridgeChecker.PeriodicalHandlers
         private readonly ILog _log;
 
         public PeriodicalHandler(IDataChecker checker, ILog log)
-            : base((int)TimeSpan.FromDays(1).TotalMilliseconds, log)
+            : base((int)TimeSpan.FromHours(12).TotalMilliseconds, log)
         {
             _checker = checker;
             _log = log;
