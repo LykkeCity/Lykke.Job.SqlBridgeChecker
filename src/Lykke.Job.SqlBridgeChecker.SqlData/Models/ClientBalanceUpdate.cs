@@ -6,7 +6,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
     {
         public static int MaxStringFieldsLength { get { return 255; } }
 
-        public int Id { get; set; }
+        public long Id { get; set; }
 
         public string ClientId { get; set; }
 

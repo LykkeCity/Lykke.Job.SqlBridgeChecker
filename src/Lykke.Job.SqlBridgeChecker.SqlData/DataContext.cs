@@ -51,7 +51,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
 
             modelBuilder.Entity<ClientBalanceUpdate>(entity =>
             {
-                entity.Property(e => e.Id).UseSqlServerIdentityColumn().HasColumnType("int");
+                entity.Property(e => e.Id).UseSqlServerIdentityColumn().HasColumnType("bigint");
                 entity.Property(e => e.ClientId).IsRequired().HasColumnType($"varchar({ ClientBalanceUpdate.MaxStringFieldsLength})");
                 entity.Property(e => e.Asset).IsRequired().HasColumnType($"varchar({ClientBalanceUpdate.MaxStringFieldsLength})");
                 entity.Property(e => e.BalanceUpdateId).IsRequired().HasColumnType($"varchar({ BalanceUpdate.MaxStringFieldsLength})");
