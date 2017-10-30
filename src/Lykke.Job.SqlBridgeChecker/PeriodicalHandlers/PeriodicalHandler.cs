@@ -12,25 +12,16 @@ namespace Lykke.Job.SqlBridgeChecker.PeriodicalHandlers
         private readonly ILog _log;
 
         public PeriodicalHandler(IDataChecker checker, ILog log)
-            : base((int)TimeSpan.FromHours(12).TotalMilliseconds, log)
+            : base((int)TimeSpan.FromHours(24).TotalMilliseconds, log)
         {
             _checker = checker;
             _log = log;
         }
 
-        public override async Task Execute()
+        public override  Task Execute()
         {
-            await _log.WriteInfoAsync(
-                nameof(PeriodicalHandler),
-                nameof(Execute),
-                "Periodic work has been started");
-
-            await _checker.CheckAndFixDataAsync();
-
-            await _log.WriteInfoAsync(
-                nameof(PeriodicalHandler),
-                nameof(Execute),
-                "Periodic work is finished");
+            Task.Run(() => _checker.CheckAndFixDataAsync().Wait());
+            return Task.CompletedTask;
         }
     }
 }

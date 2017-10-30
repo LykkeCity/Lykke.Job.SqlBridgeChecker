@@ -29,6 +29,11 @@ namespace Lykke.Job.SqlBridgeChecker.Services
 
         public async Task CheckAndFixDataAsync()
         {
+            await _log.WriteInfoAsync(
+                nameof(CheckersRepository),
+                nameof(CheckAndFixDataAsync),
+                "Checking work has been started");
+
             foreach (var checker in _checkers)
             {
                 try
@@ -42,6 +47,11 @@ namespace Lykke.Job.SqlBridgeChecker.Services
                     await _log.WriteErrorAsync("CheckersRepository.CheckAndFixDataAsync", checker.Name, exc);
                 }
             }
+
+            await _log.WriteInfoAsync(
+                nameof(CheckersRepository),
+                nameof(CheckAndFixDataAsync),
+                "Checking work is finished");
         }
 
         public ReadOnlyCollection<IDataChecker> GetCheckers()
