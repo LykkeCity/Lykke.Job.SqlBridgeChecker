@@ -12,6 +12,8 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 {
     public class CandlesticksChecker : DataCheckerBase<FeedHistoryEntity, Candlestick>
     {
+        private readonly HashSet<string> _missingPairs = new HashSet<string>();
+
         public CandlesticksChecker(
             string sqlConnecctionString,
             ITableEntityRepository<FeedHistoryEntity> repository,
@@ -36,12 +38,26 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         protected override async Task<Candlestick> FindInSqlDbAsync(Candlestick item, DataContext context)
         {
-            return context
+            var inSql = context
                 .Set<Candlestick>()
                 .FirstOrDefault(c =>
                     c.AssetPair == item.AssetPair
                     && c.IsAsk == item.IsAsk
                     && c.Start.RoundToSecond() == item.Start.RoundToSecond());
+            if (inSql == null)
+                _missingPairs.Add(item.AssetPair);
+            return inSql;
+        }
+
+        protected override async Task LogAddedAsync(int addedCount)
+        {
+            await _log.WriteWarningAsync(Name, nameof(CheckAndFixDataAsync), $"Added {addedCount} items.");
+            if (_missingPairs.Count > 0)
+            {
+                string missingPairs = string.Join(",", _missingPairs);
+                await _log.WriteInfoAsync(Name, nameof(CandlesticksChecker), $"Missing {missingPairs}.");
+                _missingPairs.Clear();
+            }
         }
     }
 }

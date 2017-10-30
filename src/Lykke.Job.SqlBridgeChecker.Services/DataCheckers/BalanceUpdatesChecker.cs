@@ -44,12 +44,12 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 return false;
 
             bool added = false;
-            foreach (var clientBalanceUpdate in convertedItem.Balances)
+            foreach (var child in convertedItem.Balances)
             {
                 var fromDb = clientBalanceUpdates
                     .Where(c =>
-                        c.ClientId == clientBalanceUpdate.ClientId
-                        && c.Asset == clientBalanceUpdate.Asset)
+                        c.ClientId == child.ClientId
+                        && c.Asset == child.Asset)
                     .FirstOrDefault();
                 if (fromDb != null)
                     continue;
@@ -59,8 +59,12 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                         nameof(BalanceUpdatesChecker),
                         nameof(UpdateItemAsync),
                         $"Found invalid child object - {fromDb.ToJson()}!");
-                context.ClientBalanceUpdates.Add(clientBalanceUpdate);
+                context.ClientBalanceUpdates.Add(child);
                 added = true;
+                await _log.WriteInfoAsync(
+                    nameof(BalanceUpdatesChecker),
+                    nameof(UpdateItemAsync),
+                    $"Added trade {child.ToJson()} for BalanceUpdate {inSql.Id}");
             }
             return added;
         }

@@ -81,8 +81,12 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                         nameof(MarketOrdersChecker),
                         nameof(UpdateItemAsync),
                         $"Found invalid child object - {child.ToJson()}!");
-                context.Add(child);
+                context.LimitTradeInfos.Add(child);
                 added = true;
+                await _log.WriteInfoAsync(
+                    nameof(LimitOrdersChecker),
+                    nameof(UpdateItemAsync),
+                    $"Added trade {child.ToJson()} for LimitOrder {inSql.Id}");
             }
             return added;
         }
