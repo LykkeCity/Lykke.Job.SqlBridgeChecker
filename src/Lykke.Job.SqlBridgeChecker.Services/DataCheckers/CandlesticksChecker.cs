@@ -32,18 +32,14 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     })
                 .Select(g => Candlestick.FromModel(g, _log))
                 .Where(c => c != null)
+                .OrderBy(c => c.Start)
                 .ToList();
             return result;
         }
 
         protected override async Task<Candlestick> FindInSqlDbAsync(Candlestick item, DataContext context)
         {
-            var inSql = context
-                .Set<Candlestick>()
-                .FirstOrDefault(c =>
-                    c.AssetPair == item.AssetPair
-                    && c.IsAsk == item.IsAsk
-                    && c.Start.RoundToSecond() == item.Start.RoundToSecond());
+            var inSql = CandlestickSqlFinder.FindInDb(item, context);
             if (inSql == null)
                 _missingPairs.Add(item.AssetPair);
             return inSql;

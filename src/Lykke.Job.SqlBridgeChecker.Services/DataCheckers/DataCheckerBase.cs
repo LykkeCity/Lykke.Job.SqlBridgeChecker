@@ -14,7 +14,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         where TIn : TableEntity
         where TOut : class, IDbEntity, IValidatable
     {
-        private readonly string _sqlConnecctionString;
+        private readonly string _sqlConnectionString;
         protected readonly ITableEntityRepository<TIn> _repository;
         protected readonly ILog _log;
 
@@ -25,7 +25,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             ITableEntityRepository<TIn> repository,
             ILog log)
         {
-            _sqlConnecctionString = sqlConnecctionString;
+            _sqlConnectionString = sqlConnecctionString;
             _repository = repository;
             _log = log;
         }
@@ -38,7 +38,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             await _log.WriteInfoAsync(Name, nameof(CheckAndFixDataAsync), $"Converted to {sqlItems.Count} items.");
             int modifiedCount = 0;
             int addedCount = 0;
-            using (var dbContext = new DataContext(_sqlConnecctionString))
+            using (var dbContext = new DataContext(_sqlConnectionString))
             {
                 foreach (var sqlItem in sqlItems)
                 {
