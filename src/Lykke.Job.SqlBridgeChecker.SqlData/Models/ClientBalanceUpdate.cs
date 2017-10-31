@@ -26,8 +26,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
         {
             return ClientId != null && ClientId.Length <= MaxStringFieldsLength
                 && Asset != null && Asset.Length <= MaxStringFieldsLength
-                && OldBalance != NewBalance
-                && OldReserved != NewReserved;
+                && (OldBalance != NewBalance || OldReserved != NewReserved);
         }
     }
 }
