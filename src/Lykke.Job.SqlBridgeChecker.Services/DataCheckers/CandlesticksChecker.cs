@@ -32,7 +32,6 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     })
                 .Select(g => Candlestick.FromModel(g, _log))
                 .Where(c => c != null)
-                .OrderBy(c => c.Start)
                 .ToList();
             return result;
         }

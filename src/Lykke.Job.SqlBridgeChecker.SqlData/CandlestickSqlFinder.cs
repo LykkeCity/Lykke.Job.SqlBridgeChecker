@@ -10,27 +10,27 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
     {
         private const string _format = "yyyy-MM-dd";
 
-        private static List<Candlestick> _cache = new List<Candlestick>();
-        private static string _assetPair;
-        private static DateTime _date;
+        private static Dictionary<string, List<Candlestick>> _dict;
 
         public static Candlestick FindInDb(Candlestick item, DataContext context)
         {
-            if (item.AssetPair != _assetPair || item.Start.Date != _date)
-                UpdateCache(item, context);
+            if (_dict == null || _dict.First().Value.First().Start.Date != item.Start.Date)
+                InitCache(item, context);
 
-            var fromDb = _cache.FirstOrDefault(c => c.IsAsk == item.IsAsk && c.Start == item.Start);
+            if (!_dict.ContainsKey(item.AssetPair))
+                return null;
+
+            var fromDb = _dict[item.AssetPair].FirstOrDefault(c => c.IsAsk == item.IsAsk && c.Start == item.Start);
             return fromDb;
         }
 
-        private static void UpdateCache(Candlestick item, DataContext context)
+        private static void InitCache(Candlestick item, DataContext context)
         {
             DateTime from = item.Start.Date;
             DateTime to = from.AddDays(1);
-            string query = $"SELECT * FROM dbo.Candlesticks2 WHERE AssetPair = '{item.AssetPair}' AND Start BETWEEN '{from.ToString(_format)}' AND '{to.ToString(_format)}'";
-            _cache = context.Candlesticks.FromSql(query).ToList();
-            _assetPair = item.AssetPair;
-            _date = item.Start.Date;
+            string query = $"SELECT * FROM dbo.Candlesticks2 WHERE Start BETWEEN '{from.ToString(_format)}' AND '{to.ToString(_format)}'";
+            var items = context.Candlesticks.FromSql(query).ToList();
+            _dict = items.GroupBy(i => i.AssetPair).ToDictionary(g => g.Key, g => g.ToList());
         }
     }
 }
