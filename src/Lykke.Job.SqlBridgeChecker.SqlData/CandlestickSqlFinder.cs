@@ -1,6 +1,8 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
+using Common.Log;
 using Microsoft.EntityFrameworkCore;
 using Lykke.Job.SqlBridgeChecker.SqlData.Models;
 
@@ -12,10 +14,10 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
 
         private static Dictionary<string, List<Candlestick>> _dict;
 
-        public static Candlestick FindInDb(Candlestick item, DataContext context)
+        public static async Task<Candlestick> FindInDbAsync(Candlestick item, DataContext context, ILog log)
         {
             if (_dict == null || _dict.First().Value.First().Start.Date != item.Start.Date)
-                InitCache(item, context);
+                await InitCacheAsync(item, context, log);
 
             if (!_dict.ContainsKey(item.AssetPair))
                 return null;
@@ -24,13 +26,17 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             return fromDb;
         }
 
-        private static void InitCache(Candlestick item, DataContext context)
+        private static async Task InitCacheAsync(Candlestick item, DataContext context, ILog log)
         {
             DateTime from = item.Start.Date;
             DateTime to = from.AddDays(1);
             string query = $"SELECT * FROM dbo.Candlesticks2 WHERE Start BETWEEN '{from.ToString(_format)}' AND '{to.ToString(_format)}'";
             var items = context.Candlesticks.FromSql(query).ToList();
             _dict = items.GroupBy(i => i.AssetPair).ToDictionary(g => g.Key, g => g.ToList());
+            await log.WriteInfoAsync(
+                nameof(CandlestickSqlFinder),
+                nameof(InitCacheAsync),
+                $"Cached {items.Count} items from sql for {from.ToString(_format)}.");
         }
     }
 }

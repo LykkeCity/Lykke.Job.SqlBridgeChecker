@@ -1,7 +1,6 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Common;
 using Common.Log;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
@@ -38,7 +37,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         protected override async Task<Candlestick> FindInSqlDbAsync(Candlestick item, DataContext context)
         {
-            var inSql = CandlestickSqlFinder.FindInDb(item, context);
+            var inSql = await CandlestickSqlFinder.FindInDbAsync(item, context, _log);
             if (inSql == null)
                 _missingPairs.Add(item.AssetPair);
             return inSql;
