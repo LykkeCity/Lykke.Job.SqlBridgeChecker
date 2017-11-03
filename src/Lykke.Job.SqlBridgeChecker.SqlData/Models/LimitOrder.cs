@@ -162,7 +162,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                     await log.WriteErrorAsync(
                         nameof(LimitOrder),
                         nameof(FromModelAsync),
-                        new ArgumentOutOfRangeException($"Other order not found for key {first.OppositeLimitOrderId ?? first.MarketOrderId}"));
+                        new ArgumentOutOfRangeException(
+                            $"For order {result.ExternalId} other order is not found for key {first.OppositeLimitOrderId ?? first.MarketOrderId}"));
                     continue;
                 }
                 if (string.IsNullOrWhiteSpace(trade.Asset))

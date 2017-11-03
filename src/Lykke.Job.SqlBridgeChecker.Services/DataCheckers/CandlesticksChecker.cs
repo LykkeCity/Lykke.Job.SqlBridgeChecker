@@ -45,7 +45,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         protected override async Task LogAddedAsync(int addedCount)
         {
-            await _log.WriteWarningAsync(Name, nameof(CheckAndFixDataAsync), $"Added {addedCount} items.");
+            await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), Name, $"Added {addedCount} items.");
             if (_missingPairs.Count > 0)
             {
                 string missingPairs = string.Join(",", _missingPairs);
