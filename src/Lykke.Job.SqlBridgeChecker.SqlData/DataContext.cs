@@ -171,12 +171,12 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 entity.Property(e => e.OrderType).IsRequired().HasColumnType($"varchar({ TradeInfo.MaxStringFieldsLength})");
                 entity.Property(e => e.Direction).IsRequired().HasColumnType($"varchar({ TradeInfo.MaxStringFieldsLength})");
                 entity.Property(e => e.Asset).IsRequired().HasColumnType($"varchar({TradeInfo.MaxStringFieldsLength})");
-                entity.Property(e => e.Volume).IsRequired().HasColumnType("decimal");
-                entity.Property(e => e.Price).IsRequired().HasColumnType("decimal");
+                entity.Property(e => e.Volume).IsRequired().HasColumnType("decimal(18,8)");
+                entity.Property(e => e.Price).IsRequired().HasColumnType("decimal(18,8)");
                 entity.Property(e => e.DateTime).IsRequired().HasColumnType("datetime");
                 entity.Property(e => e.OppositeOrderId).IsRequired().HasColumnType($"varchar({TradeInfo.MaxStringFieldsLength})");
                 entity.Property(e => e.OppositeAsset).IsRequired().HasColumnType($"varchar({TradeInfo.MaxStringFieldsLength})");
-                entity.Property(e => e.OppositeVolume).IsRequired().HasColumnType("decimal");
+                entity.Property(e => e.OppositeVolume).IsRequired().HasColumnType("decimal(18,8)");
                 entity.Property(e => e.IsHidden).HasColumnType("bit");
                 entity.ToTable("Trades");
             });
