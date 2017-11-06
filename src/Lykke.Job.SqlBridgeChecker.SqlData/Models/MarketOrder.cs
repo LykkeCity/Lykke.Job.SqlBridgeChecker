@@ -70,8 +70,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 Price = model.Price,
                 Status = model.Status,
                 CreatedAt = model.CreatedAt,
-                Registered = model.Registered ?? model.MatchedAt,
-                MatchedAt = model.MatchedAt,
+                Registered = model.Registered ?? model.MatchedAt ?? model.CreatedAt,
+                MatchedAt = NormalizeDate(model.MatchedAt),
                 Straight = model.Straight,
                 Trades = new List<TradeInfo>(),
             };
@@ -223,6 +223,13 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             }
 
             return result;
+        }
+
+        private static DateTime? NormalizeDate(DateTime? date)
+        {
+            return date.HasValue
+                ? (date.Value == default(DateTime) ? null : date)
+                : null;
         }
     }
 }

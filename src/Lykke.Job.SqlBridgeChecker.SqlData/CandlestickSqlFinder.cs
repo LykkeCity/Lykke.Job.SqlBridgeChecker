@@ -2,8 +2,8 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Common.Log;
 using Microsoft.EntityFrameworkCore;
+using Common.Log;
 using Lykke.Job.SqlBridgeChecker.SqlData.Models;
 
 namespace Lykke.Job.SqlBridgeChecker.SqlData

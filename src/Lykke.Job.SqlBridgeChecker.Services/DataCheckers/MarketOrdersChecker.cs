@@ -27,37 +27,59 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         protected override async Task<List<MarketOrder>> ConvertItemsToSqlTypesAsync(IEnumerable<MarketOrderEntity> items)
         {
             var result = new List<MarketOrder>();
-            var allChildren = (IEnumerable<ClientTradeEntity>)await GetChildrenAsync(items.Select(m => m.Id ?? m.RowKey));
+            /*var allChildren = (IEnumerable<ClientTradeEntity>)await GetChildrenAsync(items.Select(m => m.Id ?? m.RowKey));
             var byOrders = allChildren
                 .Where(i => !i.IsHidden)
                 .GroupBy(c => c.MarketOrderId)
-                .ToDictionary(i => i.Key, i => new List<ClientTradeEntity>(i));
+                .ToDictionary(i => i.Key, i => new List<ClientTradeEntity>(i));*/
             foreach (var item in items)
             {
                 List<ClientTradeEntity> children = null;
                 string key = (item.Id ?? item.RowKey).ToString();
-                if (byOrders.ContainsKey(key))
-                    children = byOrders[key];
+                /*if (byOrders.ContainsKey(key))
+                    children = byOrders[key];*/
                 var converted = await MarketOrder.FromModelAsync(item, children, m => _tradesRepository.GetOtherClientAsync(m), _log);
                 result.Add(converted);
             }
             return result;
         }
 
-        protected override async Task<bool> UpdateItemAsync(MarketOrder inSql, MarketOrder convertedItem, DataContext context)
+        protected override async Task<bool> UpdateItemAsync(MarketOrder inSql, MarketOrder converted, DataContext context)
         {
-            if (convertedItem.Trades == null || convertedItem.Trades.Count == 0)
+            bool changed = !AreEqual(inSql.Price, converted.Price)
+                || inSql.Status != converted.Status
+                || !AreEqual(inSql.MatchedAt, converted.MatchedAt)
+                || !AreEqual(inSql.ReservedLimitVolume, converted.ReservedLimitVolume);
+            if (changed)
+            {
+                await _log.WriteInfoAsync(
+                    nameof(MarketOrdersChecker),
+                    nameof(UpdateItemAsync),
+                    $"Updated {inSql.ToJson()}.");
+                inSql.Price = converted.Price;
+                inSql.Status = converted.Status;
+                inSql.MatchedAt = converted.MatchedAt;
+                inSql.ReservedLimitVolume = converted.ReservedLimitVolume;
+            }
+            bool childrenUpdated = await UpdateChildrenAsync(inSql, converted, context);
+
+            return changed || childrenUpdated;
+        }
+
+        private async Task<bool> UpdateChildrenAsync(MarketOrder inSql, MarketOrder converted, DataContext context)
+        {
+            if (converted.Trades == null || converted.Trades.Count == 0)
                 return false;
 
             var childrenFromDb = context
                 .Set<TradeInfo>()
                 .Where(t => t.MarketOrderId == inSql.Id)
                 .ToList();
-            if (childrenFromDb.Count == convertedItem.Trades.Count)
+            if (childrenFromDb.Count == converted.Trades.Count)
                 return false;
 
             bool added = false;
-            foreach (var child in convertedItem.Trades)
+            foreach (var child in converted.Trades)
             {
                 var fromDb = childrenFromDb.FirstOrDefault(i => child.LimitOrderId == i.LimitOrderId);
                 if (fromDb != null)
@@ -66,13 +88,13 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 if (!child.IsValid())
                     await _log.WriteWarningAsync(
                         nameof(MarketOrdersChecker),
-                        nameof(UpdateItemAsync),
+                        nameof(UpdateChildrenAsync),
                         $"Found invalid child object - {child.ToJson()}!");
                 context.TradeInfos.Add(child);
                 added = true;
                 await _log.WriteInfoAsync(
                     nameof(MarketOrdersChecker),
-                    nameof(UpdateItemAsync),
+                    nameof(UpdateChildrenAsync),
                     $"Added trade {child.ToJson()} for MarketOrder {inSql.Id}");
             }
             return added;

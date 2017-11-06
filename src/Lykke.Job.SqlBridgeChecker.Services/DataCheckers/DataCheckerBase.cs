@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Table;
 using Common;
@@ -30,7 +31,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             _log = log;
         }
 
-        public async Task CheckAndFixDataAsync()
+        public virtual async Task CheckAndFixDataAsync()
         {
             var items = await _repository.GetItemsFromYesterdayAsync();
             await _log.WriteInfoAsync(Name, nameof(CheckAndFixDataAsync), $"Fetched {items.Count} items from Azure.");
@@ -90,12 +91,28 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     $"Found entity of type {typeof(TOut).Name} without Id!");
                 return null;
             }
-            return await context.Set<TOut>().FindAsync(entityId);
+            var result = await context.Set<TOut>().FindAsync(entityId);
+            if (result == null)
+                await _log.WriteInfoAsync(
+                    nameof(Name),
+                    nameof(FindInSqlDbAsync),
+                    $"Added {item.ToJson()}.");
+            return result;
         }
 
         protected virtual async Task<bool> UpdateItemAsync(TOut inSql, TOut convertedItem, DataContext context)
         {
             return false;
+        }
+
+        protected bool AreEqual<T>(T? one, T? two)
+            where T : struct, IEquatable<T>
+        {
+            if (!one.HasValue)
+                return !two.HasValue || two.Value.Equals(default(T));
+            if (!two.HasValue)
+                return one.Value.Equals(default(T));
+            return one.Value.Equals(two.Value);
         }
     }
 }

@@ -27,11 +27,11 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 
         protected virtual string GetQueryText()
         {
-            var today = DateTime.UtcNow.Date;
-            var yesterday = today.AddDays(-1);
+            var to = DateTime.UtcNow.Date;
+            var from = to.AddDays(-1);
             string dateColumn = GetDateColumn();
-            string fromFilter = TableQuery.GenerateFilterConditionForDate(dateColumn, QueryComparisons.LessThan, today);
-            string toFilter = TableQuery.GenerateFilterConditionForDate(dateColumn, QueryComparisons.GreaterThanOrEqual, yesterday);
+            string fromFilter = TableQuery.GenerateFilterConditionForDate(dateColumn, QueryComparisons.LessThan, to);
+            string toFilter = TableQuery.GenerateFilterConditionForDate(dateColumn, QueryComparisons.GreaterThanOrEqual, from);
             string filter = TableQuery.CombineFilters(fromFilter, TableOperators.And, toFilter);
             string otherConditions = GetAdditionalConditions();
             if (!string.IsNullOrWhiteSpace(otherConditions))

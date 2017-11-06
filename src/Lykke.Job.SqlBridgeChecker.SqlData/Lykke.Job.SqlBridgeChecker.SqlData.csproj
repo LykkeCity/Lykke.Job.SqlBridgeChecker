@@ -12,10 +12,6 @@
   </ItemGroup>
 
   <ItemGroup>
-    <Folder Include="Models\" />
-  </ItemGroup>
-
-  <ItemGroup>
     <ProjectReference Include="..\Lykke.Job.SqlBridgeChecker.AzureRepositories\Lykke.Job.SqlBridgeChecker.AzureRepositories.csproj" />
   </ItemGroup>
 

@@ -16,6 +16,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
         public virtual DbSet<Candlestick> Candlesticks { get; set; }
         public virtual DbSet<LimitOrder> LimitOrders { get; set; }
         public virtual DbSet<LimitTradeInfo> LimitTradeInfos { get; set; }
+        public virtual DbSet<TradeLogItem> Trades { get; set; }
 
         public DataContext(string connectionString)
         {
@@ -87,7 +88,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 entity.Property(e => e.MatchedAt).HasColumnType("datetime");
                 entity.Property(e => e.Straight).HasColumnType("bit");
                 entity.Property(e => e.ReservedLimitVolume).HasColumnType("float");
-                entity.HasMany(i => i.Trades).WithOne().HasForeignKey(i => i.MarketOrderId);
+                entity.Ignore(e => e.Trades);
+                //entity.HasMany(i => i.Trades).WithOne().HasForeignKey(i => i.MarketOrderId);
                 entity.HasKey(i => i.Id);
                 entity.ToTable("MarketOrders");
             });
@@ -136,7 +138,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 entity.Property(e => e.LastMatchTime).HasColumnType("datetime");
                 entity.Property(e => e.RemainingVolume).HasColumnType("float");
                 entity.Property(e => e.Straight).HasColumnType("bit");
-                entity.HasMany(i => i.Trades).WithOne().HasForeignKey(i => i.LimitOrderId);
+                entity.Ignore(e => e.Trades);
+                //entity.HasMany(i => i.Trades).WithOne().HasForeignKey(i => i.LimitOrderId);
                 entity.HasKey(i => i.Id);
                 entity.ToTable("LimitOrders");
             });
@@ -156,6 +159,26 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 entity.Property(e => e.OppositeOrderId).IsRequired().HasColumnType($"varchar({LimitTradeInfo.MaxStringFieldsLength})");
                 entity.Property(e => e.OppositeOrderExternalId).IsRequired().HasColumnType($"varchar({LimitTradeInfo.MaxStringFieldsLength})");
                 entity.ToTable("LimitTradeInfos");
+            });
+
+            modelBuilder.Entity<TradeLogItem>(entity =>
+            {
+                entity.Property(e => e.Id).UseSqlServerIdentityColumn().HasColumnType("bigint");
+                entity.Property(e => e.TradeId).IsRequired().HasColumnType($"varchar({ TradeInfo.MaxStringFieldsLength})");
+                entity.Property(e => e.UserId).IsRequired().HasColumnType($"varchar({ TradeInfo.MaxStringFieldsLength})");
+                entity.Property(e => e.WalletId).IsRequired().HasColumnType($"varchar({ TradeInfo.MaxStringFieldsLength})");
+                entity.Property(e => e.OrderId).IsRequired().HasColumnType($"varchar({ TradeInfo.MaxStringFieldsLength})");
+                entity.Property(e => e.OrderType).IsRequired().HasColumnType($"varchar({ TradeInfo.MaxStringFieldsLength})");
+                entity.Property(e => e.Direction).IsRequired().HasColumnType($"varchar({ TradeInfo.MaxStringFieldsLength})");
+                entity.Property(e => e.Asset).IsRequired().HasColumnType($"varchar({TradeInfo.MaxStringFieldsLength})");
+                entity.Property(e => e.Volume).IsRequired().HasColumnType("decimal");
+                entity.Property(e => e.Price).IsRequired().HasColumnType("decimal");
+                entity.Property(e => e.DateTime).IsRequired().HasColumnType("datetime");
+                entity.Property(e => e.OppositeOrderId).IsRequired().HasColumnType($"varchar({TradeInfo.MaxStringFieldsLength})");
+                entity.Property(e => e.OppositeAsset).IsRequired().HasColumnType($"varchar({TradeInfo.MaxStringFieldsLength})");
+                entity.Property(e => e.OppositeVolume).IsRequired().HasColumnType("decimal");
+                entity.Property(e => e.IsHidden).HasColumnType("bit");
+                entity.ToTable("Trades");
             });
 
             base.OnModelCreating(modelBuilder);

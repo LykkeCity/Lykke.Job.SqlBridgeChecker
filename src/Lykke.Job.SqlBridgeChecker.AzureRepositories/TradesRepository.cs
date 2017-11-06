@@ -1,15 +1,14 @@
-﻿using System.Linq;
-using System.Collections.Generic;
+﻿using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.WindowsAzure.Storage.Table;
 using Common.Log;
 using AzureStorage;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
 
 namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 {
-    public class TradesRepository : ITradesRepository
+    public class TradesRepository : ItemsRepositoryBase<ClientTradeEntity>, ITradesRepository
     {
-        private readonly INoSQLTableStorage<ClientTradeEntity> _storage;
         private readonly ILog _log;
 
         private readonly string _childPartition = ClientTradeEntity.ByDt.GeneratePartitionKey();
@@ -17,8 +16,8 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
         private const string _limitOrderIdField = nameof(ClientTradeEntity.LimitOrderId);
 
         public TradesRepository(INoSQLTableStorage<ClientTradeEntity> storage, ILog log)
+            : base(storage)
         {
-            _storage = storage;
             _log = log;
         }
 
@@ -59,6 +58,18 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
                 _storage,
                 _log);
             return result;
+        }
+
+        protected override string GetDateColumn()
+        {
+            return nameof(ClientTradeEntity.DateTime);
+        }
+
+        protected override string GetAdditionalConditions()
+        {
+            string partitionFilter = TableQuery.GenerateFilterCondition(
+                "PartitionKey", QueryComparisons.Equal, ClientTradeEntity.ByDt.GeneratePartitionKey());
+            return partitionFilter;
         }
     }
 }

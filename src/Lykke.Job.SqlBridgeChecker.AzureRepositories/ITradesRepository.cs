@@ -4,7 +4,7 @@ using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
 
 namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 {
-    public interface ITradesRepository
+    public interface ITradesRepository : ITableEntityRepository<ClientTradeEntity>
     {
         Task<string> GetOtherClientAsync(string multisig);
 

@@ -131,6 +131,12 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 _log);
             checkersRepository.AddChecker(limitOrdersChecker);
 
+            var tradesChecker = new TradesChecker(
+                _settings.SqlDbConnectionString,
+                tradesRepository,
+                _log);
+            checkersRepository.AddChecker(tradesChecker);
+
             var candlesticksStorage = AzureTableStorage<FeedHistoryEntity>.Create(
                 _settingsManager.ConnectionString(i => i.HLiquidityConnString),
                 "FeedHistory",

@@ -21,6 +21,7 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Models
         public string StateField { get; set; }
         public double Volume { get; set; }
         public string ClientId { get; set; }
+        public bool? IsLimitOrderResult { get; set; }
 
         public static class ByClientId
         {

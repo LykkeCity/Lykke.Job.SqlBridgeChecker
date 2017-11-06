@@ -6,10 +6,10 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Models
     public class MarketOrderEntity : TableEntity
     {
         public DateTime CreatedAt { get; set; }
-        public DateTime MatchedAt { get; set; }
+        public DateTime? MatchedAt { get; set; }
         public DateTime? Registered { get; set; }
 
-        public double Price { get; set; }
+        public double? Price { get; set; }
         public string AssetPairId { get; set; }
         public double Volume { get; set; }
 
