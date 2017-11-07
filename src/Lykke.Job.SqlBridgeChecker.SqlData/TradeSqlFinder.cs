@@ -19,11 +19,11 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             if (_dict == null || _dict.First().Value.First().DateTime.Date != item.DateTime.Date)
                 await InitCacheAsync(item, context, log);
 
-            if (!_dict.ContainsKey(item.WalletId))
+            if (!_dict.ContainsKey(item.TradeId))
                 return null;
 
             var fromDb = _dict[item.WalletId].FirstOrDefault(c =>
-                c.TradeId == item.TradeId
+                c.WalletId == item.WalletId
                 && c.Asset == item.Asset
                 && c.OppositeAsset == item.OppositeAsset);
             return fromDb;
@@ -35,7 +35,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             DateTime to = from.AddDays(1);
             string query = $"SELECT * FROM dbo.Trades WHERE DateTime >= '{from.ToString(_format)}' AND DateTime < '{to.ToString(_format)}'";
             var items = context.Trades.FromSql(query).ToList();
-            _dict = items.GroupBy(i => i.WalletId).ToDictionary(g => g.Key, g => g.ToList());
+            _dict = items.GroupBy(i => i.TradeId).ToDictionary(g => g.Key, g => g.ToList());
             await log.WriteInfoAsync(
                 nameof(TradeSqlFinder),
                 nameof(InitCacheAsync),
