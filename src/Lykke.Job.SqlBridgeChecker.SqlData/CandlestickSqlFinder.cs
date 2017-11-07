@@ -16,7 +16,9 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
 
         public static async Task<Candlestick> FindInDbAsync(Candlestick item, DataContext context, ILog log)
         {
-            if (_dict == null || _dict.First().Value.First().Start.Date != item.Start.Date)
+            if (_dict == null
+                || _dict.Count == 0
+                || _dict.First().Value.First().Start.Date != item.Start.Date)
                 await InitCacheAsync(item, context, log);
 
             if (!_dict.ContainsKey(item.AssetPair))

@@ -16,7 +16,9 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
 
         public static async Task<TradeLogItem> FindInDbAsync(TradeLogItem item, DataContext context, ILog log)
         {
-            if (_dict == null || _dict.First().Value.First().DateTime.Date != item.DateTime.Date)
+            if (_dict == null
+                || _dict.Count == 0
+                || _dict.First().Value.First().DateTime.Date != item.DateTime.Date)
                 await InitCacheAsync(item, context, log);
 
             if (!_dict.ContainsKey(item.TradeId))
