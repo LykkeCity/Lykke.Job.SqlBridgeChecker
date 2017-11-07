@@ -4,6 +4,7 @@ using System.Threading.Tasks;
 using Common.Log;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
+using Lykke.Job.SqlBridgeChecker.SqlData;
 using Lykke.Job.SqlBridgeChecker.SqlData.Models;
 
 namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
@@ -24,6 +25,20 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 .GroupBy(i => new { i.MarketOrderId, i.LimitOrderId, i.OppositeLimitOrderId })
                 .SelectMany(i => TradeLogItem.FromModel(i, _log))
                 .ToList();
+        }
+
+        protected override async Task<TradeLogItem> FindInSqlDbAsync(TradeLogItem item, DataContext context)
+        {
+            var inSql = await TradeSqlFinder.FindInDbAsync(item, context, _log);
+            return inSql;
+        }
+
+        protected override async Task<bool> UpdateItemAsync(TradeLogItem inSql, TradeLogItem convertedItem, DataContext context)
+        {
+            if (inSql.IsHidden == convertedItem.IsHidden)
+                return false;
+            inSql.IsHidden = convertedItem.IsHidden;
+            return true;
         }
     }
 }

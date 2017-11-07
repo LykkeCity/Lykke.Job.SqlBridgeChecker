@@ -25,10 +25,10 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             var fromDb = _dict[item.WalletId].FirstOrDefault(c =>
                 c.OrderId == item.OrderId
                 && c.OppositeOrderId == item.OppositeOrderId
-                && c.Asset == item.Asset
+                /*&& c.Asset == item.Asset
                 && c.Volume == item.Volume
                 && c.OppositeAsset == item.OppositeAsset
-                && c.OppositeVolume == item.OppositeVolume);
+                && c.OppositeVolume == item.OppositeVolume*/);
             return fromDb;
         }
 
@@ -36,7 +36,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
         {
             DateTime from = item.DateTime.Date;
             DateTime to = from.AddDays(1);
-            string query = $"SELECT * FROM dbo.Trades WHERE DateTime BETWEEN '{from.ToString(_format)}' AND '{to.ToString(_format)}'";
+            string query = $"SELECT * FROM dbo.Trades WHERE DateTime >= '{from.ToString(_format)}' AND DateTime < '{to.ToString(_format)}'";
             var items = context.Trades.FromSql(query).ToList();
             _dict = items.GroupBy(i => i.WalletId).ToDictionary(g => g.Key, g => g.ToList());
             await log.WriteInfoAsync(

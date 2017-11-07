@@ -30,7 +30,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
         {
             DateTime from = item.Start.Date;
             DateTime to = from.AddDays(1);
-            string query = $"SELECT * FROM dbo.Candlesticks2 WHERE Start BETWEEN '{from.ToString(_format)}' AND '{to.ToString(_format)}'";
+            string query = $"SELECT * FROM dbo.Candlesticks2 WHERE Start >= '{from.ToString(_format)}' AND Start < '{to.ToString(_format)}'";
             var items = context.Candlesticks.FromSql(query).ToList();
             _dict = items.GroupBy(i => i.AssetPair).ToDictionary(g => g.Key, g => g.ToList());
             await log.WriteInfoAsync(
