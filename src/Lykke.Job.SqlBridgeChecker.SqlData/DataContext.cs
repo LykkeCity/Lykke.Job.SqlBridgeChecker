@@ -175,8 +175,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 entity.Property(e => e.Price).IsRequired().HasColumnType("decimal(18,8)");
                 entity.Property(e => e.DateTime).IsRequired().HasColumnType("datetime");
                 entity.Property(e => e.OppositeOrderId).IsRequired().HasColumnType($"varchar({TradeInfo.MaxStringFieldsLength})");
-                entity.Property(e => e.OppositeAsset).IsRequired().HasColumnType($"varchar({TradeInfo.MaxStringFieldsLength})");
-                entity.Property(e => e.OppositeVolume).IsRequired().HasColumnType("decimal(18,8)");
+                entity.Property(e => e.OppositeAsset).HasColumnType($"varchar({TradeInfo.MaxStringFieldsLength})");
+                entity.Property(e => e.OppositeVolume).HasColumnType("decimal(18,8)");
                 entity.Property(e => e.IsHidden).HasColumnType("bit");
                 entity.ToTable("Trades");
             });

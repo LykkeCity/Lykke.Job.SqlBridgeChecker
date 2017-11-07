@@ -38,7 +38,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
 
         public string OppositeAsset { get; set; }
 
-        public decimal OppositeVolume { get; set; }
+        public decimal? OppositeVolume { get; set; }
 
         public bool? IsHidden { get; set; }
 
