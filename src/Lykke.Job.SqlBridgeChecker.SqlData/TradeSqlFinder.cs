@@ -22,7 +22,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             if (!_dict.ContainsKey(item.TradeId))
                 return null;
 
-            var fromDb = _dict[item.WalletId].FirstOrDefault(c =>
+            var fromDb = _dict[item.TradeId].FirstOrDefault(c =>
                 c.WalletId == item.WalletId
                 && c.Asset == item.Asset
                 && c.OppositeAsset == item.OppositeAsset);
