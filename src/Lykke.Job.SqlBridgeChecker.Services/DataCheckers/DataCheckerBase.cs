@@ -114,5 +114,14 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 return one.Value.Equals(default(T));
             return one.Value.Equals(two.Value);
         }
+
+        protected bool AreEqual(DateTime? one, DateTime? two)
+        {
+            if (!one.HasValue)
+                return !two.HasValue || two.Value.Equals(default(DateTime));
+            if (!two.HasValue)
+                return one.Value.Equals(default(DateTime));
+            return one.Value.Subtract(two.Value).TotalMilliseconds <= 2;
+        }
     }
 }
