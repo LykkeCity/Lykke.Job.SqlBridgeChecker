@@ -11,14 +11,14 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
     public static class CandlestickSqlFinder
     {
         private const string _format = "yyyy-MM-dd";
-
+        private static DateTime _cacheDate = DateTime.MinValue;
         private static Dictionary<string, List<Candlestick>> _dict;
 
         public static async Task<Candlestick> FindInDbAsync(Candlestick item, DataContext context, ILog log)
         {
             if (_dict == null
-                || _dict.Count == 0
-                || _dict.First().Value.First().Start.Date != item.Start.Date)
+                || _dict.Count == 0 && item.Start.Date != _cacheDate
+                || _dict.Count > 0 && _dict.First().Value.First().Start.Date != item.Start.Date)
                 await InitCacheAsync(item, context, log);
 
             if (!_dict.ContainsKey(item.AssetPair))
@@ -35,6 +35,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             string query = $"SELECT * FROM dbo.Candlesticks2 WHERE Start >= '{from.ToString(_format)}' AND Start < '{to.ToString(_format)}'";
             var items = context.Candlesticks.FromSql(query).ToList();
             _dict = items.GroupBy(i => i.AssetPair).ToDictionary(g => g.Key, g => g.ToList());
+            _cacheDate = from;
             await log.WriteInfoAsync(
                 nameof(CandlestickSqlFinder),
                 nameof(InitCacheAsync),

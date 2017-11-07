@@ -11,14 +11,14 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
     public static class TradeSqlFinder
     {
         private const string _format = "yyyy-MM-dd";
-
+        private static DateTime _cacheDate = DateTime.MinValue;
         private static Dictionary<string, List<TradeLogItem>> _dict;
 
         public static async Task<TradeLogItem> FindInDbAsync(TradeLogItem item, DataContext context, ILog log)
         {
             if (_dict == null
-                || _dict.Count == 0
-                || _dict.First().Value.First().DateTime.Date != item.DateTime.Date)
+                || _dict.Count == 0 && item.DateTime.Date != _cacheDate
+                || _dict.Count > 0 && _dict.First().Value.First().DateTime.Date != item.DateTime.Date)
                 await InitCacheAsync(item, context, log);
 
             if (!_dict.ContainsKey(item.TradeId))
@@ -38,6 +38,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             string query = $"SELECT * FROM dbo.Trades WHERE DateTime >= '{from.ToString(_format)}' AND DateTime < '{to.ToString(_format)}'";
             var items = context.Trades.FromSql(query).ToList();
             _dict = items.GroupBy(i => i.TradeId).ToDictionary(g => g.Key, g => g.ToList());
+            _cacheDate = from;
             await log.WriteInfoAsync(
                 nameof(TradeSqlFinder),
                 nameof(InitCacheAsync),
