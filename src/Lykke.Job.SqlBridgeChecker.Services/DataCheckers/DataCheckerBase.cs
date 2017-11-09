@@ -43,21 +43,28 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             {
                 foreach (var sqlItem in sqlItems)
                 {
-                    var fromSql = await FindInSqlDbAsync(sqlItem, dbContext);
-                    if (fromSql == null)
+                    try
                     {
-                        if (!sqlItem.IsValid())
-                            await _log.WriteWarningAsync(
-                                nameof(DataCheckerBase<TIn, TOut>),
-                                nameof(CheckAndFixDataAsync),
-                                $"Found invalid object - {sqlItem.ToJson()}!");
-                        await dbContext.Set<TOut>().AddAsync(sqlItem);
-                        ++addedCount;
+                        var fromSql = await FindInSqlDbAsync(sqlItem, dbContext);
+                        if (fromSql == null)
+                        {
+                            if (!sqlItem.IsValid())
+                                await _log.WriteWarningAsync(
+                                    nameof(DataCheckerBase<TIn, TOut>),
+                                    nameof(CheckAndFixDataAsync),
+                                    $"Found invalid object - {sqlItem.ToJson()}!");
+                            await dbContext.Set<TOut>().AddAsync(sqlItem);
+                            ++addedCount;
+                        }
+                        else if (await UpdateItemAsync(fromSql, sqlItem, dbContext))
+                        {
+                            dbContext.Set<TOut>().Update(fromSql);
+                            ++modifiedCount;
+                        }
                     }
-                    else if (await UpdateItemAsync(fromSql, sqlItem, dbContext))
+                    catch (Exception exc)
                     {
-                        dbContext.Set<TOut>().Update(fromSql);
-                        ++modifiedCount;
+                        await _log.WriteErrorAsync(nameof(CheckAndFixDataAsync), Name, exc);
                     }
                 }
                 await dbContext.SaveChangesAsync();
