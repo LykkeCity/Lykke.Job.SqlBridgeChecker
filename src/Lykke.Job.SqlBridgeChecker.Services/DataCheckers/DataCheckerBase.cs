@@ -64,7 +64,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     }
                     catch (Exception exc)
                     {
-                        await _log.WriteErrorAsync(nameof(CheckAndFixDataAsync), Name, exc);
+                        await _log.WriteErrorAsync(Name, sqlItem.ToJson(), exc);
                     }
                 }
                 await dbContext.SaveChangesAsync();
