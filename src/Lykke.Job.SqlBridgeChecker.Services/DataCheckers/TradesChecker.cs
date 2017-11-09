@@ -1,6 +1,7 @@
 ﻿using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Common;
 using Common.Log;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
@@ -30,6 +31,11 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         protected override async Task<TradeLogItem> FindInSqlDbAsync(TradeLogItem item, DataContext context)
         {
             var inSql = await TradeSqlFinder.FindInDbAsync(item, context, _log);
+            if (inSql == null)
+                await _log.WriteInfoAsync(
+                    nameof(TradesChecker),
+                    nameof(FindInSqlDbAsync),
+                    $"Added trade {item.ToJson()}.");
             return inSql;
         }
 

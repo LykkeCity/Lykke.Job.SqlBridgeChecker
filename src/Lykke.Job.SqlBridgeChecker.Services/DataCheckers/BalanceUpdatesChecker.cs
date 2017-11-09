@@ -49,7 +49,9 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 var fromDb = clientBalanceUpdates
                     .Where(c =>
                         c.ClientId == child.ClientId
-                        && c.Asset == child.Asset)
+                        && c.Asset == child.Asset
+                        && c.NewBalance == child.NewBalance
+                        && c.NewReserved == child.NewReserved)
                     .FirstOrDefault();
                 if (fromDb != null)
                     continue;
@@ -64,7 +66,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 await _log.WriteInfoAsync(
                     nameof(BalanceUpdatesChecker),
                     nameof(UpdateItemAsync),
-                    $"Added trade {child.ToJson()} for BalanceUpdate {inSql.Id}");
+                    $"Added update {child.ToJson()} for BalanceUpdate {inSql.Id}");
             }
             return added;
         }
