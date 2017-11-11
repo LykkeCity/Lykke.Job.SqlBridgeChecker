@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
+using System.Threading.Tasks;
 using Common;
 using Common.Log;
 using Lykke.Job.SqlBridgeChecker.Core.Repositories;
@@ -62,16 +63,21 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             return Id;
         }
 
-        public static List<TradeLogItem> FromModel(IEnumerable<ClientTradeEntity> trades, ILog log)
+        public static async Task<List<TradeLogItem>> FromModelAsync(IEnumerable<ClientTradeEntity> trades, ILog log)
         {
-            var result = trades
-                .Select(i => CreateInstance(i, trades, log))
-                .Where(i => i != null)
-                .ToList();
+            var result = new List<TradeLogItem>();
+            foreach (var trade in trades)
+            {
+                var item = await CreateInstanceAsync(
+                    trade,
+                    trades,
+                    log);
+                result.Add(item);
+            }
             return result;
         }
 
-        private static TradeLogItem CreateInstance(
+        private static async Task<TradeLogItem> CreateInstanceAsync(
             ClientTradeEntity model,
             IEnumerable<ClientTradeEntity> trades,
             ILog log)
@@ -109,20 +115,23 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             {
                 int otherAssetsCount = trades.Where(t => t.AssetId != model.AssetId).Distinct().Count();
                 if (otherAssetsCount == 1)
-                {
                     otherAssetTrade = trades.First(t => t.AssetId != model.AssetId);
-                }
-                else
-                {
-                    log.WriteWarningAsync(
-                        nameof(TradeLogItem),
-                        nameof(CreateInstance),
-                        $"Could not determine opposite asset for {model.ToJson()}!").Wait();
-                    return null;
-                }
             }
-            result.OppositeAsset = otherAssetTrade.AssetId;
-            result.OppositeVolume = (decimal)Math.Abs(otherAssetTrade.Volume);
+            if (otherAssetTrade != null)
+            {
+                result.OppositeAsset = otherAssetTrade.AssetId;
+                result.OppositeVolume = (decimal)Math.Abs(otherAssetTrade.Volume);
+            }
+            if (result.OppositeAsset == null)
+                await log.WriteWarningAsync(
+                    nameof(TradeLogItem),
+                    nameof(CreateInstanceAsync),
+                    $"Could not determine opposite asset for {model.ToJson()}!");
+            else if (result.OppositeVolume == null)
+                await log.WriteWarningAsync(
+                    nameof(TradeLogItem),
+                    nameof(CreateInstanceAsync),
+                    $"Could not determine opposite volume for {model.ToJson()}!");
             return result;
         }
     }

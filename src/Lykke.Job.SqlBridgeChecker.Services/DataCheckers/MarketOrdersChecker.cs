@@ -27,17 +27,17 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         protected override async Task<List<MarketOrder>> ConvertItemsToSqlTypesAsync(IEnumerable<MarketOrderEntity> items)
         {
             var result = new List<MarketOrder>();
-            /*var allChildren = (IEnumerable<ClientTradeEntity>)await GetChildrenAsync(items.Select(m => m.Id ?? m.RowKey));
+            var allChildren = (IEnumerable<ClientTradeEntity>)await GetChildrenAsync(items.Select(m => m.Id ?? m.RowKey));
             var byOrders = allChildren
                 .Where(i => !i.IsHidden)
                 .GroupBy(c => c.MarketOrderId)
-                .ToDictionary(i => i.Key, i => new List<ClientTradeEntity>(i));*/
+                .ToDictionary(i => i.Key, i => new List<ClientTradeEntity>(i));
             foreach (var item in items)
             {
                 List<ClientTradeEntity> children = null;
                 string key = (item.Id ?? item.RowKey).ToString();
-                /*if (byOrders.ContainsKey(key))
-                    children = byOrders[key];*/
+                if (byOrders.ContainsKey(key))
+                    children = byOrders[key];
                 var converted = await MarketOrder.FromModelAsync(item, children, m => _tradesRepository.GetOtherClientAsync(m), _log);
                 result.Add(converted);
             }

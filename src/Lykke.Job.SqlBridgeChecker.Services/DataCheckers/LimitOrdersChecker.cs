@@ -32,19 +32,19 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         protected override async Task<List<LimitOrder>> ConvertItemsToSqlTypesAsync(IEnumerable<LimitOrderEntity> items)
         {
             List<LimitOrder> result = new List<LimitOrder>();
-            /*var allChildren = await GetChildrenAsync(items
+            var allChildren = await GetChildrenAsync(items
                 .Select(m => m.Id ?? m.RowKey)
                 .Where(i => i != null && i.ToString() != string.Empty));
             var byOrders = allChildren
                 .Where(i => !i.IsHidden)
                 .GroupBy(c => c.PartitionKey)
-                .ToDictionary(i => i.Key, i => new List<ClientTradeEntity>(i));*/
+                .ToDictionary(i => i.Key, i => new List<ClientTradeEntity>(i));
             foreach (var item in items)
             {
                 List<ClientTradeEntity> children = null;
-                /*string key = (item.Id ?? item.RowKey).ToString();
+                string key = (item.Id ?? item.RowKey).ToString();
                 if (byOrders.ContainsKey(key))
-                    children = byOrders[key];*/
+                    children = byOrders[key];
                 var converted = await LimitOrder.FromModelAsync(
                     item,
                     children,

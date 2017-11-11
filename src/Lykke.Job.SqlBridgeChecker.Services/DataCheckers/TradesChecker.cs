@@ -22,10 +22,14 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         protected override async Task<List<TradeLogItem>> ConvertItemsToSqlTypesAsync(IEnumerable<ClientTradeEntity> items)
         {
-            return items
-                .GroupBy(i => new { i.MarketOrderId, i.LimitOrderId, i.OppositeLimitOrderId })
-                .SelectMany(i => TradeLogItem.FromModel(i, _log))
-                .ToList();
+            var result = new List<object>();
+            var groups = items.GroupBy(i => new { i.MarketOrderId, i.LimitOrderId, i.OppositeLimitOrderId });
+            foreach (var group in groups)
+            {
+                var trades = await TradeLogItem.FromModelAsync(group, _log);
+                result.AddRange(trades);
+            }
+            return result;
         }
 
         protected override async Task<TradeLogItem> FindInSqlDbAsync(TradeLogItem item, DataContext context)

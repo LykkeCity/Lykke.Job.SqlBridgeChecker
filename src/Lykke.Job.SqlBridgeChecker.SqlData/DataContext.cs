@@ -88,8 +88,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 entity.Property(e => e.MatchedAt).HasColumnType("datetime");
                 entity.Property(e => e.Straight).HasColumnType("bit");
                 entity.Property(e => e.ReservedLimitVolume).HasColumnType("float");
-                entity.Ignore(e => e.Trades);
-                //entity.HasMany(i => i.Trades).WithOne().HasForeignKey(i => i.MarketOrderId);
+                entity.HasMany(i => i.Trades).WithOne().HasForeignKey(i => i.MarketOrderId);
                 entity.HasKey(i => i.Id);
                 entity.ToTable("MarketOrders");
             });
@@ -138,8 +137,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 entity.Property(e => e.LastMatchTime).HasColumnType("datetime");
                 entity.Property(e => e.RemainingVolume).HasColumnType("float");
                 entity.Property(e => e.Straight).HasColumnType("bit");
-                entity.Ignore(e => e.Trades);
-                //entity.HasMany(i => i.Trades).WithOne().HasForeignKey(i => i.LimitOrderId);
+                entity.HasMany(i => i.Trades).WithOne().HasForeignKey(i => i.LimitOrderId);
                 entity.HasKey(i => i.Id);
                 entity.ToTable("LimitOrders");
             });
