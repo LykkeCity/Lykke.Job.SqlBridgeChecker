@@ -22,7 +22,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         protected override async Task<List<TradeLogItem>> ConvertItemsToSqlTypesAsync(IEnumerable<ClientTradeEntity> items)
         {
-            var result = new List<object>();
+            var result = new List<TradeLogItem>();
             var groups = items.GroupBy(i => new { i.MarketOrderId, i.LimitOrderId, i.OppositeLimitOrderId });
             foreach (var group in groups)
             {
