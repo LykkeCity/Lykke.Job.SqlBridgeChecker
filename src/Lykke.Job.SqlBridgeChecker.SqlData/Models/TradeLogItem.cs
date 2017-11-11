@@ -82,9 +82,10 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             IEnumerable<ClientTradeEntity> trades,
             ILog log)
         {
+            string orderId = model.LimitOrderId;
             string oppositeOrderId = model.MarketOrderId ?? model.OppositeLimitOrderId;
             string tradeId = model.LimitOrderId.CompareTo(oppositeOrderId) <= 0
-                ? $"{model.LimitOrderId}_{oppositeOrderId}" : $"{oppositeOrderId}_{model.LimitOrderId}";
+                ? $"{orderId}_{oppositeOrderId}" : $"{oppositeOrderId}_{orderId}";
             var result = new TradeLogItem
             {
                 TradeId = tradeId,
@@ -99,15 +100,15 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             };
             if (!model.IsLimitOrderResult.HasValue || !string.IsNullOrWhiteSpace(model.MarketOrderId))
             {
-                result.OrderId = model.MarketOrderId;
+                result.OrderId = oppositeOrderId;
                 result.OrderType = "Market";
-                result.OppositeOrderId = model.LimitOrderId;
+                result.OppositeOrderId = orderId;
             }
             else
             {
-                result.OrderId = model.LimitOrderId;
+                result.OrderId = orderId;
                 result.OrderType = "Limit";
-                result.OppositeOrderId = model.OppositeLimitOrderId;
+                result.OppositeOrderId = oppositeOrderId;
             }
             var otherAssetTrade = trades.FirstOrDefault(t =>
                 t.ClientId == model.ClientId && t.AssetId != model.AssetId);
