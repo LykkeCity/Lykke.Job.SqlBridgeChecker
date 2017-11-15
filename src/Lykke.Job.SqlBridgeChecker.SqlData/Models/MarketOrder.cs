@@ -88,7 +88,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 {
                     MarketOrderId = result.Id,
                     MarketClientId = model.ClientId,
-                    LimitOrderId = trades.Key,
+                    LimitOrderId = "N/A",
                     LimitOrderExternalId = trades.Key,
                     Timestamp = first.DateTime,
                     Price = first.Price,

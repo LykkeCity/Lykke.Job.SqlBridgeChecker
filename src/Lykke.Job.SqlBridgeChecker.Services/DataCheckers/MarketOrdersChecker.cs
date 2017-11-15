@@ -81,7 +81,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             bool added = false;
             foreach (var child in converted.Trades)
             {
-                var fromDb = childrenFromDb.FirstOrDefault(i => child.LimitOrderId == i.LimitOrderId);
+                var fromDb = childrenFromDb.FirstOrDefault(i => child.LimitOrderExternalId == i.LimitOrderExternalId);
                 if (fromDb != null)
                     continue;
 
