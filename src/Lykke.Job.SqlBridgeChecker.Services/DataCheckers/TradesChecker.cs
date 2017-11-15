@@ -49,7 +49,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         protected override async Task<TradeLogItem> FindInSqlDbAsync(TradeLogItem item, DataContext context)
         {
             string alternativeTradeId = _limitOrdersCache.ContainsKey(item.OppositeOrderId)
-                ? GetTradeId(item.OrderId, _limitOrdersCache[item.OppositeOrderId].Id) : null;
+                ? TradeLogItem.GetTradeId(item.OrderId, _limitOrdersCache[item.OppositeOrderId].MatchingId) : null;
             var inSql = await TradeSqlFinder.FindInDbAsync(
                 item,
                 alternativeTradeId,
@@ -89,11 +89,6 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 nameof(TradesChecker),
                 nameof(InitLimitOrdersCacheAsync),
                 $"Fetched {orders.Count} orders for LimitOrders cache");
-        }
-
-        private string GetTradeId(string id1, string id2)
-        {
-            return id1.CompareTo(id2) <= 0 ? $"{id1}_{id2}" : $"{id2}_{id1}";
         }
     }
 }

@@ -81,6 +81,11 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             return result;
         }
 
+        public static string GetTradeId(string id1, string id2)
+        {
+            return id1.CompareTo(id2) <= 0 ? $"{id1}_{id2}" : $"{id2}_{id1}";
+        }
+
         private static async Task<TradeLogItem> CreateInstanceAsync(
             ClientTradeEntity model,
             IEnumerable<ClientTradeEntity> trades,
@@ -96,8 +101,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 else
                     oppositeOrderId = model.OppositeLimitOrderId;
             }
-            string tradeId = orderId.CompareTo(oppositeOrderId) <= 0
-                ? $"{orderId}_{oppositeOrderId}" : $"{oppositeOrderId}_{orderId}";
+            string tradeId = GetTradeId(orderId, oppositeOrderId);
             var result = new TradeLogItem
             {
                 TradeId = tradeId,
