@@ -22,6 +22,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             ILog log)
             : base(sqlConnecctionString, repository, log)
         {
+            _limitOrdersRepository = limitOrdersRepository;
         }
 
         protected override async Task<List<TradeLogItem>> ConvertItemsToSqlTypesAsync(IEnumerable<ClientTradeEntity> items)
@@ -47,7 +48,13 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         protected override async Task<TradeLogItem> FindInSqlDbAsync(TradeLogItem item, DataContext context)
         {
-            var inSql = await TradeSqlFinder.FindInDbAsync(item, context, _log);
+            string alternativeTradeId = _limitOrdersCache.ContainsKey(item.OppositeOrderId)
+                ? GetTradeId(item.OrderId, _limitOrdersCache[item.OppositeOrderId].Id) : null;
+            var inSql = await TradeSqlFinder.FindInDbAsync(
+                item,
+                alternativeTradeId,
+                context,
+                _log);
             if (inSql == null)
                 await _log.WriteInfoAsync(
                     nameof(TradesChecker),
@@ -58,8 +65,13 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         protected override async Task<bool> UpdateItemAsync(TradeLogItem inSql, TradeLogItem convertedItem, DataContext context)
         {
-            if (inSql.IsHidden == convertedItem.IsHidden)
+            var changed = inSql.TradeId != convertedItem.TradeId
+                || inSql.OppositeOrderId != convertedItem.OppositeOrderId
+                || inSql.IsHidden != convertedItem.IsHidden;
+            if (!changed)
                 return false;
+            inSql.TradeId = convertedItem.TradeId;
+            inSql.OppositeOrderId = convertedItem.OppositeOrderId;
             inSql.IsHidden = convertedItem.IsHidden;
             return true;
         }
@@ -77,6 +89,11 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 nameof(TradesChecker),
                 nameof(InitLimitOrdersCacheAsync),
                 $"Fetched {orders.Count} orders for LimitOrders cache");
+        }
+
+        private string GetTradeId(string id1, string id2)
+        {
+            return id1.CompareTo(id2) <= 0 ? $"{id1}_{id2}" : $"{id2}_{id1}";
         }
     }
 }

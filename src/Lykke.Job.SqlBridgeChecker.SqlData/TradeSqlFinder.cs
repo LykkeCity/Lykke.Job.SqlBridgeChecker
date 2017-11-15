@@ -14,17 +14,25 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
         private static DateTime _cacheDate = DateTime.MinValue;
         private static Dictionary<string, List<TradeLogItem>> _dict;
 
-        public static async Task<TradeLogItem> FindInDbAsync(TradeLogItem item, DataContext context, ILog log)
+        public static async Task<TradeLogItem> FindInDbAsync(
+            TradeLogItem item,
+            string alternativeTradeId,
+            DataContext context,
+            ILog log)
         {
             if (_dict == null
                 || _dict.Count == 0 && item.DateTime.Date != _cacheDate
                 || _dict.Count > 0 && _dict.First().Value.First().DateTime.Date != item.DateTime.Date)
                 await InitCacheAsync(item, context, log);
 
-            if (!_dict.ContainsKey(item.TradeId))
+            if (!_dict.ContainsKey(item.TradeId)
+                || alternativeTradeId == null
+                || !_dict.ContainsKey(alternativeTradeId))
                 return null;
 
-            var fromDb = _dict[item.TradeId].FirstOrDefault(c =>
+            var trade = _dict.ContainsKey(item.TradeId) ? _dict[item.TradeId] : _dict[alternativeTradeId];
+
+            var fromDb = trade.FirstOrDefault(c =>
                 c.WalletId == item.WalletId
                 && c.Asset == item.Asset
                 && c.OppositeAsset == item.OppositeAsset);
