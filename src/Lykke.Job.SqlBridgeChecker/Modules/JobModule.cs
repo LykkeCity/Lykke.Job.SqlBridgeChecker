@@ -122,7 +122,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 "LimitOrders",
                 _log,
                 _timeout);
-            var limitOrdersRepository = new LimitOrdersRepository(limitOrdersStorage);
+            var limitOrdersRepository = new LimitOrdersRepository(limitOrdersStorage, _log);
             var limitOrdersChecker = new LimitOrdersChecker(
                 _settings.SqlDbConnectionString,
                 limitOrdersRepository,
@@ -134,6 +134,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
             var tradesChecker = new TradesChecker(
                 _settings.SqlDbConnectionString,
                 tradesRepository,
+                limitOrdersRepository,
                 _log);
             checkersRepository.AddChecker(tradesChecker);
 

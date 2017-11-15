@@ -63,7 +63,10 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             return Id;
         }
 
-        public static async Task<List<TradeLogItem>> FromModelAsync(IEnumerable<ClientTradeEntity> trades, ILog log)
+        public static async Task<List<TradeLogItem>> FromModelAsync(
+            IEnumerable<ClientTradeEntity> trades,
+            LimitOrderEntity oppositeLimitOrder,
+            ILog log)
         {
             var result = new List<TradeLogItem>();
             foreach (var trade in trades)
@@ -71,6 +74,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 var item = await CreateInstanceAsync(
                     trade,
                     trades,
+                    oppositeLimitOrder,
                     log);
                 result.Add(item);
             }
@@ -80,11 +84,19 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
         private static async Task<TradeLogItem> CreateInstanceAsync(
             ClientTradeEntity model,
             IEnumerable<ClientTradeEntity> trades,
+            LimitOrderEntity oppositeLimitOrder,
             ILog log)
         {
             string orderId = model.LimitOrderId;
-            string oppositeOrderId = model.MarketOrderId ?? model.OppositeLimitOrderId;
-            string tradeId = model.LimitOrderId.CompareTo(oppositeOrderId) <= 0
+            string oppositeOrderId = model.MarketOrderId;
+            if (oppositeOrderId == null)
+            {
+                if (oppositeLimitOrder != null)
+                    oppositeOrderId = oppositeLimitOrder.Id ?? oppositeLimitOrder.RowKey;
+                else
+                    oppositeOrderId = model.OppositeLimitOrderId;
+            }
+            string tradeId = orderId.CompareTo(oppositeOrderId) <= 0
                 ? $"{orderId}_{oppositeOrderId}" : $"{oppositeOrderId}_{orderId}";
             var result = new TradeLogItem
             {
