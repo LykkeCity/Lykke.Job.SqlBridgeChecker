@@ -16,7 +16,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
 
         public static async Task<TradeLogItem> FindInDbAsync(
             TradeLogItem item,
-            string alternativeTradeId,
+            string oppositeOrderId,
+            bool isOppositeOrderLimit,
             DataContext context,
             ILog log)
         {
@@ -25,14 +26,34 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 || _dict.Count > 0 && _dict.First().Value.First().DateTime.Date != item.DateTime.Date)
                 await InitCacheAsync(item, context, log);
 
-            if (!_dict.ContainsKey(item.TradeId)
-                || alternativeTradeId == null
-                || !_dict.ContainsKey(alternativeTradeId))
+            List<TradeLogItem> trades = null;
+            if (_dict.ContainsKey(item.TradeId))
+            {
+                trades = _dict[item.TradeId];
+            }
+            else if (oppositeOrderId != null)
+            {
+                string tradeId = TradeLogItem.GetTradeId(item.OrderId, oppositeOrderId);
+                if (_dict.ContainsKey(tradeId))
+                {
+                    trades = _dict[tradeId];
+                }
+                else if (!isOppositeOrderLimit)
+                {
+                    string query = $"SELECT * FROM dbo.MarketOrders WHERE ExternalId = '{oppositeOrderId}'";
+                    var marketOrder = context.MarketOrders.FromSql(query).FirstOrDefault();
+                    if (marketOrder != null)
+                    {
+                        tradeId = TradeLogItem.GetTradeId(item.OrderId, marketOrder.Id);
+                        if (_dict.ContainsKey(tradeId))
+                            trades = _dict[tradeId];
+                    }
+                }
+            }
+            if (trades == null)
                 return null;
 
-            var trade = _dict.ContainsKey(item.TradeId) ? _dict[item.TradeId] : _dict[alternativeTradeId];
-
-            var fromDb = trade.FirstOrDefault(c =>
+            var fromDb = trades.FirstOrDefault(c =>
                 c.WalletId == item.WalletId
                 && c.Asset == item.Asset
                 && c.OppositeAsset == item.OppositeAsset);

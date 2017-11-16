@@ -48,11 +48,24 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         protected override async Task<TradeLogItem> FindInSqlDbAsync(TradeLogItem item, DataContext context)
         {
-            string alternativeTradeId = _limitOrdersCache.ContainsKey(item.OppositeOrderId)
-                ? TradeLogItem.GetTradeId(item.OrderId, _limitOrdersCache[item.OppositeOrderId].MatchingId) : null;
+            string oppositeOrderId = null;
+            bool isOppositeOrderLimit = false;
+            if (item.OrderType == "Limit")
+            {
+                if (_limitOrdersCache.ContainsKey(item.OppositeOrderId))
+                {
+                    oppositeOrderId = _limitOrdersCache[item.OppositeOrderId].MatchingId;
+                    isOppositeOrderLimit = true;
+                }
+                else
+                {
+                    oppositeOrderId = item.OppositeOrderId;
+                }
+            }
             var inSql = await TradeSqlFinder.FindInDbAsync(
                 item,
-                alternativeTradeId,
+                oppositeOrderId,
+                isOppositeOrderLimit,
                 context,
                 _log);
             if (inSql == null)
@@ -67,6 +80,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         {
             var changed = inSql.TradeId != convertedItem.TradeId
                 || inSql.OppositeOrderId != convertedItem.OppositeOrderId
+                || inSql.Direction != convertedItem.Direction
                 || inSql.IsHidden != convertedItem.IsHidden;
             if (!changed)
                 return false;
@@ -76,6 +90,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 $"Updated trade {inSql.ToJson()}.");
             inSql.TradeId = convertedItem.TradeId;
             inSql.OppositeOrderId = convertedItem.OppositeOrderId;
+            inSql.Direction = convertedItem.Direction;
             inSql.IsHidden = convertedItem.IsHidden;
             return true;
         }
