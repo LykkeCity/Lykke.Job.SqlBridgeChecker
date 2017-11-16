@@ -30,6 +30,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
 
         private static async Task InitCacheAsync(Candlestick item, DataContext context, ILog log)
         {
+            context.Database.SetCommandTimeout(TimeSpan.FromMinutes(10));
+
             DateTime from = item.Start.Date;
             DateTime to = from.AddDays(1);
             string query = $"SELECT * FROM dbo.Candlesticks2 WHERE Start >= '{from.ToString(_format)}' AND Start < '{to.ToString(_format)}'";

@@ -40,14 +40,23 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 }
                 else if (!isOppositeOrderLimit)
                 {
-                    string query = $"SELECT * FROM dbo.MarketOrders WHERE ExternalId = '{oppositeOrderId}'";
-                    var marketOrder = context.MarketOrders.FromSql(query).FirstOrDefault();
+                    var marketOrder = GetMarketOrderById(oppositeOrderId, context);
                     if (marketOrder != null)
                     {
-                        tradeId = TradeLogItem.GetTradeId(item.OrderId, marketOrder.Id);
+                        tradeId = TradeLogItem.GetTradeId(item.OrderId, marketOrder.ExternalId);
                         if (_dict.ContainsKey(tradeId))
                             trades = _dict[tradeId];
                     }
+                }
+            }
+            else if (item.OrderType == "Market")
+            {
+                var marketOrder = GetMarketOrderById(item.OrderId, context);
+                if (marketOrder != null)
+                {
+                    string tradeId = TradeLogItem.GetTradeId(marketOrder.ExternalId, item.OppositeOrderId);
+                    if (_dict.ContainsKey(tradeId))
+                        trades = _dict[tradeId];
                 }
             }
             if (trades == null)
@@ -58,6 +67,12 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 && c.Asset == item.Asset
                 && c.OppositeAsset == item.OppositeAsset);
             return fromDb;
+        }
+
+        private static MarketOrder GetMarketOrderById(string marketOrderId, DataContext context)
+        {
+            string query = $"SELECT * FROM dbo.MarketOrders WHERE Id = '{marketOrderId}'";
+            return context.MarketOrders.FromSql(query).FirstOrDefault();
         }
 
         private static async Task InitCacheAsync(TradeLogItem item, DataContext context, ILog log)
