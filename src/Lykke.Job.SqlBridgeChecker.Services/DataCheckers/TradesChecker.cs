@@ -70,6 +70,10 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 || inSql.IsHidden != convertedItem.IsHidden;
             if (!changed)
                 return false;
+            await _log.WriteInfoAsync(
+                nameof(TradesChecker),
+                nameof(FindInSqlDbAsync),
+                $"Updated trade {inSql.ToJson()}.");
             inSql.TradeId = convertedItem.TradeId;
             inSql.OppositeOrderId = convertedItem.OppositeOrderId;
             inSql.IsHidden = convertedItem.IsHidden;
