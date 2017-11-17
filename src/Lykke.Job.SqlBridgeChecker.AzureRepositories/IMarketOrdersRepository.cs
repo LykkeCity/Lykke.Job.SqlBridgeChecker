@@ -5,6 +5,6 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 {
     public interface IMarketOrdersRepository : ITableEntityRepository<MarketOrderEntity>
     {
-        Task<MarketOrderEntity> GetMarketOrderById(string marketOrderId);
+        Task<MarketOrderEntity> GetMarketOrderByIdAsync(string marketOrderId);
     }
 }

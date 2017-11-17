@@ -192,14 +192,13 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 }
                 else
                 {
-                    string otherMultisig = first.Multisig == first.AddressFrom ? first.AddressTo : first.AddressTo;
-                    trade.LimitClientId = await otherClientGetterAsync(otherMultisig);
+                    trade.LimitClientId = await otherClientGetterAsync(first.LimitOrderId);
                     if (string.IsNullOrWhiteSpace(trade.LimitClientId))
                     {
                         await log.WriteErrorAsync(
                             nameof(MarketOrder),
                             nameof(FromModelAsync),
-                            new ArgumentOutOfRangeException($"Couldn't find 2nd client from multisig {otherMultisig}"));
+                            new ArgumentOutOfRangeException($"Couldn't find 2nd client from limitOrder {first.LimitOrderId} for marketOrder {result.Id}"));
                         continue;
                     }
                 }

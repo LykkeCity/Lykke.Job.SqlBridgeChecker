@@ -48,8 +48,8 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 var converted = await LimitOrder.FromModelAsync(
                     item,
                     children,
-                    l => ((ILimitOrdersRepository)_repository).GetLimitOrderById(l, null),
-                    m => _marketOrdersRepository.GetMarketOrderById(m),
+                    l => ((ILimitOrdersRepository)_repository).GetLimitOrderByIdAsync(l, null),
+                    m => _marketOrdersRepository.GetMarketOrderByIdAsync(m),
                     _log);
                 result.Add(converted);
             }

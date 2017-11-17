@@ -104,25 +104,27 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 _log,
                 _timeout);
             var marketOrdersRepository = new MarketOrdersRepository(marketOrdersStorage);
-            var tradesStorage = AzureTableStorage<ClientTradeEntity>.Create(
-                _settingsManager.ConnectionString(i => i.HTradesConnString),
-                "Trades",
-                _log,
-                _timeout);
-            var tradesRepository = new TradesRepository(tradesStorage, _log);
-            var marketOrdersChecker = new MarketOrdersChecker(
-                _settings.SqlDbConnectionString,
-                marketOrdersRepository,
-                tradesRepository,
-                _log);
-            checkersRepository.AddChecker(marketOrdersChecker);
-
             var limitOrdersStorage = AzureTableStorage<LimitOrderEntity>.Create(
                 _settingsManager.ConnectionString(i => i.HMarketOrdersConnString),
                 "LimitOrders",
                 _log,
                 _timeout);
             var limitOrdersRepository = new LimitOrdersRepository(limitOrdersStorage, _log);
+            var tradesStorage = AzureTableStorage<ClientTradeEntity>.Create(
+                _settingsManager.ConnectionString(i => i.HTradesConnString),
+                "Trades",
+                _log,
+                _timeout);
+            var tradesRepository = new TradesRepository(tradesStorage, _log);
+
+            var marketOrdersChecker = new MarketOrdersChecker(
+                _settings.SqlDbConnectionString,
+                marketOrdersRepository,
+                limitOrdersRepository,
+                tradesRepository,
+                _log);
+            checkersRepository.AddChecker(marketOrdersChecker);
+
             var limitOrdersChecker = new LimitOrdersChecker(
                 _settings.SqlDbConnectionString,
                 limitOrdersRepository,

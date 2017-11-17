@@ -6,8 +6,8 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 {
     public interface ILimitOrdersRepository : ITableEntityRepository<LimitOrderEntity>
     {
-        Task<LimitOrderEntity> GetLimitOrderById(string limitOrderId, string clientId);
+        Task<LimitOrderEntity> GetLimitOrderByIdAsync(string limitOrderId, string clientId);
 
-        Task<List<LimitOrderEntity>> GetOrdesByMatchingIds(IEnumerable<string> matchingIds);
+        Task<List<LimitOrderEntity>> GetOrdesByMatchingIdsAsync(IEnumerable<string> matchingIds);
     }
 }

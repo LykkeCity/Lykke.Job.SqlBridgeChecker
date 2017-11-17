@@ -13,14 +13,17 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
     public class MarketOrdersChecker : DataCheckerBase<MarketOrderEntity, MarketOrder>
     {
         private readonly ITradesRepository _tradesRepository;
+        private readonly ILimitOrdersRepository _limitOrdersRepository;
 
         public MarketOrdersChecker(
             string sqlConnecctionString,
             IMarketOrdersRepository repository,
+            ILimitOrdersRepository limitOrdersRepository,
             ITradesRepository tradesRepository,
             ILog log)
             : base(sqlConnecctionString, repository, log)
         {
+            _limitOrdersRepository = limitOrdersRepository;
             _tradesRepository = tradesRepository;
         }
 
@@ -38,7 +41,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 string key = (item.Id ?? item.RowKey).ToString();
                 if (byOrders.ContainsKey(key))
                     children = byOrders[key];
-                var converted = await MarketOrder.FromModelAsync(item, children, m => _tradesRepository.GetOtherClientAsync(m), _log);
+                var converted = await MarketOrder.FromModelAsync(item, children, GetOtherClientAsync, _log);
                 result.Add(converted);
             }
             return result;
@@ -64,6 +67,12 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             bool childrenUpdated = await UpdateChildrenAsync(inSql, converted, context);
 
             return changed || childrenUpdated;
+        }
+
+        private async Task<string> GetOtherClientAsync(string limitOrderId)
+        {
+            var limitOrder = await _limitOrdersRepository.GetLimitOrderByIdAsync(limitOrderId, null);
+            return limitOrder?.ClientId;
         }
 
         private async Task<bool> UpdateChildrenAsync(MarketOrder inSql, MarketOrder converted, DataContext context)

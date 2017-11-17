@@ -12,7 +12,7 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
         {
         }
 
-        public async Task<MarketOrderEntity> GetMarketOrderById(string marketOrderId)
+        public async Task<MarketOrderEntity> GetMarketOrderByIdAsync(string marketOrderId)
         {
             return await _storage.GetDataAsync("OrderId", marketOrderId);
         }

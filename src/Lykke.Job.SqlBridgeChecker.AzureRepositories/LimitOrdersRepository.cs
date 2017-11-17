@@ -19,7 +19,7 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
             _log = log;
         }
 
-        public async Task<LimitOrderEntity> GetLimitOrderById(string limitOrderId, string clientId)
+        public async Task<LimitOrderEntity> GetLimitOrderByIdAsync(string limitOrderId, string clientId)
         {
             var result = await _storage.GetDataAsync(
                 !string.IsNullOrWhiteSpace(clientId) ? clientId : _orderKey, limitOrderId);
@@ -37,7 +37,7 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
             return items.FirstOrDefault();
         }
 
-        public async Task<List<LimitOrderEntity>> GetOrdesByMatchingIds(IEnumerable<string> matchingIds)
+        public async Task<List<LimitOrderEntity>> GetOrdesByMatchingIdsAsync(IEnumerable<string> matchingIds)
         {
             var orders = await BatchHelper.BatchGetDataAsync(
                 "OrderId",
