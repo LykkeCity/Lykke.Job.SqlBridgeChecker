@@ -98,6 +98,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         private async Task InitLimitOrdersCacheAsync(IEnumerable<string> matchingIds)
         {
             var orders = await _limitOrdersRepository.GetOrdesByMatchingIds(matchingIds);
+            _limitOrdersCache.Clear();
             foreach (var order in orders)
             {
                 _limitOrdersCache[order.Id] = order;
