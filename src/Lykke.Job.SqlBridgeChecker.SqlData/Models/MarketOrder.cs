@@ -62,8 +62,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
         {
             var result = new MarketOrder
             {
-                Id = model.Id ?? model.RowKey,
-                ExternalId = "N/A",
+                Id = model.MatchingId,
+                ExternalId = model.Id ?? model.RowKey,
                 AssetPairId = model.AssetPairId,
                 ClientId = model.ClientId,
                 Volume = model.Volume,
@@ -75,6 +75,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 Straight = model.Straight,
                 Trades = new List<TradeInfo>(),
             };
+            if (result.Id == null)
+                result.Id = result.ExternalId;
             if (result.MatchedAt == default(DateTime))
                 result.MatchedAt = null;
             if (tradeItems == null)

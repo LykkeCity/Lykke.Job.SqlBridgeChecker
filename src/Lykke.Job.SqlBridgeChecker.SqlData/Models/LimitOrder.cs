@@ -143,8 +143,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                     if (marketOrder != null)
                     {
                         trade.OppositeClientId = marketOrder.ClientId;
-                        trade.OppositeOrderId = marketOrder.Id ?? marketOrder.RowKey;
-                        trade.OppositeOrderExternalId = "N/A";
+                        trade.OppositeOrderExternalId = marketOrder.Id ?? marketOrder.RowKey;
+                        trade.OppositeOrderId = marketOrder.MatchingId ?? trade.OppositeOrderExternalId;
                     }
                     else if (!string.IsNullOrWhiteSpace(first.OppositeLimitOrderId))
                     {

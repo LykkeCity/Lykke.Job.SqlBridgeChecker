@@ -17,6 +17,7 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Models
         public bool Straight { get; set; }
         public string Id { get; set; }
         public string ClientId { get; set; }
+        public string MatchingId { get; set; }
 
         public static class ByOrderId
         {
