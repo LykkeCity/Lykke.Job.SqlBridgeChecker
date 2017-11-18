@@ -57,7 +57,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
         public static async Task<MarketOrder> FromModelAsync(
             MarketOrderEntity model,
             List<ClientTradeEntity> tradeItems,
-            Func<string, Task<string>> otherClientGetterAsync,
+            Func<string, Task<LimitOrderEntity>> limitOrderGetterAsync,
             ILog log)
         {
             var result = new MarketOrder
@@ -86,12 +86,14 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             foreach (var trades in tradeByLimitOrder)
             {
                 var first = trades.First();
+                var limitOrder = await limitOrderGetterAsync(first.LimitOrderId);
                 var trade = new TradeInfo
                 {
                     MarketOrderId = result.Id,
                     MarketClientId = model.ClientId,
-                    LimitOrderId = "N/A",
-                    LimitOrderExternalId = trades.Key,
+                    LimitOrderId = limitOrder.MatchingId,
+                    LimitOrderExternalId = limitOrder.Id,
+                    LimitClientId = limitOrder.ClientId,
                     Timestamp = first.DateTime,
                     Price = first.Price,
                 };
@@ -139,7 +141,6 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 var clients = limitTrades.Where(i => i.ClientId != null).Select(t => t.ClientId).Distinct().ToList();
                 if (clients.Count == 1)
                 {
-                    trade.LimitClientId = clients[0];
                     foreach (var limitTrade in limitTrades.OrderBy(t => t.Volume == 0 ? double.MaxValue : t.Volume))
                     {
                         if (limitTrade.Volume > 0)
@@ -192,34 +193,23 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                         new ArgumentOutOfRangeException($"Found too many LimitClients for MarketOrder {result.Id}"));
                     continue;
                 }
-                else
+                if (string.IsNullOrWhiteSpace(trade.MarketAsset))
                 {
-                    trade.LimitClientId = await otherClientGetterAsync(first.LimitOrderId);
-                    if (string.IsNullOrWhiteSpace(trade.LimitClientId))
+                    if (!string.IsNullOrWhiteSpace(trade.LimitAsset))
+                    {
+                        trade.MarketAsset = model.AssetPairId.Replace(trade.LimitAsset, "");
+                    }
+                    else
                     {
                         await log.WriteErrorAsync(
                             nameof(MarketOrder),
                             nameof(FromModelAsync),
-                            new ArgumentOutOfRangeException($"Couldn't find 2nd client from limitOrder {first.LimitOrderId} for marketOrder {result.Id}"));
+                            new ArgumentOutOfRangeException($"MarketAsset not found for MarketOrder {result.Id}"));
                         continue;
                     }
                 }
-                if (string.IsNullOrWhiteSpace(trade.MarketAsset))
-                {
-                    await log.WriteErrorAsync(
-                        nameof(MarketOrder),
-                        nameof(FromModelAsync),
-                        new ArgumentOutOfRangeException($"MarketAsset not found for MarketOrder {result.Id}"));
-                    continue;
-                }
                 if (string.IsNullOrWhiteSpace(trade.LimitAsset))
-                {
-                    await log.WriteErrorAsync(
-                        nameof(MarketOrder),
-                        nameof(FromModelAsync),
-                        new ArgumentOutOfRangeException($"LimitAsset not found for MarketOrder {result.Id}"));
-                    continue;
-                }
+                    trade.LimitAsset = limitOrder.AssetPairId.Replace(trade.MarketAsset, "");
                 result.Trades.Add(trade);
             }
 
