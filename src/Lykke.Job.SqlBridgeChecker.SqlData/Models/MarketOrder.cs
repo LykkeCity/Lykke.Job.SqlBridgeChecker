@@ -187,10 +187,10 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 }
                 else if (clients.Count > 1)
                 {
-                    await log.WriteErrorAsync(
+                    await log.WriteWarningAsync(
                         nameof(MarketOrder),
                         nameof(FromModelAsync),
-                        new ArgumentOutOfRangeException($"Found too many LimitClients for MarketOrder {result.Id}"));
+                        $"Found too many LimitClients for MarketOrder {result.Id}");
                     continue;
                 }
                 if (string.IsNullOrWhiteSpace(trade.MarketAsset))
@@ -201,10 +201,10 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                     }
                     else
                     {
-                        await log.WriteErrorAsync(
+                        await log.WriteWarningAsync(
                             nameof(MarketOrder),
                             nameof(FromModelAsync),
-                            new ArgumentOutOfRangeException($"MarketAsset not found for MarketOrder {result.Id}"));
+                            $"MarketAsset not found for MarketOrder {result.Id}");
                         continue;
                     }
                 }

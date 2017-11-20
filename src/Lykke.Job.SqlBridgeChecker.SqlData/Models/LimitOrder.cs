@@ -159,27 +159,26 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 }
                 if (trade.OppositeClientId == null)
                 {
-                    await log.WriteErrorAsync(
+                    await log.WriteWarningAsync(
                         nameof(LimitOrder),
                         nameof(FromModelAsync),
-                        new ArgumentOutOfRangeException(
-                            $"For order {result.ExternalId} other order is not found for key {first.OppositeLimitOrderId ?? first.MarketOrderId}"));
+                        $"For order {result.ExternalId} other order is not found for key {first.OppositeLimitOrderId ?? first.MarketOrderId}");
                     continue;
                 }
                 if (string.IsNullOrWhiteSpace(trade.Asset))
                 {
-                    await log.WriteErrorAsync(
+                    await log.WriteWarningAsync(
                         nameof(LimitOrder),
                         nameof(FromModelAsync),
-                        new ArgumentOutOfRangeException($"Asset not found for LimitOrder {result.Id}"));
+                        $"Asset not found for LimitOrder {result.Id}");
                     continue;
                 }
                 if (string.IsNullOrWhiteSpace(trade.OppositeAsset))
                 {
-                    await log.WriteErrorAsync(
+                    await log.WriteWarningAsync(
                         nameof(LimitOrder),
                         nameof(FromModelAsync),
-                        new ArgumentOutOfRangeException($"OppositeAsset not found for LimitOrder {result.Id}"));
+                        $"OppositeAsset not found for LimitOrder {result.Id}");
                     continue;
                 }
                 result.Trades.Add(trade);
