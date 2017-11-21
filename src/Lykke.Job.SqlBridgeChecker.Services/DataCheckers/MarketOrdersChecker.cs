@@ -71,7 +71,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         private async Task<LimitOrderEntity> GetLimitOrder(string limitOrderId)
         {
-            return await _limitOrdersRepository.GetLimitOrderByIdAsync(limitOrderId, null);
+            return await _limitOrdersRepository.GetLimitOrderByIdAsync(limitOrderId);
         }
 
         private async Task<bool> UpdateChildrenAsync(MarketOrder inSql, MarketOrder converted, DataContext context)

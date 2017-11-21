@@ -7,6 +7,9 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
     {
         private readonly string _connectionString;
 
+        public const string TradesTable = "Trades";
+        public const string CandlesticksTable = "Candlesticks2";
+
         public virtual DbSet<CashOperation> CashOperations { get; set; }
         public virtual DbSet<BalanceUpdate> BalanceUpdates { get; set; }
         public virtual DbSet<ClientBalanceUpdate> ClientBalanceUpdates { get; set; }
@@ -120,7 +123,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 entity.Property(e => e.Close).HasColumnType("float");
                 entity.Property(e => e.Start).HasColumnType("datetime");
                 entity.Property(e => e.Finish).HasColumnType("datetime");
-                entity.ToTable("Candlesticks2");
+                entity.ToTable(CandlesticksTable);
             });
 
             modelBuilder.Entity<LimitOrder>(entity =>
@@ -176,7 +179,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 entity.Property(e => e.OppositeAsset).HasColumnType($"varchar({TradeInfo.MaxStringFieldsLength})");
                 entity.Property(e => e.OppositeVolume).HasColumnType("decimal(18,8)");
                 entity.Property(e => e.IsHidden).HasColumnType("bit");
-                entity.ToTable("Trades");
+                entity.ToTable(TradesTable);
             });
 
             base.OnModelCreating(modelBuilder);
