@@ -59,7 +59,10 @@ namespace Lykke.Job.SqlBridgeChecker
                 _log = CreateLogWithSlack(services, settingsManager);
 
                 builder.RegisterModule(
-                    new JobModule(settingsManager.CurrentValue.SqlBridgeCheckerJob, settingsManager.Nested(x => x.SqlBridgeCheckerJob), _log));
+                    new JobModule(
+                        settingsManager.CurrentValue,
+                        settingsManager.Nested(x => x.SqlBridgeCheckerJob),
+                        _log));
 
                 builder.Populate(services);
 

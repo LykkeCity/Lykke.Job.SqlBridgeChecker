@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
+using Lykke.Service.ClientAccount.Client;
+using Lykke.Service.ClientAccount.Client.AutorestClient.Models;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
 using Lykke.Job.SqlBridgeChecker.SqlData;
@@ -12,16 +14,16 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 {
     public class TradesChecker : DataCheckerBase<ClientTradeEntity, TradeLogItem>
     {
-        private readonly ILimitOrdersRepository _limitOrdersRepository;
+        private readonly IClientAccountClient _clientAccountClient;
 
         public TradesChecker(
             string sqlConnecctionString,
             ITradesRepository repository,
-            ILimitOrdersRepository limitOrdersRepository,
+            IClientAccountClient clientAccountClient,
             ILog log)
             : base(sqlConnecctionString, repository, log)
         {
-            _limitOrdersRepository = limitOrdersRepository;
+            _clientAccountClient = clientAccountClient;
         }
 
         protected override async Task<List<TradeLogItem>> ConvertItemsToSqlTypesAsync(IEnumerable<ClientTradeEntity> items)
@@ -30,7 +32,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             var groups = items.GroupBy(i => new { i.MarketOrderId, i.LimitOrderId, i.OppositeLimitOrderId });
             foreach (var group in groups)
             {
-                var trades = await TradeLogItem.FromModelAsync(group, _log);
+                var trades = await TradeLogItem.FromModelAsync(group, GetWalletInfoAsync, _log);
                 result.AddRange(trades);
             }
             return result;
@@ -64,6 +66,19 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             inSql.Direction = convertedItem.Direction;
             inSql.IsHidden = convertedItem.IsHidden;
             return true;
+        }
+
+        private async Task<(string, string)> GetWalletInfoAsync(string clientId)
+        {
+            var wallet = await _clientAccountClient.GetWalletAsync(clientId);
+            if (wallet != null)
+                return (wallet.ClientId, clientId);
+
+            var wallets = await _clientAccountClient.GetClientWalletsByTypeAsync(clientId, WalletType.Trading);
+            if (wallets == null || !wallets.Any())
+                return (clientId, clientId);
+            var tradingWallet = wallets.First();
+            return (clientId, tradingWallet.Id);
         }
     }
 }

@@ -63,14 +63,26 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             return Id;
         }
 
-        public static async Task<List<TradeLogItem>> FromModelAsync(IEnumerable<ClientTradeEntity> trades, ILog log)
+        public static async Task<List<TradeLogItem>> FromModelAsync(
+            IEnumerable<ClientTradeEntity> trades,
+            Func<string, Task<(string, string)>> walletInfoAsyncGetter,
+            ILog log)
         {
             var result = new List<TradeLogItem>();
+            var walletInfoCache = new Dictionary<string, (string, string)>();
             foreach (var trade in trades)
             {
+                if (!walletInfoCache.ContainsKey(trade.ClientId))
+                {
+                    (string userId, string walletId) = await walletInfoAsyncGetter(trade.ClientId);
+                    walletInfoCache.Add(trade.ClientId, (userId, walletId));
+                }
+                var walletInfo = walletInfoCache[trade.ClientId];
                 var item = await CreateInstanceAsync(
                     trade,
                     trades,
+                    walletInfo.Item1,
+                    walletInfo.Item2,
                     log);
                 result.Add(item);
             }
@@ -85,6 +97,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
         private static async Task<TradeLogItem> CreateInstanceAsync(
             ClientTradeEntity model,
             IEnumerable<ClientTradeEntity> trades,
+            string userId,
+            string walletId,
             ILog log)
         {
             string orderId = model.LimitOrderId;
@@ -94,8 +108,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             {
                 TradeId = tradeId,
                 DateTime = model.DateTime,
-                UserId = model.ClientId,
-                WalletId = model.ClientId,
+                UserId = userId,
+                WalletId = walletId,
                 Direction = model.Volume >= 0 ? "Buy" : "Sell",
                 Asset = model.AssetId,
                 Volume = (decimal)Math.Abs(model.Volume),

@@ -5,6 +5,13 @@
         public SqlBridgeCheckerSettings SqlBridgeCheckerJob { get; set; }
 
         public SlackNotificationsSettings SlackNotifications { get; set; }
+
+        public ClientAccountClientSettings ClientAccountClient { get; set; }
+    }
+
+    public class ClientAccountClientSettings
+    {
+        public string ServiceUrl { get; set; }
     }
 
     public class SlackNotificationsSettings
