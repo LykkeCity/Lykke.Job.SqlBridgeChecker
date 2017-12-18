@@ -6,7 +6,7 @@
 
         public SlackNotificationsSettings SlackNotifications { get; set; }
 
-        public ClientAccountClientSettings ClientAccountClient { get; set; }
+        public ClientAccountClientSettings ClientAccountServiceClient { get; set; }
     }
 
     public class ClientAccountClientSettings

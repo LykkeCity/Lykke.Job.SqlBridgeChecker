@@ -134,7 +134,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 _log);
             checkersRepository.AddChecker(limitOrdersChecker);
 
-            var clientAccountClient = new ClientAccountClient(_appSettings.ClientAccountClient.ServiceUrl);
+            var clientAccountClient = new ClientAccountClient(_appSettings.ClientAccountServiceClient.ServiceUrl);
             var tradesChecker = new TradesChecker(
                 _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
                 tradesRepository,
