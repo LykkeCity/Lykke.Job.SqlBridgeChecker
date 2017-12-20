@@ -10,6 +10,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
 
         public string UserId { get; set; }
 
+        public string Type { get; set; }
+
         public object GetEntityId()
         {
             return Id;

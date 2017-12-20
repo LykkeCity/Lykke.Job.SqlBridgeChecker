@@ -11,7 +11,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Migrations
                 columns: table => new
                 {
                     Id = table.Column<string>(type: "varchar(255)", nullable: false),
-                    UserId = table.Column<string>(type: "varchar(255)", nullable: false)
+                    UserId = table.Column<string>(type: "varchar(255)", nullable: false),
+                    Type = table.Column<string>(type: "varchar(255)", nullable: false),
                 },
                 constraints: table =>
                 {

@@ -196,6 +196,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             {
                 entity.Property(e => e.Id).IsRequired().HasColumnType($"varchar({ UserWallet.MaxStringFieldsLength})");
                 entity.Property(e => e.UserId).IsRequired().HasColumnType($"varchar({ UserWallet.MaxStringFieldsLength})");
+                entity.Property(e => e.Type).IsRequired().HasColumnType($"varchar({ UserWallet.MaxStringFieldsLength})");
                 entity.HasKey(i => i.Id);
                 entity.ToTable(UserWalletsTable);
             });

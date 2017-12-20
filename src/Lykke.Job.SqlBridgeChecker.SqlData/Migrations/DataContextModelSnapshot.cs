@@ -442,6 +442,10 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Migrations
                         .IsRequired()
                         .HasColumnType("varchar(255)");
 
+                    b.Property<string>("Type")
+                        .IsRequired()
+                        .HasColumnType("varchar(255)");
+
                     b.HasKey("Id");
 
                     b.ToTable("UserWalets");
