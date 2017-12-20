@@ -1,4 +1,5 @@
 ﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Autofac;
 using Common.Log;
 using AzureStorage.Tables;
@@ -10,6 +11,7 @@ using Lykke.Job.SqlBridgeChecker.Services;
 using Lykke.Job.SqlBridgeChecker.Services.DataCheckers;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
+using Lykke.Job.SqlBridgeChecker.SqlData;
 using Lykke.Job.SqlBridgeChecker.PeriodicalHandlers;
 
 namespace Lykke.Job.SqlBridgeChecker.Modules
@@ -33,6 +35,12 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
+            using (var context = new DataContext(_appSettings.SqlBridgeCheckerJob.SqlDbConnectionString))
+            {
+                context.Database.SetCommandTimeout(TimeSpan.FromMinutes(10));
+                context.Database.Migrate();
+            }
+
             builder.RegisterInstance(_log)
                 .As<ILog>()
                 .SingleInstance();

@@ -9,6 +9,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
 
         public const string TradesTable = "Trades";
         public const string CandlesticksTable = "Candlesticks2";
+        public const string UserWalletsTable = "UserWalets";
 
         public virtual DbSet<CashOperation> CashOperations { get; set; }
         public virtual DbSet<BalanceUpdate> BalanceUpdates { get; set; }
@@ -20,14 +21,23 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
         public virtual DbSet<LimitOrder> LimitOrders { get; set; }
         public virtual DbSet<LimitTradeInfo> LimitTradeInfos { get; set; }
         public virtual DbSet<TradeLogItem> Trades { get; set; }
+        public virtual DbSet<UserWallet> UserWallets { get; set; }
 
         public DataContext(string connectionString)
         {
             _connectionString = connectionString;
         }
 
+        public DataContext()
+            : base(new DbContextOptionsBuilder<DataContext>().Options)
+        {
+        }
+
         protected override void OnConfiguring(DbContextOptionsBuilder optionsBuilder)
         {
+            if (optionsBuilder.IsConfigured)
+                return;
+
             optionsBuilder.UseSqlServer(_connectionString, opts => opts.EnableRetryOnFailure());
         }
 
@@ -180,6 +190,14 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 entity.Property(e => e.OppositeVolume).HasColumnType("decimal(18,8)");
                 entity.Property(e => e.IsHidden).HasColumnType("bit");
                 entity.ToTable(TradesTable);
+            });
+
+            modelBuilder.Entity<UserWallet>(entity =>
+            {
+                entity.Property(e => e.Id).IsRequired().HasColumnType($"varchar({ UserWallet.MaxStringFieldsLength})");
+                entity.Property(e => e.UserId).IsRequired().HasColumnType($"varchar({ UserWallet.MaxStringFieldsLength})");
+                entity.HasKey(i => i.Id);
+                entity.ToTable(UserWalletsTable);
             });
 
             base.OnModelCreating(modelBuilder);
