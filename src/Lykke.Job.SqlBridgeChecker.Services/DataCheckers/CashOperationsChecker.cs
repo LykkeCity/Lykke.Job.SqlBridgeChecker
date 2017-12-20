@@ -20,6 +20,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             ILog log)
             : base(sqlConnecctionString, repository, log)
         {
+            _userWalletsMapper = userWalletsMapper;
         }
 
         protected override async Task<List<CashOperation>> ConvertItemsToSqlTypesAsync(IEnumerable<CashInOutOperationEntity> items)
