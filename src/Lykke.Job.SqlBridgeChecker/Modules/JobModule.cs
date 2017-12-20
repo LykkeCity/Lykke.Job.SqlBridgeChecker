@@ -55,7 +55,20 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
             builder.RegisterType<ShutdownManager>()
                 .As<IShutdownManager>();
 
-            RegisterCheckers(builder);
+            var clientAccountClient = new ClientAccountClient(_appSettings.ClientAccountServiceClient.ServiceUrl);
+            builder.RegisterInstance(clientAccountClient)
+                .As<IClientAccountClient>()
+                .SingleInstance();
+
+            var userWalletsMapper = new UserWalletsMapper(clientAccountClient, _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString);
+            builder.RegisterInstance(userWalletsMapper)
+                .As<IUserWalletsMapper>()
+                .SingleInstance();
+
+            RegisterCheckers(
+                builder,
+                userWalletsMapper,
+                clientAccountClient);
 
             builder.RegisterType<PeriodicalHandler>()
                 .As<IStartable>()
@@ -63,9 +76,12 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 .SingleInstance();
         }
 
-        private void RegisterCheckers(ContainerBuilder builder)
+        private void RegisterCheckers(
+            ContainerBuilder builder,
+            IUserWalletsMapper userWalletsMapper,
+            IClientAccountClient clientAccountClient)
         {
-            var checkersRepository = new CheckersRepository(_log);
+            var checkersRepository = new CheckersRepository(userWalletsMapper, _log);
             builder
                 .RegisterInstance(checkersRepository)
                 .As<IDataChecker>()
@@ -79,6 +95,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
             var balanceUpdatesRepository = new BalanceUpdatesRepository(balanceUpdatesStorage);
             var balanceUpdatesChecker = new BalanceUpdatesChecker(
                 _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
+                userWalletsMapper,
                 balanceUpdatesRepository,
                 _log);
             checkersRepository.AddChecker(balanceUpdatesChecker);
@@ -91,6 +108,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
             var cashOperationsRepository = new CashOperationsRepository(cashOperationsStorage);
             var cashOperationsChecker = new CashOperationsChecker(
                 _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
+                userWalletsMapper,
                 cashOperationsRepository,
                 _log);
             checkersRepository.AddChecker(cashOperationsChecker);
@@ -103,6 +121,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
             var transfersRepository = new TransfersRepository(transfersStorage);
             var transfersChecker = new TransfersChecker(
                 _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
+                userWalletsMapper,
                 transfersRepository,
                 _log);
             checkersRepository.AddChecker(transfersChecker);
@@ -128,6 +147,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
 
             var marketOrdersChecker = new MarketOrdersChecker(
                 _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
+                userWalletsMapper,
                 marketOrdersRepository,
                 limitOrdersRepository,
                 tradesRepository,
@@ -136,13 +156,14 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
 
             var limitOrdersChecker = new LimitOrdersChecker(
                 _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
+                userWalletsMapper,
                 limitOrdersRepository,
                 tradesRepository,
                 marketOrdersRepository,
                 _log);
             checkersRepository.AddChecker(limitOrdersChecker);
 
-            var clientAccountClient = new ClientAccountClient(_appSettings.ClientAccountServiceClient.ServiceUrl);
+            
             var tradesChecker = new TradesChecker(
                 _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
                 tradesRepository,

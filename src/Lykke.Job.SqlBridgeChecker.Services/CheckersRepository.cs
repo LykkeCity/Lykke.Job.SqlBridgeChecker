@@ -9,13 +9,15 @@ namespace Lykke.Job.SqlBridgeChecker.Services
 {
     public class CheckersRepository : ICheckersRepository, IDataChecker
     {
-        public readonly List<IDataChecker> _checkers = new List<IDataChecker>();
+        private readonly List<IDataChecker> _checkers = new List<IDataChecker>();
+        private readonly IUserWalletsMapper _userWalletsMapper;
         private readonly ILog _log;
 
         public string Name => nameof(CheckersRepository);
 
-        public CheckersRepository(ILog log)
+        public CheckersRepository(IUserWalletsMapper userWalletsMapper, ILog log)
         {
+            _userWalletsMapper = userWalletsMapper;
             _log = log;
         }
 
@@ -47,6 +49,8 @@ namespace Lykke.Job.SqlBridgeChecker.Services
                     await _log.WriteErrorAsync("CheckersRepository.CheckAndFixDataAsync", checker.Name, exc);
                 }
             }
+
+            _userWalletsMapper.ClearCaches();
 
             await _log.WriteInfoAsync(
                 nameof(CheckersRepository),

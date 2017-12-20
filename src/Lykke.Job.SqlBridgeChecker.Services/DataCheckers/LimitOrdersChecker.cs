@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
+using Lykke.Job.SqlBridgeChecker.Core.Services;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
 using Lykke.Job.SqlBridgeChecker.SqlData;
@@ -12,6 +13,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 {
     public class LimitOrdersChecker : DataCheckerBase<LimitOrderEntity, LimitOrder>
     {
+        private readonly IUserWalletsMapper _userWalletsMapper;
         private readonly ITradesRepository _tradesRepository;
         private readonly IMarketOrdersRepository _marketOrdersRepository;
         private readonly string _childPartition = ClientTradeEntity.ByDt.GeneratePartitionKey();
@@ -19,12 +21,14 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         public LimitOrdersChecker(
             string sqlConnecctionString,
+            IUserWalletsMapper userWalletsMapper,
             ILimitOrdersRepository repository,
             ITradesRepository tradesRepository,
             IMarketOrdersRepository marketOrdersRepository,
             ILog log)
             : base(sqlConnecctionString, repository, log)
         {
+            _userWalletsMapper = userWalletsMapper;
             _tradesRepository = tradesRepository;
             _marketOrdersRepository = marketOrdersRepository;
         }
@@ -39,6 +43,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 .Where(i => !i.IsHidden)
                 .GroupBy(c => c.PartitionKey)
                 .ToDictionary(i => i.Key, i => new List<ClientTradeEntity>(i));
+            var clientIds = new HashSet<string>();
             foreach (var item in items)
             {
                 List<ClientTradeEntity> children = null;
@@ -52,7 +57,17 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     m => _marketOrdersRepository.GetMarketOrderByIdAsync(m),
                     _log);
                 result.Add(converted);
+
+                clientIds.Add(item.ClientId);
+                if (children != null)
+                    foreach (var child in children)
+                    {
+                        clientIds.Add(child.ClientId);
+                    }
             }
+
+            await _userWalletsMapper.AddWalletsAsync(clientIds);
+
             return result;
         }
 

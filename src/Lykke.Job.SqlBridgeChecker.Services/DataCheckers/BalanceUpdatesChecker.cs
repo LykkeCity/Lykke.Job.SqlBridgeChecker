@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
+using Lykke.Job.SqlBridgeChecker.Core.Services;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
 using Lykke.Job.SqlBridgeChecker.SqlData;
@@ -12,12 +13,16 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 {
     public class BalanceUpdatesChecker : DataCheckerBase<ClientBalanceChangeLogRecordEntity, BalanceUpdate>
     {
+        private readonly IUserWalletsMapper _userWalletsMapper;
+
         public BalanceUpdatesChecker(
             string sqlConnecctionString,
+            IUserWalletsMapper userWalletsMapper,
             ITableEntityRepository<ClientBalanceChangeLogRecordEntity> repository,
             ILog log)
             : base(sqlConnecctionString, repository, log)
         {
+            _userWalletsMapper = userWalletsMapper;
         }
 
         protected override async Task<List<BalanceUpdate>> ConvertItemsToSqlTypesAsync(IEnumerable<ClientBalanceChangeLogRecordEntity> items)
@@ -27,6 +32,9 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 .Where(g => g.Key != null)
                 .Select(g => BalanceUpdate.FromModel(g))
                 .ToList();
+
+            await _userWalletsMapper.AddWalletsAsync(items.Select(i => i.ClientId).ToHashSet());
+
             return result;
         }
 
