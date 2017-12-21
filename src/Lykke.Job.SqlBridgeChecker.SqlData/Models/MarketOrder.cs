@@ -91,9 +91,9 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 {
                     MarketOrderId = result.Id,
                     MarketClientId = model.ClientId,
-                    LimitOrderId = limitOrder.MatchingId,
-                    LimitOrderExternalId = limitOrder.Id,
-                    LimitClientId = limitOrder.ClientId,
+                    LimitOrderId = limitOrder?.MatchingId ?? first.LimitOrderId,
+                    LimitOrderExternalId = limitOrder?.Id ?? first.LimitOrderId,
+                    LimitClientId = limitOrder?.ClientId ?? "N/A",
                     Timestamp = first.DateTime,
                     Price = first.Price,
                 };
@@ -209,7 +209,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                     }
                 }
                 if (string.IsNullOrWhiteSpace(trade.LimitAsset))
-                    trade.LimitAsset = limitOrder.AssetPairId.Replace(trade.MarketAsset, "");
+                    trade.LimitAsset = limitOrder?.AssetPairId.Replace(trade.MarketAsset, "") ?? "N/A";
                 result.Trades.Add(trade);
             }
 
