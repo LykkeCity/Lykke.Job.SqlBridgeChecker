@@ -86,7 +86,23 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         private async Task<LimitOrderEntity> GetLimitOrder(string limitOrderId)
         {
-            return await _limitOrdersRepository.GetLimitOrderByIdAsync(limitOrderId);
+            var result = await _limitOrdersRepository.GetLimitOrderByIdAsync(limitOrderId);
+            if (result != null)
+                return result;
+            var loFromSql = OrdersFinder.GetLimitOrder(limitOrderId, _sqlConnectionString);
+            if (loFromSql != null)
+                return new LimitOrderEntity
+                {
+                    Id = loFromSql.ExternalId,
+                    MatchingId = loFromSql.Id,
+                    ClientId = loFromSql.ClientId,
+                    AssetPairId = loFromSql.AssetPairId,
+                };
+            await _log.WriteWarningAsync(
+                nameof(MarketOrdersChecker),
+                nameof(GetLimitOrder),
+                $"Could not find LimitOrder by id = {limitOrderId}");
+            return null;
         }
 
         private async Task<bool> UpdateChildrenAsync(MarketOrder inSql, MarketOrder converted, DataContext context)
