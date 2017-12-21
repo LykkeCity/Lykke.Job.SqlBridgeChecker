@@ -71,14 +71,15 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         private async Task<(string, string)> GetWalletInfoAsync(string clientId)
         {
             var wallet = await _clientAccountClient.GetWalletAsync(clientId);
-            if (wallet != null)
+            if (wallet != null && wallet.Type != WalletType.Trading.ToString())
                 return (wallet.ClientId, clientId);
 
-            var wallets = await _clientAccountClient.GetClientWalletsByTypeAsync(clientId, WalletType.Trading);
-            if (wallets == null || !wallets.Any())
-                return (clientId, clientId);
-            var tradingWallet = wallets.First();
-            return (clientId, tradingWallet.Id);
+            return (clientId, clientId);
+            //var wallets = await _clientAccountClient.GetClientWalletsByTypeAsync(clientId, WalletType.Trading);
+            //if (wallets == null || !wallets.Any())
+            //    return (clientId, clientId);
+            //var tradingWallet = wallets.First();
+            //return (clientId, tradingWallet.Id);
         }
     }
 }
