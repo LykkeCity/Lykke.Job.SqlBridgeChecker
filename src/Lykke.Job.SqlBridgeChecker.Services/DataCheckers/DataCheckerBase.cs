@@ -79,12 +79,12 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         protected virtual async Task LogAddedAsync(int addedCount)
         {
-            await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), Name, $"Added {addedCount} items.");
+            await _log.WriteWarningAsync(Name, nameof(CheckAndFixDataAsync), $"Added {addedCount} item(s).");
         }
 
         protected virtual async Task LogModifiedAsync(int modifiedCount)
         {
-            await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), Name, $"Modified {modifiedCount} items.");
+            await _log.WriteWarningAsync(Name, nameof(CheckAndFixDataAsync), $"Modified {modifiedCount} item(s).");
         }
 
         protected virtual async Task<TOut> FindInSqlDbAsync(TOut item, DataContext context)

@@ -19,16 +19,9 @@
   </ItemGroup>
 
   <ItemGroup>
-    <PackageReference Include="Lykke.Common" Version="3.0.2" />
     <PackageReference Include="Lykke.Common.ApiLibrary" Version="1.0.20" />
-    <!-- #if azurequeuesub -->
-    <!-- #endif -->
-    <PackageReference Include="Lykke.Logs" Version="3.4.1" />
-    <!-- #if rabbitpub -->
-    <!-- #endif -->
-    <!-- #if rabbitpub || rabbitsub -->
-    <!-- #endif -->
-    <PackageReference Include="Lykke.SettingsReader" Version="1.0.43" />
+    <PackageReference Include="Lykke.Logs" Version="3.5.0" />
+    <PackageReference Include="Lykke.SettingsReader" Version="1.0.44" />
     <PackageReference Include="Lykke.SlackNotification.AzureQueue" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Diagnostics" Version="2.0.1" />
     <PackageReference Include="Microsoft.AspNetCore.Mvc" Version="2.0.1" />

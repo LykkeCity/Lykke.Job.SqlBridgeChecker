@@ -81,7 +81,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 await _log.WriteInfoAsync(
                     nameof(LimitOrdersChecker),
                     nameof(UpdateItemAsync),
-                    $"Updated {inSql.ToJson()}.");
+                    $"{inSql.ToJson()}");
                 inSql.Status = converted.Status;
                 inSql.LastMatchTime = converted.LastMatchTime;
                 inSql.RemainingVolume = converted.RemainingVolume;

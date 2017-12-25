@@ -73,7 +73,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 await _log.WriteInfoAsync(
                     nameof(MarketOrdersChecker),
                     nameof(UpdateItemAsync),
-                    $"Updated {inSql.ToJson()}.");
+                    $"{inSql.ToJson()}");
                 inSql.Price = converted.Price;
                 inSql.Status = converted.Status;
                 inSql.MatchedAt = converted.MatchedAt;

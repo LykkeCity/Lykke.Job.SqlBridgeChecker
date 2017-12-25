@@ -45,7 +45,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 await _log.WriteInfoAsync(
                     nameof(TradesChecker),
                     nameof(FindInSqlDbAsync),
-                    $"Added trade {item.ToJson()}.");
+                    $"{item.ToJson()}");
             return inSql;
         }
 
@@ -59,8 +59,8 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 return false;
             await _log.WriteInfoAsync(
                 nameof(TradesChecker),
-                nameof(FindInSqlDbAsync),
-                $"Updated trade {inSql.ToJson()}.");
+                nameof(UpdateItemAsync),
+                $"{inSql.ToJson()}");
             inSql.TradeId = convertedItem.TradeId;
             inSql.OppositeOrderId = convertedItem.OppositeOrderId;
             inSql.Direction = convertedItem.Direction;
