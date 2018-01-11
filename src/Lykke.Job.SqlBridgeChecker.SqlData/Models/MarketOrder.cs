@@ -188,8 +188,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 else if (clients.Count > 1)
                 {
                     await log.WriteWarningAsync(
-                        nameof(MarketOrder),
                         nameof(FromModelAsync),
+                        nameof(MarketOrder),
                         $"Found too many LimitClients for MarketOrder {result.Id}");
                     continue;
                 }
@@ -202,8 +202,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                     else
                     {
                         await log.WriteWarningAsync(
-                            nameof(MarketOrder),
                             nameof(FromModelAsync),
+                            nameof(MarketOrder),
                             $"MarketAsset not found for MarketOrder {result.Id}");
                         continue;
                     }

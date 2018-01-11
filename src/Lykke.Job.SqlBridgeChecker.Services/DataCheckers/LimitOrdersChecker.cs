@@ -78,10 +78,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 || inSql.RemainingVolume != converted.RemainingVolume;
             if (changed)
             {
-                await _log.WriteInfoAsync(
-                    nameof(LimitOrdersChecker),
-                    nameof(UpdateItemAsync),
-                    $"{inSql.ToJson()}");
+                await _log.WriteInfoAsync(nameof(UpdateItemAsync), Name, $"{inSql.ToJson()}");
                 inSql.Status = converted.Status;
                 inSql.LastMatchTime = converted.LastMatchTime;
                 inSql.RemainingVolume = converted.RemainingVolume;
@@ -111,16 +108,10 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     continue;
 
                 if (!child.IsValid())
-                    await _log.WriteWarningAsync(
-                        nameof(LimitOrdersChecker),
-                        nameof(UpdateChildrenAsync),
-                        $"Found invalid child object - {child.ToJson()}!");
+                    await _log.WriteWarningAsync(nameof(UpdateChildrenAsync), Name, $"Found invalid child object - {child.ToJson()}!");
+                await _log.WriteInfoAsync(nameof(UpdateChildrenAsync), Name, $"Added trade {child.ToJson()} for LimitOrder {inSql.Id}");
                 context.LimitTradeInfos.Add(child);
                 added = true;
-                await _log.WriteInfoAsync(
-                    nameof(LimitOrdersChecker),
-                    nameof(UpdateChildrenAsync),
-                    $"Added trade {child.ToJson()} for LimitOrder {inSql.Id}");
             }
             return added;
         }
@@ -129,10 +120,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         {
             var result = await _tradesRepository.GetTradesByLimitOrderKeysAsync(parentIds);
 
-            await _log.WriteInfoAsync(
-                nameof(LimitOrdersChecker),
-                nameof(GetChildrenAsync),
-                $"Fetched {result.Count} trades.");
+            await _log.WriteInfoAsync(nameof(GetChildrenAsync), Name, $"Fetched {result.Count} trades.");
 
             return result;
         }

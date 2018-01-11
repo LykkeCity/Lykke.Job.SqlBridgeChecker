@@ -49,7 +49,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             if (_missingPairs.Count > 0)
             {
                 string missingPairs = string.Join(",", _missingPairs);
-                await _log.WriteInfoAsync(Name, nameof(CandlesticksChecker), $"Missing {missingPairs}.");
+                await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), Name, $"Missing {missingPairs}.");
                 _missingPairs.Clear();
             }
         }

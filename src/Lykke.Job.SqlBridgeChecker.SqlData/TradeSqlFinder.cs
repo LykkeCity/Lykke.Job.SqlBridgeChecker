@@ -40,8 +40,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             _dict = items.GroupBy(i => i.TradeId).ToDictionary(g => g.Key, g => g.ToList());
             _cacheDate = from;
             await log.WriteInfoAsync(
-                nameof(TradeSqlFinder),
                 nameof(InitCacheAsync),
+                nameof(TradeSqlFinder),
                 $"Cached {items.Count} items from sql for {from.ToString(_format)}.");
         }
     }

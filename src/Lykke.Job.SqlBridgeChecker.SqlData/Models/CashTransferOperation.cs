@@ -57,8 +57,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 buy = models.FirstOrDefault(m => m.Amount == 0);
                 if (buy == null)
                     await log.WriteWarningAsync(
-                        nameof(CashTransferOperation),
                         nameof(FromModelAsync),
+                        nameof(CashTransferOperation),
                         $"Buy part is not found for transfer transaction {result.Id}");
             }
             var sell = models.FirstOrDefault(m => m.Amount < 0);
@@ -69,8 +69,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 sell = models.FirstOrDefault(m => m.Amount == 0 && m != buy);
                 if (sell == null)
                     await log.WriteWarningAsync(
-                        nameof(CashTransferOperation),
                         nameof(FromModelAsync),
+                        nameof(CashTransferOperation),
                         $"Sell part is not found for transfer transaction {result.Id}");
             }
             return result;

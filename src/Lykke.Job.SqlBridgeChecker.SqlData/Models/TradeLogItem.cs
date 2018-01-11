@@ -143,13 +143,13 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             }
             if (result.OppositeAsset == null)
                 await log.WriteWarningAsync(
-                    nameof(TradeLogItem),
                     nameof(CreateInstanceAsync),
+                    nameof(TradeLogItem),
                     $"Could not determine opposite asset for {model.ToJson()}!");
             else if (result.OppositeVolume == null)
                 await log.WriteWarningAsync(
-                    nameof(TradeLogItem),
                     nameof(CreateInstanceAsync),
+                    nameof(TradeLogItem),
                     $"Could not determine opposite volume for {model.ToJson()}!");
             return result;
         }

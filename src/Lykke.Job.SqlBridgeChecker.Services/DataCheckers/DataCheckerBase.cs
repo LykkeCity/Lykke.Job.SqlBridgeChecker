@@ -34,9 +34,9 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         public virtual async Task CheckAndFixDataAsync()
         {
             var items = await _repository.GetItemsFromYesterdayAsync();
-            await _log.WriteInfoAsync(Name, nameof(CheckAndFixDataAsync), $"Fetched {items.Count} items from Azure.");
+            await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), Name, $"Fetched {items.Count} items from Azure.");
             var sqlItems = await ConvertItemsToSqlTypesAsync(items);
-            await _log.WriteInfoAsync(Name, nameof(CheckAndFixDataAsync), $"Converted to {sqlItems.Count} items.");
+            await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), Name, $"Converted to {sqlItems.Count} items.");
             int modifiedCount = 0;
             int addedCount = 0;
             using (var dbContext = new DataContext(_sqlConnectionString))
@@ -49,10 +49,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                         if (fromSql == null)
                         {
                             if (!sqlItem.IsValid())
-                                await _log.WriteWarningAsync(
-                                    nameof(DataCheckerBase<TIn, TOut>),
-                                    nameof(CheckAndFixDataAsync),
-                                    $"Found invalid object - {sqlItem.ToJson()}!");
+                                await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), Name, $"Found invalid object - {sqlItem.ToJson()}!");
                             await dbContext.Set<TOut>().AddAsync(sqlItem);
                             ++addedCount;
                         }
@@ -79,12 +76,12 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         protected virtual async Task LogAddedAsync(int addedCount)
         {
-            await _log.WriteWarningAsync(Name, nameof(CheckAndFixDataAsync), $"Added {addedCount} item(s).");
+            await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), Name, $"Added {addedCount} item(s).");
         }
 
         protected virtual async Task LogModifiedAsync(int modifiedCount)
         {
-            await _log.WriteWarningAsync(Name, nameof(CheckAndFixDataAsync), $"Modified {modifiedCount} item(s).");
+            await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), Name, $"Modified {modifiedCount} item(s).");
         }
 
         protected virtual async Task<TOut> FindInSqlDbAsync(TOut item, DataContext context)
@@ -92,18 +89,12 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             object entityId = item.GetEntityId();
             if (entityId == null)
             {
-                await _log.WriteWarningAsync(
-                    Name,
-                    nameof(FindInSqlDbAsync),
-                    $"Found entity of type {typeof(TOut).Name} without Id!");
+                await _log.WriteWarningAsync(nameof(FindInSqlDbAsync), Name, $"Found entity of type {typeof(TOut).Name} without Id!");
                 return null;
             }
             var result = await context.Set<TOut>().FindAsync(entityId);
             if (result == null)
-                await _log.WriteInfoAsync(
-                    nameof(Name),
-                    nameof(FindInSqlDbAsync),
-                    $"Added {item.ToJson()}.");
+                await _log.WriteInfoAsync(nameof(FindInSqlDbAsync), Name, $"Added {item.ToJson()}.");
             return result;
         }
 
