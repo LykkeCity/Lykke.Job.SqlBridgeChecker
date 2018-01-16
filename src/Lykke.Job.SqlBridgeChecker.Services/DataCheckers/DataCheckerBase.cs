@@ -6,7 +6,7 @@ using Common;
 using Common.Log;
 using Lykke.Job.SqlBridgeChecker.Core.Services;
 using Lykke.Job.SqlBridgeChecker.Core.Repositories;
-using Lykke.Job.SqlBridgeChecker.AzureRepositories;
+using Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions;
 using Lykke.Job.SqlBridgeChecker.SqlData;
 
 namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers

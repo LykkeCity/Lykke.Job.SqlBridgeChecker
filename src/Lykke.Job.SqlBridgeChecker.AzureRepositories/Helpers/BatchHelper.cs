@@ -4,7 +4,7 @@ using Microsoft.WindowsAzure.Storage.Table;
 using Common.Log;
 using AzureStorage;
 
-namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
+namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Helpers
 {
     internal static class BatchHelper
     {

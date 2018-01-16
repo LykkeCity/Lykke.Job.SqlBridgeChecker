@@ -5,7 +5,7 @@ using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Table;
 using AzureStorage;
 
-namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
+namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions
 {
     public abstract class ItemsRepositoryBase<T> : ITableEntityRepository<T>
         where T : TableEntity, new()
@@ -41,6 +41,9 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 
         abstract protected string GetDateColumn();
 
-        abstract protected string GetAdditionalConditions();
+        virtual protected string GetAdditionalConditions()
+        {
+            return null;
+        }
     }
 }

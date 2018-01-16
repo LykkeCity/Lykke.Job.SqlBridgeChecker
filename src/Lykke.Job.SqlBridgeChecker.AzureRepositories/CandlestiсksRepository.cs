@@ -2,6 +2,7 @@
 using Microsoft.WindowsAzure.Storage.Table;
 using AzureStorage;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
+using Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions;
 
 namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 {
@@ -23,11 +24,6 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
             string dateStartFilter = TableQuery.GenerateFilterCondition(dateColumn, QueryComparisons.GreaterThanOrEqual, startStr);
             string dateFilter = TableQuery.CombineFilters(dateFinishFilter, TableOperators.And, dateStartFilter);
             return dateFilter;
-        }
-
-        protected override string GetAdditionalConditions()
-        {
-            return null;
         }
 
         protected override string GetDateColumn()

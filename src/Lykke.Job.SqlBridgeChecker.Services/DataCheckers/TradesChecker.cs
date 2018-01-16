@@ -5,7 +5,7 @@ using Common;
 using Common.Log;
 using Lykke.Service.ClientAccount.Client;
 using Lykke.Service.ClientAccount.Client.AutorestClient.Models;
-using Lykke.Job.SqlBridgeChecker.AzureRepositories;
+using Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
 using Lykke.Job.SqlBridgeChecker.SqlData;
 using Lykke.Job.SqlBridgeChecker.SqlData.Models;
@@ -48,15 +48,11 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         protected override async Task<bool> UpdateItemAsync(TradeLogItem inSql, TradeLogItem convertedItem, DataContext context)
         {
-            var changed = inSql.TradeId != convertedItem.TradeId
-                || inSql.OppositeOrderId != convertedItem.OppositeOrderId
-                || inSql.Direction != convertedItem.Direction
+            var changed = inSql.Direction != convertedItem.Direction
                 || inSql.IsHidden != convertedItem.IsHidden;
             if (!changed)
                 return false;
             await _log.WriteInfoAsync(nameof(UpdateItemAsync), Name, $"{inSql.ToJson()}");
-            inSql.TradeId = convertedItem.TradeId;
-            inSql.OppositeOrderId = convertedItem.OppositeOrderId;
             inSql.Direction = convertedItem.Direction;
             inSql.IsHidden = convertedItem.IsHidden;
             return true;

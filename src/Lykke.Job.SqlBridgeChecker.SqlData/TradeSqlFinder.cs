@@ -25,7 +25,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 return null;
 
             var fromDb = _dict[item.TradeId].FirstOrDefault(c =>
-                c.UserId == item.UserId
+                c.WalletId == item.WalletId
                 && c.Asset == item.Asset
                 && c.OppositeAsset == item.OppositeAsset);
             return fromDb;

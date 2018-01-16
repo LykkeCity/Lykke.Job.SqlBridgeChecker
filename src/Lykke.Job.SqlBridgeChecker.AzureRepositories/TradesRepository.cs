@@ -4,6 +4,8 @@ using Microsoft.WindowsAzure.Storage.Table;
 using Common.Log;
 using AzureStorage;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
+using Lykke.Job.SqlBridgeChecker.AzureRepositories.Helpers;
+using Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions;
 
 namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 {
