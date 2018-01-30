@@ -64,7 +64,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
         {
             var result = new LimitOrder
             {
-                Id = model.MatchingId,
+                Id = model.MatchingId ?? model.RowKey,
                 ExternalId = model.Id ?? model.RowKey,
                 AssetPairId = model.AssetPairId,
                 ClientId = model.ClientId,

@@ -13,9 +13,8 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
     {
         private readonly ILog _log;
 
-        private readonly string _childPartition = ClientTradeEntity.ByDt.GeneratePartitionKey();
         private const string _marketOrderIdField = nameof(ClientTradeEntity.MarketOrderId);
-        private const string _limitOrderIdField = nameof(ClientTradeEntity.LimitOrderId);
+        private const string _partitionKey = "PartitionKey";
 
         public TradesRepository(INoSQLTableStorage<ClientTradeEntity> storage, ILog log)
             : base(storage)
@@ -33,32 +32,25 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
         {
             var result = await BatchHelper.BatchGetDataAsync(
                 null,
-                "PartitionKey",
+                _partitionKey,
                 limitOrderIds,
                 _storage,
                 _log);
             return result;
         }
 
-        public async Task<List<ClientTradeEntity>> GetTradesByLimitOrderIdsAsync(IEnumerable<string> limitOrderIds)
+        public async Task<List<ClientTradeEntity>> GetTradesByMarketOrdersAsync(IEnumerable<(string, string)> userMarketOrders)
         {
-            var result = await BatchHelper.BatchGetDataAsync(
-                _childPartition,
-                _limitOrderIdField,
-                limitOrderIds,
-                _storage,
-                _log);
-            return result;
-        }
-
-        public async Task<List<ClientTradeEntity>> GetTradesByMarketOrdersAsync(IEnumerable<string> marketOrderIds)
-        {
-            var result = await BatchHelper.BatchGetDataAsync(
-                _childPartition,
-                _marketOrderIdField,
-                marketOrderIds,
-                _storage,
-                _log);
+            var result = new List<ClientTradeEntity>();
+            foreach (var userOrder in userMarketOrders)
+            {
+                string partitionFilter = TableQuery.GenerateFilterCondition(_partitionKey, QueryComparisons.Equal, userOrder.Item1);
+                var orderFilter = TableQuery.GenerateFilterCondition(_marketOrderIdField, QueryComparisons.Equal, userOrder.Item2);
+                var filter = TableQuery.CombineFilters(partitionFilter, TableOperators.And, orderFilter);
+                var query = new TableQuery<ClientTradeEntity>().Where(filter);
+                var items = await _storage.WhereAsync(query);
+                result.AddRange(items);
+            }
             return result;
         }
 

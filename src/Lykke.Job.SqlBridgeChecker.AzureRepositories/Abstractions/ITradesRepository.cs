@@ -8,10 +8,8 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions
     {
         Task<string> GetOtherClientAsync(string multisig);
 
-        Task<List<ClientTradeEntity>> GetTradesByMarketOrdersAsync(IEnumerable<string> marketOrderIds);
+        Task<List<ClientTradeEntity>> GetTradesByMarketOrdersAsync(IEnumerable<(string, string)> userMarketOrders);
 
         Task<List<ClientTradeEntity>> GetTradesByLimitOrderKeysAsync(IEnumerable<string> limitOrderIds);
-
-        Task<List<ClientTradeEntity>> GetTradesByLimitOrderIdsAsync(IEnumerable<string> limitOrderIds);
     }
 }

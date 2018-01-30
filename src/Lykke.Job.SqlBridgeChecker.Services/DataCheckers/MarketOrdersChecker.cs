@@ -34,7 +34,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         protected override async Task<List<MarketOrder>> ConvertItemsToSqlTypesAsync(IEnumerable<MarketOrderEntity> items)
         {
             var result = new List<MarketOrder>();
-            var allChildren = (IEnumerable<ClientTradeEntity>)await GetChildrenAsync(items.Select(m => m.Id ?? m.RowKey));
+            var allChildren = (IEnumerable<ClientTradeEntity>)await GetChildrenAsync(items);
             var byOrders = allChildren
                 .Where(i => !i.IsHidden)
                 .GroupBy(c => c.MarketOrderId)
@@ -127,9 +127,9 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return added;
         }
 
-        private async Task<List<ClientTradeEntity>> GetChildrenAsync(IEnumerable<object> parentIds)
+        private async Task<List<ClientTradeEntity>> GetChildrenAsync(IEnumerable<MarketOrderEntity> parents)
         {
-            var result = await _tradesRepository.GetTradesByMarketOrdersAsync(parentIds.Select(i => i.ToString()));
+            var result = await _tradesRepository.GetTradesByMarketOrdersAsync(parents.Select(i => (i.ClientId, i.Id ?? i.RowKey)));
 
             await _log.WriteInfoAsync(nameof(GetChildrenAsync), Name, $"Initially fetched {result.Count} trades.");
 
@@ -158,7 +158,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 }
             }
 
-            var missingTrades = await _tradesRepository.GetTradesByLimitOrderIdsAsync(missingClientsDict.Keys);
+            var missingTrades = await _tradesRepository.GetTradesByLimitOrderKeysAsync(missingClientsDict.Keys);
 
             await _log.WriteInfoAsync(nameof(GetChildrenAsync), Name, $"Then fetched {missingTrades.Count} trades for missing clients.");
 
