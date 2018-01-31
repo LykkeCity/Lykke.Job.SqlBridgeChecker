@@ -102,7 +102,6 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     ClientId = moFromSql.ClientId,
                     AssetPairId = moFromSql.AssetPairId,
                 };
-            await _log.WriteWarningAsync(nameof(GetLimitOrderAsync), Name, $"Could not find MarketOrder by id = {marketOrderId}");
             return null;
         }
 
@@ -120,7 +119,6 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     ClientId = loFromSql.ClientId,
                     AssetPairId = loFromSql.AssetPairId,
                 };
-            await _log.WriteWarningAsync(nameof(GetLimitOrderAsync), Name, $"Could not find LimitOrder by id = {limitOrderId}");
             return null;
         }
 
