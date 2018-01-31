@@ -163,7 +163,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                         nameof(FromModelAsync),
                         nameof(LimitOrder),
                         $"For order {result.ExternalId} other order is not found for key {first.OppositeLimitOrderId ?? first.MarketOrderId}");
-                    continue;
+                    trade.OppositeClientId = "N/A";
                 }
                 if (string.IsNullOrWhiteSpace(trade.Asset))
                 {
@@ -171,7 +171,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                         nameof(FromModelAsync),
                         nameof(LimitOrder),
                         $"Asset not found for LimitOrder {result.Id}");
-                    continue;
+                    trade.Asset = "N/A";
                 }
                 if (string.IsNullOrWhiteSpace(trade.OppositeAsset))
                 {
@@ -179,7 +179,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                         nameof(FromModelAsync),
                         nameof(LimitOrder),
                         $"OppositeAsset not found for LimitOrder {result.Id}");
-                    continue;
+                    trade.OppositeAsset = "N/A";
                 }
                 result.Trades.Add(trade);
             }

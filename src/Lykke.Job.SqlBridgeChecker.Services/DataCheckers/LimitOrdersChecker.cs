@@ -53,8 +53,8 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 var converted = await LimitOrder.FromModelAsync(
                     item,
                     children,
-                    l => ((ILimitOrdersRepository)_repository).GetLimitOrderByIdAsync(l),
-                    m => _marketOrdersRepository.GetMarketOrderByIdAsync(m),
+                    GetLimitOrderAsync,
+                    GetMarketOrderAsync,
                     _log);
                 result.Add(converted);
 
@@ -86,6 +86,42 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             bool childrenUpdated = await UpdateChildrenAsync(inSql, converted, context);
 
             return changed || childrenUpdated;
+        }
+
+        private async Task<MarketOrderEntity> GetMarketOrderAsync(string marketOrderId)
+        {
+            var result = await _marketOrdersRepository.GetMarketOrderByIdAsync(marketOrderId);
+            if (result != null)
+                return result;
+            var moFromSql = OrdersFinder.GetMarketOrder(marketOrderId, _sqlConnectionString);
+            if (moFromSql != null)
+                return new MarketOrderEntity
+                {
+                    Id = moFromSql.ExternalId,
+                    MatchingId = moFromSql.Id,
+                    ClientId = moFromSql.ClientId,
+                    AssetPairId = moFromSql.AssetPairId,
+                };
+            await _log.WriteWarningAsync(nameof(GetLimitOrderAsync), Name, $"Could not find MarketOrder by id = {marketOrderId}");
+            return null;
+        }
+
+        private async Task<LimitOrderEntity> GetLimitOrderAsync(string limitOrderId)
+        {
+            var result = await ((ILimitOrdersRepository)_repository).GetLimitOrderByIdAsync(limitOrderId);
+            if (result != null)
+                return result;
+            var loFromSql = OrdersFinder.GetLimitOrder(limitOrderId, _sqlConnectionString);
+            if (loFromSql != null)
+                return new LimitOrderEntity
+                {
+                    Id = loFromSql.ExternalId,
+                    MatchingId = loFromSql.Id,
+                    ClientId = loFromSql.ClientId,
+                    AssetPairId = loFromSql.AssetPairId,
+                };
+            await _log.WriteWarningAsync(nameof(GetLimitOrderAsync), Name, $"Could not find LimitOrder by id = {limitOrderId}");
+            return null;
         }
 
         private async Task<bool> UpdateChildrenAsync(LimitOrder inSql, LimitOrder converted, DataContext context)

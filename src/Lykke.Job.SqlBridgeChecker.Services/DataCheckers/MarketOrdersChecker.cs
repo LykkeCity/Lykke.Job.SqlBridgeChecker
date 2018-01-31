@@ -46,7 +46,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 string key = (item.Id ?? item.RowKey).ToString();
                 if (byOrders.ContainsKey(key))
                     children = byOrders[key];
-                var converted = await MarketOrder.FromModelAsync(item, children, GetLimitOrder, _log);
+                var converted = await MarketOrder.FromModelAsync(item, children, GetLimitOrderAsync, _log);
                 result.Add(converted);
 
                 clientIds.Add(item.ClientId);
@@ -81,7 +81,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return changed || childrenUpdated;
         }
 
-        private async Task<LimitOrderEntity> GetLimitOrder(string limitOrderId)
+        private async Task<LimitOrderEntity> GetLimitOrderAsync(string limitOrderId)
         {
             var result = await _limitOrdersRepository.GetLimitOrderByIdAsync(limitOrderId);
             if (result != null)
@@ -95,7 +95,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     ClientId = loFromSql.ClientId,
                     AssetPairId = loFromSql.AssetPairId,
                 };
-            await _log.WriteWarningAsync(nameof(GetLimitOrder), Name, $"Could not find LimitOrder by id = {limitOrderId}");
+            await _log.WriteWarningAsync(nameof(GetLimitOrderAsync), Name, $"Could not find LimitOrder by id = {limitOrderId}");
             return null;
         }
 

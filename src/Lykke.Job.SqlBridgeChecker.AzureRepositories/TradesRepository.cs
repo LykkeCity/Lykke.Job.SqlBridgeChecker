@@ -41,14 +41,23 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 
         public async Task<List<ClientTradeEntity>> GetTradesByMarketOrdersAsync(IEnumerable<(string, string)> userMarketOrders)
         {
-            var result = new List<ClientTradeEntity>();
+            var usersDict = new Dictionary<string, List<string>>();
             foreach (var userOrder in userMarketOrders)
             {
-                string partitionFilter = TableQuery.GenerateFilterCondition(_partitionKey, QueryComparisons.Equal, userOrder.Item1);
-                var orderFilter = TableQuery.GenerateFilterCondition(_marketOrderIdField, QueryComparisons.Equal, userOrder.Item2);
-                var filter = TableQuery.CombineFilters(partitionFilter, TableOperators.And, orderFilter);
-                var query = new TableQuery<ClientTradeEntity>().Where(filter);
-                var items = await _storage.WhereAsync(query);
+                if (usersDict.ContainsKey(userOrder.Item1))
+                    usersDict[userOrder.Item1].Add(userOrder.Item2);
+                else
+                    usersDict.Add(userOrder.Item1, new List<string> { userOrder.Item2 });
+            }
+            var result = new List<ClientTradeEntity>();
+            foreach (var pair in usersDict)
+            {
+                var items = await BatchHelper.BatchGetDataAsync(
+                    pair.Key,
+                    _marketOrderIdField,
+                    pair.Value,
+                    _storage,
+                    _log);
                 result.AddRange(items);
             }
             return result;

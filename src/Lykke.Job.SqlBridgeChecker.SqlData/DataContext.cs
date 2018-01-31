@@ -9,6 +9,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
 
         public const string TradesTable = "Trades";
         public const string CandlesticksTable = "Candlesticks2";
+        public const string MarketOrdersTable = "MarketOrders";
         public const string LimitOrdersTable = "LimitOrders";
         public const string UserWalletsTable = "UserWalets";
 
@@ -104,7 +105,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 entity.Property(e => e.ReservedLimitVolume).HasColumnType("float");
                 entity.HasMany(i => i.Trades).WithOne().HasForeignKey(i => i.MarketOrderId);
                 entity.HasKey(i => i.Id);
-                entity.ToTable("MarketOrders");
+                entity.ToTable(MarketOrdersTable);
             });
 
             modelBuilder.Entity<TradeInfo>(entity =>

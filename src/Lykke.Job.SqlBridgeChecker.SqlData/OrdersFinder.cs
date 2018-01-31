@@ -11,12 +11,20 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
         {
             using (var context = new DataContext(sqlConnectionString))
             {
-                var result = context.LimitOrders.Find(orderId);
-                if (result != null)
-                    return result;
                 context.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
                 string query = $"SELECT * FROM dbo.{DataContext.LimitOrdersTable} WHERE ExternalId = '{orderId}'";
                 var items = context.LimitOrders.AsNoTracking().FromSql(query);
+                return items.FirstOrDefault();
+            }
+        }
+
+        public static MarketOrder GetMarketOrder(string orderId, string sqlConnectionString)
+        {
+            using (var context = new DataContext(sqlConnectionString))
+            {
+                context.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
+                string query = $"SELECT * FROM dbo.{DataContext.MarketOrdersTable} WHERE ExternalId = '{orderId}'";
+                var items = context.MarketOrders.AsNoTracking().FromSql(query);
                 return items.FirstOrDefault();
             }
         }
