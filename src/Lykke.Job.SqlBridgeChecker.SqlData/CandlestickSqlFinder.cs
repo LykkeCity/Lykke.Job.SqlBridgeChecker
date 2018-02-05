@@ -19,8 +19,9 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
         {
             if (_dict == null
                 || _dict.Count == 0 && item.Start.Date != _cacheDate
-                || _dict.Count > 0 && _dict.First().Value.First().Start.Date != item.Start.Date)
-                await InitCacheAsync(item, context, log);
+                || _dict.Count > 0 && _dict.First().Value.First().Start.Date != item.Start.Date
+                || !_dict.ContainsKey(item.AssetPair))
+                await FillAssetPairCacheAsync(item, context, log);
 
             if (!_dict.ContainsKey(item.AssetPair))
                 return null;
@@ -35,22 +36,22 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             _dict?.Clear();
         }
 
-        private static async Task InitCacheAsync(Candlestick item, DataContext context, ILog log)
+        private static async Task FillAssetPairCacheAsync(Candlestick item, DataContext context, ILog log)
         {
-            _dict?.Clear();
-
-            context.Database.SetCommandTimeout(TimeSpan.FromMinutes(10));
+            context.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
 
             DateTime from = item.Start.Date;
             DateTime to = from.AddDays(1);
-            string query = $"SELECT * FROM dbo.{DataContext.CandlesticksTable} WHERE Start >= '{from.ToString(_format)}' AND Start < '{to.ToString(_format)}'";
-            var items = context.Candlesticks.FromSql(query).ToList();
-            _dict = items.GroupBy(i => i.AssetPair).ToDictionary(g => g.Key, g => g.ToList());
+            string query = $"SELECT * FROM dbo.{DataContext.CandlesticksTable} WHERE AssetPair = '{item.AssetPair}' AND Start >= '{from.ToString(_format)}' AND Start < '{to.ToString(_format)}'";
+            var items = context.Candlesticks.FromSql(query).AsNoTracking().ToList();
+            if (_dict == null)
+                _dict = new Dictionary<string, List<Candlestick>>();
+            _dict[item.AssetPair] = items;
             _cacheDate = from;
             await log.WriteInfoAsync(
-                nameof(InitCacheAsync),
+                nameof(FillAssetPairCacheAsync),
                 nameof(CandlestickSqlFinder),
-                $"Cached {items.Count} items from sql for {from.ToString(_format)}.");
+                $"Cached {items.Count} items from sql for {item.AssetPair} on {from.ToString(_format)}.");
         }
     }
 }

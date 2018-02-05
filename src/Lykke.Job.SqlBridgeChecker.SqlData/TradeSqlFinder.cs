@@ -44,7 +44,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             DateTime to = from.AddDays(1);
             context.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
             string query = $"SELECT * FROM dbo.{DataContext.TradesTable} WHERE DateTime >= '{from.ToString(_format)}' AND DateTime < '{to.ToString(_format)}'";
-            var items = context.Trades.FromSql(query).ToList();
+            var items = context.Trades.AsNoTracking().FromSql(query).ToList();
             _dict = items.GroupBy(i => i.TradeId).ToDictionary(g => g.Key, g => g.ToList());
             _cacheDate = from;
             await log.WriteInfoAsync(
