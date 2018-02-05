@@ -3,6 +3,7 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
+using Common;
 using Common.Log;
 using Lykke.Job.SqlBridgeChecker.SqlData.Models;
 
@@ -24,12 +25,20 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             if (!_dict.ContainsKey(item.AssetPair))
                 return null;
 
-            var fromDb = _dict[item.AssetPair].FirstOrDefault(c => c.IsAsk == item.IsAsk && c.Start == item.Start);
+            var roundedFinish = item.Finish.RoundToMinute();
+            var fromDb = _dict[item.AssetPair].FirstOrDefault(c => c.IsAsk == item.IsAsk && c.Finish.RoundToMinute() == roundedFinish);
             return fromDb;
+        }
+
+        public static void ClearCache()
+        {
+            _dict?.Clear();
         }
 
         private static async Task InitCacheAsync(Candlestick item, DataContext context, ILog log)
         {
+            _dict?.Clear();
+
             context.Database.SetCommandTimeout(TimeSpan.FromMinutes(10));
 
             DateTime from = item.Start.Date;

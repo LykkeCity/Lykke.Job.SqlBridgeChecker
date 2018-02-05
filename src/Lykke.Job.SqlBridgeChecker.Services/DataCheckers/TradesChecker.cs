@@ -26,6 +26,11 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             _clientAccountClient = clientAccountClient;
         }
 
+        protected override void ClearCaches()
+        {
+            TradeSqlFinder.ClearCache();
+        }
+
         protected override async Task<List<TradeLogItem>> ConvertItemsToSqlTypesAsync(IEnumerable<ClientTradeEntity> items)
         {
             var result = new List<TradeLogItem>();

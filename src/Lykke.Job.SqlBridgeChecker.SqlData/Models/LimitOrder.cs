@@ -139,14 +139,17 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 }
                 if (!string.IsNullOrWhiteSpace(first.OppositeLimitOrderId) || !string.IsNullOrWhiteSpace(first.MarketOrderId))
                 {
-                    var marketOrder = await marketOrderGetterAsync(first.OppositeLimitOrderId ?? first.MarketOrderId);
-                    if (marketOrder != null)
+                    if (!string.IsNullOrWhiteSpace(first.MarketOrderId))
                     {
-                        trade.OppositeClientId = marketOrder.ClientId;
-                        trade.OppositeOrderExternalId = marketOrder.Id ?? marketOrder.RowKey;
-                        trade.OppositeOrderId = marketOrder.MatchingId ?? trade.OppositeOrderExternalId;
+                        var marketOrder = await marketOrderGetterAsync(first.MarketOrderId);
+                        if (marketOrder != null)
+                        {
+                            trade.OppositeClientId = marketOrder.ClientId;
+                            trade.OppositeOrderExternalId = marketOrder.Id ?? marketOrder.RowKey;
+                            trade.OppositeOrderId = marketOrder.MatchingId ?? trade.OppositeOrderExternalId;
+                        }
                     }
-                    else if (!string.IsNullOrWhiteSpace(first.OppositeLimitOrderId))
+                    else
                     {
                         var otherLimitOrder = await limitOrderGetterAsync(first.OppositeLimitOrderId);
                         if (otherLimitOrder != null)
@@ -154,6 +157,16 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                             trade.OppositeClientId = otherLimitOrder.ClientId;
                             trade.OppositeOrderId = otherLimitOrder.MatchingId;
                             trade.OppositeOrderExternalId = otherLimitOrder.Id ?? otherLimitOrder.RowKey;
+                        }
+                        else
+                        {
+                            var marketOrder = await marketOrderGetterAsync(first.OppositeLimitOrderId);
+                            if (marketOrder != null)
+                            {
+                                trade.OppositeClientId = marketOrder.ClientId;
+                                trade.OppositeOrderExternalId = marketOrder.Id ?? marketOrder.RowKey;
+                                trade.OppositeOrderId = marketOrder.MatchingId ?? trade.OppositeOrderExternalId;
+                            }
                         }
                     }
                 }

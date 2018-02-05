@@ -16,8 +16,6 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         private readonly IUserWalletsMapper _userWalletsMapper;
         private readonly ITradesRepository _tradesRepository;
         private readonly IMarketOrdersRepository _marketOrdersRepository;
-        private readonly string _childPartition = ClientTradeEntity.ByDt.GeneratePartitionKey();
-        private const string _parentIdInChildField = nameof(ClientTradeEntity.MarketOrderId);
 
         public LimitOrdersChecker(
             string sqlConnecctionString,

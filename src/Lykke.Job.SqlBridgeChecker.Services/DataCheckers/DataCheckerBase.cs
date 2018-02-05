@@ -70,9 +70,15 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 await LogAddedAsync(addedCount);
             if (modifiedCount > 0)
                 await LogModifiedAsync(modifiedCount);
+
+            ClearCaches();
         }
 
         protected abstract Task<List<TOut>> ConvertItemsToSqlTypesAsync(IEnumerable<TIn> items);
+
+        protected virtual void ClearCaches()
+        {
+        }
 
         protected virtual async Task LogAddedAsync(int addedCount)
         {

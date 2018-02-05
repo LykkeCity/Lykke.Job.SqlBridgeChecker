@@ -31,8 +31,15 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             return fromDb;
         }
 
+        public static void ClearCache()
+        {
+            _dict?.Clear();
+        }
+
         private static async Task InitCacheAsync(TradeLogItem item, DataContext context, ILog log)
         {
+            _dict?.Clear();
+
             DateTime from = item.DateTime.Date;
             DateTime to = from.AddDays(1);
             context.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
