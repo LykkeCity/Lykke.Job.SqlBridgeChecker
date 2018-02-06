@@ -12,14 +12,14 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
     public static class CandlestickSqlFinder
     {
         private const string _format = "yyyy-MM-dd";
-        private static DateTime _cacheDate = DateTime.MinValue;
+        private static DateTime? _cacheDate;
         private static Dictionary<string, List<Candlestick>> _dict;
 
         public static async Task<Candlestick> FindInDbAsync(Candlestick item, DataContext context, ILog log)
         {
             if (_dict == null
-                || _dict.Count == 0 && item.Start.Date != _cacheDate
-                || _dict.Count > 0 && _dict.First(i => i.Value.Count > 0).Value.First().Start.Date != item.Start.Date
+                || !_cacheDate.HasValue
+                || item.Start.Date != _cacheDate.Value
                 || !_dict.ContainsKey(item.AssetPair))
                 await FillAssetPairCacheAsync(item, context, log);
 
