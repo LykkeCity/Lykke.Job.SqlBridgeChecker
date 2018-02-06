@@ -19,7 +19,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
         {
             if (_dict == null
                 || _dict.Count == 0 && item.Start.Date != _cacheDate
-                || _dict.Count > 0 && _dict.First().Value.First().Start.Date != item.Start.Date
+                || _dict.Count > 0 && _dict.First(i => i.Value.Count > 0).Value.First().Start.Date != item.Start.Date
                 || !_dict.ContainsKey(item.AssetPair))
                 await FillAssetPairCacheAsync(item, context, log);
 
