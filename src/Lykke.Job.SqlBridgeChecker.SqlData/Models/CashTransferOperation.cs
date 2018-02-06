@@ -2,6 +2,7 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Common;
 using Common.Log;
 using Lykke.Job.SqlBridgeChecker.Core.Repositories;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
@@ -51,27 +52,41 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             result.DateTime = models.Max(m => m.DateTime);
             var buy = models.FirstOrDefault(m => m.Amount > 0);
             if (buy != null)
+            {
                 result.ToClientId = buy.ClientId;
+            }
             else
             {
                 buy = models.FirstOrDefault(m => m.Amount == 0);
                 if (buy == null)
+                {
                     await log.WriteWarningAsync(
-                        nameof(FromModelAsync),
-                        nameof(CashTransferOperation),
-                        $"Buy part is not found for transfer transaction {result.Id}");
+                        "CashTransferOperation.FromModelAsync",
+                        models.ToList().ToJson(),
+                        $"Buy part is not found for client {first.ClientId} transfer {result.Id}");
+                    result.ToClientId = "N/A";
+                }
+                else
+                    result.ToClientId = buy.ClientId;
             }
             var sell = models.FirstOrDefault(m => m.Amount < 0);
             if (sell != null)
+            {
                 result.FromClientId = sell.ClientId;
+            }
             else
             {
                 sell = models.FirstOrDefault(m => m.Amount == 0 && m != buy);
                 if (sell == null)
+                {
                     await log.WriteWarningAsync(
-                        nameof(FromModelAsync),
-                        nameof(CashTransferOperation),
-                        $"Sell part is not found for transfer transaction {result.Id}");
+                        "CashTransferOperation.FromModelAsync",
+                        models.ToList().ToJson(),
+                        $"Sell part is not found for client {first.ClientId} transfer {result.Id}");
+                    result.FromClientId = "N/A";
+                }
+                else
+                    result.FromClientId = sell.ClientId;
             }
             return result;
         }
