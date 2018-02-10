@@ -104,9 +104,9 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return result;
         }
 
-        protected virtual async Task<bool> UpdateItemAsync(TOut inSql, TOut convertedItem, DataContext context)
+        protected virtual Task<bool> UpdateItemAsync(TOut inSql, TOut convertedItem, DataContext context)
         {
-            return false;
+            return Task.FromResult(false);
         }
 
         protected bool AreEqual<T>(T? one, T? two)

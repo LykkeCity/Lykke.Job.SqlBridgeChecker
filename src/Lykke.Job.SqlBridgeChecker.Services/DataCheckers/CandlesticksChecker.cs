@@ -28,7 +28,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             _missingPairs.Clear();
         }
 
-        protected override async Task<List<Candlestick>> ConvertItemsToSqlTypesAsync(IEnumerable<FeedHistoryEntity> items)
+        protected override Task<List<Candlestick>> ConvertItemsToSqlTypesAsync(IEnumerable<FeedHistoryEntity> items)
         {
             var result = items
                 .GroupBy(m =>
@@ -40,7 +40,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 .Select(g => Candlestick.FromModel(g, _log))
                 .Where(c => c != null)
                 .ToList();
-            return result;
+            return Task.FromResult(result);
         }
 
         protected override async Task<Candlestick> FindInSqlDbAsync(Candlestick item, DataContext context)

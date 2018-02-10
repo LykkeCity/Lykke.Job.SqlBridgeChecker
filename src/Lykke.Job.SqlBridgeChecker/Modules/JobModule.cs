@@ -6,7 +6,6 @@ using AzureStorage.Tables;
 using Lykke.SettingsReader;
 using Lykke.Service.ClientAccount.Client;
 using Lykke.Job.SqlBridgeChecker.Core.Services;
-using Lykke.Job.SqlBridgeChecker.Core.Settings;
 using Lykke.Job.SqlBridgeChecker.Services;
 using Lykke.Job.SqlBridgeChecker.Services.DataCheckers;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories;
