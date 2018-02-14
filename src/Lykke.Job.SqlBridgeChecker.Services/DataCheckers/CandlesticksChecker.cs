@@ -12,7 +12,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 {
     public class CandlesticksChecker : DataCheckerBase<FeedHistoryEntity, Candlestick>
     {
-        private readonly HashSet<string> _missingPairs = new HashSet<string>();
+        private readonly Dictionary<string, bool> _missingPairs = new Dictionary<string, bool>();
 
         public CandlesticksChecker(
             string sqlConnecctionString,
@@ -47,7 +47,17 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         {
             var inSql = await CandlestickSqlFinder.FindInDbAsync(item, context, _log);
             if (inSql == null)
-                _missingPairs.Add(item.AssetPair);
+            {
+                if (!_missingPairs.ContainsKey(item.AssetPair))
+                {
+                    _missingPairs.Add(item.AssetPair, true);
+                    await _log.WriteInfoAsync(nameof(FindInSqlDbAsync), Name, $"{item.ToJson()}");
+                }
+            }
+            else if (_missingPairs.ContainsKey(item.AssetPair) && _missingPairs[item.AssetPair])
+            {
+                _missingPairs[item.AssetPair] = false;
+            }
             return inSql;
         }
 
@@ -76,9 +86,10 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), Name, $"Added {addedCount} items.");
             if (_missingPairs.Count > 0)
             {
-                string missingPairs = string.Join(",", _missingPairs);
-                await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), Name, $"Missing {missingPairs}.");
-                _missingPairs.Clear();
+                string totallyMissingPairs = string.Join(",", _missingPairs.Where(p => p.Value).Select(p => p.Key));
+                await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), Name, $"Whole day missing {totallyMissingPairs}.");
+                string partiallyMissingPairs = string.Join(",", _missingPairs.Where(p => !p.Value).Select(p => p.Key));
+                await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), Name, $"Sometimes missing {partiallyMissingPairs}.");
             }
         }
     }
