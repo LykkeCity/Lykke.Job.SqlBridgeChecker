@@ -1,10 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
-using Lykke.Job.SqlBridgeChecker.Core.Services;
-using Lykke.Job.SqlBridgeChecker.Models;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
+using Lykke.Common.Api.Contract.Responses;
+using Lykke.Job.SqlBridgeChecker.Core.Services;
 
 namespace Lykke.Job.SqlBridgeChecker.Controllers
 {

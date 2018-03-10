@@ -1,4 +1,5 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Table;
 using Common.Log;
 using AzureStorage;
@@ -24,7 +25,7 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
             return result;
         }
 
-        protected override string GetAdditionalConditions()
+        protected override string GetAdditionalConditions(DateTime from, DateTime to)
         {
             string partitionFilter = TableQuery.GenerateFilterCondition(
                 "PartitionKey", QueryComparisons.Equal, LimitOrderEntity.ByOrderId.GeneratePartitionKey());

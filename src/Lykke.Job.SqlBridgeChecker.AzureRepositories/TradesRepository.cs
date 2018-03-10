@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Table;
 using Common.Log;
@@ -15,6 +16,7 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 
         private const string _marketOrderIdField = nameof(ClientTradeEntity.MarketOrderId);
         private const string _partitionKey = "PartitionKey";
+        private const string _rowKey = "RowKey";
 
         public TradesRepository(INoSQLTableStorage<ClientTradeEntity> storage, ILog log)
             : base(storage)
@@ -68,11 +70,14 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
             return nameof(ClientTradeEntity.DateTime);
         }
 
-        protected override string GetAdditionalConditions()
+        protected override string GetAdditionalConditions(DateTime from, DateTime to)
         {
-            string partitionFilter = TableQuery.GenerateFilterCondition(
-                "PartitionKey", QueryComparisons.Equal, ClientTradeEntity.ByDt.GeneratePartitionKey());
-            return partitionFilter;
+            var partitionFilter = TableQuery.GenerateFilterCondition(_partitionKey, QueryComparisons.Equal, ClientTradeEntity.ByDt.GeneratePartitionKey());
+            var fromFilter = TableQuery.GenerateFilterCondition(_rowKey, QueryComparisons.GreaterThanOrEqual, ClientTradeEntity.ByDt.GetRowKeyPart(from));
+            var toFilter = TableQuery.GenerateFilterCondition(_rowKey, QueryComparisons.LessThan, ClientTradeEntity.ByDt.GetRowKeyPart(to));
+            var filter = TableQuery.CombineFilters(fromFilter, TableOperators.And, toFilter);
+            filter = TableQuery.CombineFilters(partitionFilter, TableOperators.And, filter);
+            return filter;
         }
     }
 }

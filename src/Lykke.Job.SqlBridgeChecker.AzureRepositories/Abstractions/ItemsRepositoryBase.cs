@@ -33,7 +33,7 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions
             string fromFilter = TableQuery.GenerateFilterConditionForDate(dateColumn, QueryComparisons.LessThan, to);
             string toFilter = TableQuery.GenerateFilterConditionForDate(dateColumn, QueryComparisons.GreaterThanOrEqual, from);
             string filter = TableQuery.CombineFilters(fromFilter, TableOperators.And, toFilter);
-            string otherConditions = GetAdditionalConditions();
+            string otherConditions = GetAdditionalConditions(from, to);
             if (!string.IsNullOrWhiteSpace(otherConditions))
                 filter = TableQuery.CombineFilters(otherConditions, TableOperators.And, filter);
             return filter;
@@ -41,7 +41,7 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions
 
         abstract protected string GetDateColumn();
 
-        virtual protected string GetAdditionalConditions()
+        virtual protected string GetAdditionalConditions(DateTime from, DateTime to)
         {
             return null;
         }
