@@ -3,6 +3,7 @@ using Microsoft.EntityFrameworkCore;
 using Autofac;
 using Common.Log;
 using AzureStorage.Tables;
+using Lykke.Common;
 using Lykke.SettingsReader;
 using Lykke.Service.ClientAccount.Client;
 using Lykke.Job.SqlBridgeChecker.Core.Services;
@@ -36,7 +37,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
         {
             using (var context = new DataContext(_appSettings.SqlBridgeCheckerJob.SqlDbConnectionString))
             {
-                context.Database.SetCommandTimeout(TimeSpan.FromMinutes(10));
+                context.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
                 context.Database.Migrate();
             }
 
@@ -53,6 +54,8 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
 
             builder.RegisterType<ShutdownManager>()
                 .As<IShutdownManager>();
+
+            builder.RegisterResourcesMonitoring(_log);
 
             var clientAccountClient = new ClientAccountClient(_appSettings.ClientAccountServiceClient.ServiceUrl);
             builder.RegisterInstance(clientAccountClient)

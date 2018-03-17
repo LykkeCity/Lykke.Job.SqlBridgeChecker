@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Threading.Tasks;
+using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAzure.Storage.Table;
 using Common;
 using Common.Log;
@@ -41,6 +42,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             int addedCount = 0;
             using (var dbContext = new DataContext(_sqlConnectionString))
             {
+                dbContext.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
                 foreach (var sqlItem in sqlItems)
                 {
                     try
