@@ -14,5 +14,10 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Models
         public double NewBalance { get; set; }
         public double OldReserved { get; set; }
         public double NewReserved { get; set; }
+
+        public static string GenerateRowKey(DateTime dateTime)
+        {
+            return dateTime.ToString("yyyy-MM-dd HH:mm:ss:fff");
+        }
     }
 }
