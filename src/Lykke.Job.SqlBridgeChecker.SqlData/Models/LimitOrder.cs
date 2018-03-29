@@ -81,7 +81,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             if (tradeItems == null)
                 return result;
 
-            var tradeByLimitOrder = tradeItems.GroupBy(t => t.OppositeLimitOrderId ?? t.MarketOrderId);
+            var tradeByLimitOrder = tradeItems.GroupBy(t => new { OppositeOrderId = t.OppositeLimitOrderId ?? t.MarketOrderId, t.DateTime });
             foreach (var trades in tradeByLimitOrder)
             {
                 int clientCount = trades.Select(t => t.ClientId).Distinct().Count();
