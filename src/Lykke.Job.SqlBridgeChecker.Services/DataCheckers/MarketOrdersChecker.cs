@@ -17,6 +17,8 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         private readonly ITradesRepository _tradesRepository;
         private readonly ILimitOrdersRepository _limitOrdersRepository;
 
+        private int _addedTradesCount;
+
         public MarketOrdersChecker(
             string sqlConnecctionString,
             IUserWalletsMapper userWalletsMapper,
@@ -29,6 +31,11 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             _userWalletsMapper = userWalletsMapper;
             _limitOrdersRepository = limitOrdersRepository;
             _tradesRepository = tradesRepository;
+        }
+
+        protected override void ClearCaches()
+        {
+            _addedTradesCount = 0;
         }
 
         protected override async Task<List<MarketOrder>> ConvertItemsToSqlTypesAsync(IEnumerable<MarketOrderEntity> items)
@@ -81,6 +88,13 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return changed || childrenUpdated;
         }
 
+        protected override async Task LogAddedAsync(int addedCount)
+        {
+            await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), Name, $"Added {addedCount} item(s).");
+            if (_addedTradesCount > 0)
+                await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), Name, $"Added {_addedTradesCount} LimitTradeInfos.");
+        }
+
         private async Task<LimitOrderEntity> GetLimitOrderAsync(string limitOrderId)
         {
             var result = await _limitOrdersRepository.GetLimitOrderByIdAsync(limitOrderId);
@@ -122,6 +136,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     await _log.WriteWarningAsync(nameof(UpdateChildrenAsync), Name, $"Found invalid child object - {child.ToJson()}!");
                 await _log.WriteInfoAsync(nameof(UpdateChildrenAsync), Name, $"Added trade {child.ToJson()} for MarketOrder {inSql.Id}");
                 context.TradeInfos.Add(child);
+                ++_addedTradesCount;
                 added = true;
             }
             return added;
