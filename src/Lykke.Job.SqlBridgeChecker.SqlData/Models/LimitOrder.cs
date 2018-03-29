@@ -90,6 +90,12 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                         nameof(FromModelAsync),
                         nameof(LimitOrder),
                         $"Found {clientCount} clients in trades for LimitOrder {model.Id ?? model.RowKey}");
+                int tradesCount = trades.Count();
+                if (tradesCount > 2)
+                    await log.WriteWarningAsync(
+                        nameof(FromModelAsync),
+                        nameof(LimitOrder),
+                        $"Found {tradesCount} trades for LimitOrder {model.Id ?? model.RowKey} with OppositeOrderId { trades.Key.OppositeOrderId } on {trades.Key.DateTime}");
                 var first = trades.First();
                 var trade = new LimitTradeInfo
                 {
