@@ -20,7 +20,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services
         public CheckersRepository(IUserWalletsMapper userWalletsMapper, ILog log)
         {
             _userWalletsMapper = userWalletsMapper;
-            _log = log;
+            _log = log.CreateComponentScope(Name);
         }
 
         public void AddChecker(IDataChecker checker)
@@ -33,7 +33,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services
 
         public async Task CheckAndFixDataAsync()
         {
-            await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), Name, "Checking work has been started");
+            await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), "AllStart", "Checking work has been started");
 
             foreach (var checker in _checkers)
             {
@@ -42,9 +42,9 @@ namespace Lykke.Job.SqlBridgeChecker.Services
                 {
                     try
                     {
-                        await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), Name, $"{checker.Name} started.");
+                        await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), "CheckerStart", $"{checker.Name} started.");
                         await checker.CheckAndFixDataAsync();
-                        await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), Name, $"{checker.Name} finished.");
+                        await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), "CheckerFinish", $"{checker.Name} finished.");
                         break;
                     }
                     catch (Exception exc)
@@ -58,7 +58,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services
 
             _userWalletsMapper.ClearCaches();
 
-            await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), Name, "Checking work is finished");
+            await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), "AllFinish", "Checking work is finished");
         }
 
         public ReadOnlyCollection<IDataChecker> GetCheckers()

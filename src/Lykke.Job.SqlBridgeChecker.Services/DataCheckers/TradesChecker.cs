@@ -47,7 +47,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         {
             var inSql = await TradeSqlFinder.FindInDbAsync(item, context, _log);
             if (inSql == null)
-                await _log.WriteInfoAsync(nameof(FindInSqlDbAsync), Name, $"{item.ToJson()}");
+                await _log.WriteInfoAsync(nameof(FindInSqlDbAsync), $"{item.Asset}_{item.OppositeAsset}", $"{item.ToJson()}");
             return inSql;
         }
 
@@ -57,7 +57,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 || inSql.IsHidden != convertedItem.IsHidden;
             if (!changed)
                 return false;
-            await _log.WriteInfoAsync(nameof(UpdateItemAsync), Name, $"{inSql.ToJson()}");
+            await _log.WriteInfoAsync(nameof(UpdateItemAsync), $"{convertedItem.Asset}_{convertedItem.OppositeAsset}", $"{inSql.ToJson()}");
             inSql.Direction = convertedItem.Direction;
             inSql.IsHidden = convertedItem.IsHidden;
             return true;

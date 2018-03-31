@@ -83,7 +83,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 || inSql.RemainingVolume != converted.RemainingVolume;
             if (changed)
             {
-                await _log.WriteInfoAsync(nameof(UpdateItemAsync), Name, $"{inSql.ToJson()}");
+                await _log.WriteInfoAsync(nameof(UpdateItemAsync), converted.AssetPairId, $"{inSql.ToJson()}");
                 inSql.Status = converted.Status;
                 inSql.LastMatchTime = converted.LastMatchTime;
                 inSql.RemainingVolume = converted.RemainingVolume;
@@ -95,9 +95,9 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         protected override async Task LogAddedAsync(int addedCount)
         {
-            await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), Name, $"Added {addedCount} item(s).");
+            await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), "TotalAdded", $"Added {addedCount} item(s).");
             if (_addedTradesCount > 0)
-                await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), Name, $"Added {_addedTradesCount} LimitTradeInfos.");
+                await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), "TotalAddedChildren", $"Added {_addedTradesCount} LimitTradeInfos.");
         }
 
         private async Task<MarketOrderEntity> GetMarketOrderAsync(string marketOrderId)
@@ -155,8 +155,8 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     continue;
 
                 if (!child.IsValid())
-                    await _log.WriteWarningAsync(nameof(UpdateChildrenAsync), Name, $"Found invalid child object - {child.ToJson()}!");
-                await _log.WriteInfoAsync(nameof(UpdateChildrenAsync), Name, $"Added trade {child.ToJson()} for LimitOrder {inSql.Id}");
+                    await _log.WriteWarningAsync(nameof(UpdateChildrenAsync), "Invalid", $"Found invalid child object - {child.ToJson()}!");
+                await _log.WriteInfoAsync(nameof(UpdateChildrenAsync), $"{child.Asset}_{child.OppositeAsset}", $"Added trade {child.ToJson()} for LimitOrder {inSql.Id}");
                 context.LimitTradeInfos.Add(child);
                 ++_addedTradesCount;
                 added = true;
@@ -168,7 +168,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         {
             var result = await _tradesRepository.GetTradesByLimitOrderKeysAsync(parentIds);
 
-            await _log.WriteInfoAsync(nameof(GetChildrenAsync), Name, $"Fetched {result.Count} trades.");
+            await _log.WriteInfoAsync(nameof(GetChildrenAsync), "FetchedChildren", $"Fetched {result.Count} trades.");
 
             return result;
         }

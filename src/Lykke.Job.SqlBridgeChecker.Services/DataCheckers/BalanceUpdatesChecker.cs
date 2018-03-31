@@ -65,10 +65,10 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     continue;
 
                 if (!child.IsValid())
-                    await _log.WriteWarningAsync(nameof(UpdateItemAsync), Name, $"Found invalid child object - {child.ToJson()}!");
+                    await _log.WriteWarningAsync(nameof(UpdateItemAsync), "Invalid", $"Found invalid child object - {child.ToJson()}!");
                 context.ClientBalanceUpdates.Add(child);
                 added = true;
-                await _log.WriteInfoAsync(nameof(UpdateItemAsync), Name, $"Added update {child.ToJson()} for BalanceUpdate {inSql.Id}");
+                await _log.WriteInfoAsync(nameof(UpdateItemAsync), child.Asset, $"Added update {child.ToJson()} for BalanceUpdate {convertedItem.Id}");
             }
             return added;
         }

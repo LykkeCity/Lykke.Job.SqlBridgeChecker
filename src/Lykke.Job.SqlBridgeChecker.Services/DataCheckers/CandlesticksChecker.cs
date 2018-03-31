@@ -46,17 +46,18 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         protected override async Task<Candlestick> FindInSqlDbAsync(Candlestick item, DataContext context)
         {
             var inSql = await CandlestickSqlFinder.FindInDbAsync(item, context, _log);
+            string key = $"{item.AssetPair}_{item.IsAsk}";
             if (inSql == null)
             {
-                if (!_missingPairs.ContainsKey(item.AssetPair))
+                if (!_missingPairs.ContainsKey(key))
                 {
-                    _missingPairs.Add(item.AssetPair, true);
-                    await _log.WriteInfoAsync(nameof(FindInSqlDbAsync), Name, $"{item.ToJson()}");
+                    _missingPairs.Add(key, true);
+                    await _log.WriteInfoAsync(nameof(FindInSqlDbAsync), key, $"{item.ToJson()}");
                 }
             }
-            else if (_missingPairs.ContainsKey(item.AssetPair) && _missingPairs[item.AssetPair])
+            else if (_missingPairs.ContainsKey(key) && _missingPairs[key])
             {
-                _missingPairs[item.AssetPair] = false;
+                _missingPairs[key] = false;
             }
             return inSql;
         }
@@ -68,7 +69,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 || inSql.Low > convertedItem.Low;
             if (!changed)
                 return false;
-            await _log.WriteInfoAsync(nameof(UpdateItemAsync), Name, $"{inSql.ToJson()}");
+            await _log.WriteInfoAsync(nameof(UpdateItemAsync), convertedItem.AssetPair, $"{inSql.ToJson()}");
             if (inSql.Start > convertedItem.Start)
             {
                 inSql.Start = convertedItem.Start;
@@ -83,13 +84,13 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         protected override async Task LogAddedAsync(int addedCount)
         {
-            await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), Name, $"Added {addedCount} items.");
+            await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), "TotalAdded", $"Added {addedCount} items.");
             if (_missingPairs.Count > 0)
             {
-                string totallyMissingPairs = string.Join(",", _missingPairs.Where(p => p.Value).Select(p => p.Key));
-                await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), Name, $"Whole day missing {totallyMissingPairs}.");
-                string partiallyMissingPairs = string.Join(",", _missingPairs.Where(p => !p.Value).Select(p => p.Key));
-                await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), Name, $"Sometimes missing {partiallyMissingPairs}.");
+                string totallyMissingPairs = string.Join(",", _missingPairs.Where(p => p.Value).Select(p => p.Key).OrderBy(i => i));
+                await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), "WholeDayMissing", $"Whole day missing {totallyMissingPairs}.");
+                string partiallyMissingPairs = string.Join(",", _missingPairs.Where(p => !p.Value).Select(p => p.Key).OrderBy(i => i));
+                await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), "PartiallyMissing", $"Partially missing {partiallyMissingPairs}.");
             }
         }
     }
