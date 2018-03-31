@@ -35,7 +35,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     new
                     {
                         m.RowKey,
-                        AssetPair = m.PartitionKey.Split('_')[0],
+                        m.PartitionKey,
                     })
                 .Select(g => Candlestick.FromModel(g, _log))
                 .Where(c => c != null)

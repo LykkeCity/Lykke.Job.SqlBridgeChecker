@@ -94,7 +94,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             result.High = (Single)high;
             result.Low = (Single)low;
             result.Start = modelTime.AddSeconds(start);
-            result.Finish = modelTime.AddSeconds(finish);
+            DateTime end = modelTime.AddSeconds(finish);
+            result.Finish = new DateTime(end.Year, end.Month, end.Day, end.Hour, end.Minute, 59, end.Kind);
             return result;
         }
 
@@ -106,7 +107,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             int day = int.Parse(rowKey.Substring(6, 2));
             int hour = int.Parse(rowKey.Substring(8, 2));
             int min = int.Parse(rowKey.Substring(10, 2));
-            return new DateTime(year, month, day, hour, min, 0);
+            return new DateTime(year, month, day, hour, min, 0, DateTimeKind.Utc);
         }
 
         private static List<TradeCandle> ParseCandles(string data)
