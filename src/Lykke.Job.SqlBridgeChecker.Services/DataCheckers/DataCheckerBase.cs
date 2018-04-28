@@ -17,6 +17,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         where TOut : class, IDbEntity, IValidatable
     {
         protected internal readonly string _sqlConnectionString;
+        
         protected readonly ITableEntityRepository<TIn> _repository;
         protected readonly ILog _log;
 

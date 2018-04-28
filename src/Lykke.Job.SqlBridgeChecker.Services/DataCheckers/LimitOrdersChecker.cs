@@ -43,7 +43,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             List<LimitOrder> result = new List<LimitOrder>();
             var allChildren = await GetChildrenAsync(items
                 .Select(m => m.Id ?? m.RowKey)
-                .Where(i => i != null && i.ToString() != string.Empty));
+                .Where(i => !string.IsNullOrWhiteSpace(i)));
             var byOrders = allChildren
                 .Where(i => !i.IsHidden)
                 .GroupBy(c => c.PartitionKey)
@@ -52,7 +52,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             foreach (var item in items)
             {
                 List<ClientTradeEntity> children = null;
-                string key = (item.Id ?? item.RowKey).ToString();
+                string key = item.Id ?? item.RowKey;
                 if (byOrders.ContainsKey(key))
                     children = byOrders[key];
                 var converted = await LimitOrder.FromModelAsync(
@@ -156,7 +156,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
                 if (!child.IsValid())
                     await _log.WriteWarningAsync(nameof(UpdateChildrenAsync), "Invalid", $"Found invalid child object - {child.ToJson()}!");
-                await _log.WriteInfoAsync(nameof(UpdateChildrenAsync), $"{child.Asset}_{child.OppositeAsset}", $"Added trade {child.ToJson()} for LimitOrder {inSql.Id}");
+                await _log.WriteInfoAsync(nameof(UpdateChildrenAsync), $"{child.Asset}_{child.OppositeAsset}", $"Added trade {child.ToJson()} for LimitOrder {inSql.Id} with trades {childrenFromDb}");
                 context.LimitTradeInfos.Add(child);
                 ++_addedTradesCount;
                 added = true;

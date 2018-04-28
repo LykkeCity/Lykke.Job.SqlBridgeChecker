@@ -45,11 +45,11 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
 
         public bool IsValid()
         {
-            return Id != null && Id.Length <= MaxStringFieldsLength
-                && ExternalId != null && ExternalId.Length <= MaxStringFieldsLength
-                && AssetPairId != null && AssetPairId.Length <= MaxStringFieldsLength
-                && ClientId != null && ClientId.Length <= MaxStringFieldsLength
-                && Status != null && Status.Length <= MaxStringFieldsLength
+            return !string.IsNullOrEmpty(Id) && Id.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(ExternalId) && ExternalId.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(AssetPairId) && AssetPairId.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(ClientId) && ClientId.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(Status) && Status.Length <= MaxStringFieldsLength
                 && Volume != 0
                 && Price > 0
                 && (Trades == null || Trades.Count == 0 || Trades.All(t => t.IsValid()));

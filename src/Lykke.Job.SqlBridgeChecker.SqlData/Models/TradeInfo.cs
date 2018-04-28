@@ -33,15 +33,15 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
 
         public bool IsValid()
         {
-            return MarketClientId != null && MarketClientId.Length <= MaxStringFieldsLength
+            return !string.IsNullOrEmpty(MarketClientId) && MarketClientId.Length <= MaxStringFieldsLength
                 && MarketVolume != 0
-                && MarketAsset != null && MarketAsset.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(MarketAsset) && MarketAsset.Length <= MaxStringFieldsLength
                 && Price > 0
-                && LimitClientId != null && LimitClientId.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(LimitClientId) && LimitClientId.Length <= MaxStringFieldsLength
                 && LimitVolume != 0
-                && LimitAsset != null && LimitAsset.Length <= MaxStringFieldsLength
-                && LimitOrderId != null && LimitOrderId.Length <= MaxStringFieldsLength
-                && LimitOrderExternalId != null && LimitOrderExternalId.Length <= MaxStringFieldsLength;
+                && !string.IsNullOrEmpty(LimitAsset) && LimitAsset.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(LimitOrderId) && LimitOrderId.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(LimitOrderExternalId) && LimitOrderExternalId.Length <= MaxStringFieldsLength;
         }
     }
 }

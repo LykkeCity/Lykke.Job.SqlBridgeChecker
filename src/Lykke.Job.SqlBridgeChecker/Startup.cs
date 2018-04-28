@@ -181,10 +181,7 @@ namespace Lykke.Job.SqlBridgeChecker
                 QueueName = settings.CurrentValue.SlackNotifications.AzureQueue.QueueName
             }, aggregateLogger);
 
-            var slackNotificationsManager = new LykkeLogToAzureSlackNotificationsManager(
-                slackService,
-                new HashSet<string> { LykkeLogToAzureStorage.ErrorType, LykkeLogToAzureStorage.FatalErrorType, LykkeLogToAzureStorage.MonitorType },
-                consoleLogger);
+            var slackNotificationsManager = new LykkeLogToAzureSlackNotificationsManager(slackService, consoleLogger);
 
             var azureStorageLogger = new LykkeLogToAzureStorage(
                 persistenceManager,

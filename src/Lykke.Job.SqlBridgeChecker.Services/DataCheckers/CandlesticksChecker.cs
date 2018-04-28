@@ -15,10 +15,10 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         private readonly Dictionary<string, bool> _missingPairs = new Dictionary<string, bool>();
 
         public CandlesticksChecker(
-            string sqlConnecctionString,
+            string sqlConnectionString,
             ITableEntityRepository<FeedHistoryEntity> repository,
             ILog log)
-            : base(sqlConnecctionString, repository, log)
+            : base(sqlConnectionString, repository, log)
         {
         }
 
@@ -88,9 +88,11 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             if (_missingPairs.Count > 0)
             {
                 string totallyMissingPairs = string.Join(",", _missingPairs.Where(p => p.Value).Select(p => p.Key).OrderBy(i => i));
-                await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), "WholeDayMissing", $"Whole day missing {totallyMissingPairs}.");
+                if (!string.IsNullOrEmpty(totallyMissingPairs))
+                    await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), "WholeDayMissing", $"Whole day missing {totallyMissingPairs}.");
                 string partiallyMissingPairs = string.Join(",", _missingPairs.Where(p => !p.Value).Select(p => p.Key).OrderBy(i => i));
-                await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), "PartiallyMissing", $"Partially missing {partiallyMissingPairs}.");
+                if (!string.IsNullOrEmpty(partiallyMissingPairs))
+                    await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), "PartiallyMissing", $"Partially missing {partiallyMissingPairs}.");
             }
         }
     }

@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Table;
-using Common.Log;
 using AzureStorage;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions;
@@ -10,13 +9,11 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 {
     public class LimitOrdersRepository : ItemsRepositoryBase<LimitOrderEntity>, ILimitOrdersRepository
     {
-        private readonly ILog _log;
         private readonly string _orderKey = LimitOrderEntity.ByOrderId.GeneratePartitionKey();
 
-        public LimitOrdersRepository(INoSQLTableStorage<LimitOrderEntity> storage, ILog log)
+        public LimitOrdersRepository(INoSQLTableStorage<LimitOrderEntity> storage)
             : base(storage)
         {
-            _log = log;
         }
 
         public async Task<LimitOrderEntity> GetLimitOrderByIdAsync(string limitOrderId)

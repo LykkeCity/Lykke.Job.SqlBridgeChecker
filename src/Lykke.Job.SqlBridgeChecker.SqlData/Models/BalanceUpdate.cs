@@ -25,8 +25,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
 
         public bool IsValid()
         {
-            if (Id == null || Id.Length > MaxStringFieldsLength
-                || Type == null || Type.Length > MaxStringFieldsLength
+            if (string.IsNullOrEmpty(Id) || Id.Length > MaxStringFieldsLength
+                || string.IsNullOrEmpty(Type) || Type.Length > MaxStringFieldsLength
                 || Balances == null || Balances.Count == 0)
                 return false;
 
@@ -47,8 +47,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 Id = first.TransactionId,
                 Type = first.TransactionType,
             };
-            int tmp;
-            if (int.TryParse(first.TransactionId, out tmp))
+            if (int.TryParse(first.TransactionId, out _))
                 result.Id = Guid.NewGuid().ToString();
             result.Timestamp = first.TransactionTimestamp;
             result.Balances = models

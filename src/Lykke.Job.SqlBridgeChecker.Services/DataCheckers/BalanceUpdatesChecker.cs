@@ -1,4 +1,5 @@
-﻿using System.Linq;
+﻿using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
@@ -55,12 +56,13 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             foreach (var child in convertedItem.Balances)
             {
                 var fromDb = clientBalanceUpdates
-                    .Where(c =>
+                    .FirstOrDefault(c =>
                         c.ClientId == child.ClientId
                         && c.Asset == child.Asset
-                        && c.NewBalance == child.NewBalance
-                        && c.NewReserved == child.NewReserved)
-                    .FirstOrDefault();
+                        && Math.Abs(c.NewBalance - child.NewBalance) < 0.00000001
+                        && Math.Abs(c.OldBalance - child.OldBalance) < 0.00000001
+                        && c.NewReserved == child.NewReserved
+                        && c.OldReserved == child.OldReserved);
                 if (fromDb != null)
                     continue;
 

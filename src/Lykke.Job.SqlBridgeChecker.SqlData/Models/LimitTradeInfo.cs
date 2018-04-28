@@ -33,16 +33,16 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
 
         public bool IsValid()
         {
-            return ClientId != null && ClientId.Length <= MaxStringFieldsLength
-                && LimitOrderId != null && LimitOrderId.Length <= MaxStringFieldsLength
+            return !string.IsNullOrEmpty(ClientId) && ClientId.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(LimitOrderId) && LimitOrderId.Length <= MaxStringFieldsLength
                 && Volume != 0
                 && Price > 0
-                && Asset != null && Asset.Length <= MaxStringFieldsLength
-                && OppositeClientId != null && OppositeClientId.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(Asset) && Asset.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(OppositeClientId) && OppositeClientId.Length <= MaxStringFieldsLength
                 && OppositeVolume != 0
-                && OppositeAsset != null && OppositeAsset.Length <= MaxStringFieldsLength
-                && OppositeOrderId != null && OppositeOrderId.Length <= MaxStringFieldsLength
-                && OppositeOrderExternalId != null && OppositeOrderExternalId.Length <= MaxStringFieldsLength;
+                && !string.IsNullOrEmpty(OppositeAsset) && OppositeAsset.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(OppositeOrderId) && OppositeOrderId.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(OppositeOrderExternalId) && OppositeOrderExternalId.Length <= MaxStringFieldsLength;
         }
     }
 }

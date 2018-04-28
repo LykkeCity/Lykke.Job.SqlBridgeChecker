@@ -139,7 +139,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 "LimitOrders",
                 _log,
                 _timeout);
-            var limitOrdersRepository = new LimitOrdersRepository(limitOrdersStorage, _log);
+            var limitOrdersRepository = new LimitOrdersRepository(limitOrdersStorage);
             var tradesStorage = AzureTableStorage<ClientTradeEntity>.Create(
                 _settingsManager.ConnectionString(i => i.HTradesConnString),
                 "Trades",

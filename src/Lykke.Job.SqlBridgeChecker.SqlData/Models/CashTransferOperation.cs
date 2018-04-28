@@ -27,11 +27,11 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
 
         public bool IsValid()
         {
-            return Id != null && Id.Length <= MaxStringFieldsLength
-                && FromClientId != null && FromClientId.Length <= MaxStringFieldsLength
-                && ToClientId != null && ToClientId.Length <= MaxStringFieldsLength
+            return !string.IsNullOrEmpty(Id) && Id.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(FromClientId) && FromClientId.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(ToClientId) && ToClientId.Length <= MaxStringFieldsLength
                 && FromClientId != ToClientId
-                && Asset != null && Asset.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(Asset) && Asset.Length <= MaxStringFieldsLength
                 && Volume != 0;
         }
 
