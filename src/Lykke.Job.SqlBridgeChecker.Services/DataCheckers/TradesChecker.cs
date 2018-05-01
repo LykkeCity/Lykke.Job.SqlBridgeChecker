@@ -47,7 +47,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         {
             var inSql = await TradeSqlFinder.FindInDbAsync(item, context, _log);
             if (inSql == null)
-                await _log.WriteInfoAsync(nameof(FindInSqlDbAsync), $"{item.Asset}_{item.OppositeAsset}", $"{item.ToJson()}");
+                await _log.WriteInfoAsync(nameof(FindInSqlDbAsync), $"{item.OrderId}", $"{item.ToJson()}");
             return inSql;
         }
 

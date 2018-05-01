@@ -103,7 +103,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             }
             var result = await context.Set<TOut>().FindAsync(entityId);
             if (result == null)
-                await _log.WriteInfoAsync(nameof(FindInSqlDbAsync), "Added", $"Added {item.ToJson()}.");
+                await _log.WriteInfoAsync(nameof(FindInSqlDbAsync), $"{item.GetEntityId()}", $"Added {item.ToJson()}.");
             return result;
         }
 
