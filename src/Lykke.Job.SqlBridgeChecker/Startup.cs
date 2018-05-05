@@ -190,7 +190,7 @@ namespace Lykke.Job.SqlBridgeChecker
             azureStorageLogger.Start();
             aggregateLogger.AddLog(azureStorageLogger);
 
-            var logToSlack = LykkeLogToSlack.Create(slackService, "Bridges", LogLevel.Error | LogLevel.FatalError | LogLevel.Warning);
+            var logToSlack = LykkeLogToSlack.Create(slackService, "Bridges", LogLevel.Error | LogLevel.FatalError | LogLevel.Warning, true);
             aggregateLogger.AddLog(logToSlack);
 
             return aggregateLogger;
