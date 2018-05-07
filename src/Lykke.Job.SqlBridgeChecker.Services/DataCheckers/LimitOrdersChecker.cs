@@ -149,8 +149,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             bool added = false;
             foreach (var child in converted.Trades)
             {
-                var fromDb = childrenFromDb.FirstOrDefault(i =>
-                    child.OppositeOrderId == i.OppositeOrderId && child.Timestamp == i.Timestamp);
+                var fromDb = childrenFromDb.FirstOrDefault(i => child.OppositeOrderId == i.OppositeOrderId);
                 if (fromDb != null)
                     continue;
 
