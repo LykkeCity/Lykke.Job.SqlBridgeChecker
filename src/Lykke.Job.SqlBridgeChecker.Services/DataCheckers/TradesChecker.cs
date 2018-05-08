@@ -53,12 +53,13 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         protected override async Task<bool> UpdateItemAsync(TradeLogItem inSql, TradeLogItem convertedItem, DataContext context)
         {
-            var changed = inSql.Direction != convertedItem.Direction
+            var changed = (inSql.Direction != convertedItem.Direction && convertedItem.Volume != 0)
                 || inSql.IsHidden != convertedItem.IsHidden;
             if (!changed)
                 return false;
             await _log.WriteInfoAsync(nameof(UpdateItemAsync), $"{convertedItem.Asset}_{convertedItem.OppositeAsset}", $"{inSql.ToJson()}");
-            inSql.Direction = convertedItem.Direction;
+            if (convertedItem.Volume != 0)
+                inSql.Direction = convertedItem.Direction;
             inSql.IsHidden = convertedItem.IsHidden;
             return true;
         }

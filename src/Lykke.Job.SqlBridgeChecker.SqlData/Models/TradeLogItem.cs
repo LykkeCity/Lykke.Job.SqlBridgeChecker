@@ -104,18 +104,29 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             string orderId = model.LimitOrderId;
             string oppositeOrderId = model.MarketOrderId ?? model.OppositeLimitOrderId;
             string tradeId = GetTradeId(orderId, oppositeOrderId);
+            var otherAssetTrade = trades.FirstOrDefault(t =>
+                t.ClientId == model.ClientId && t.AssetId != model.AssetId);
             var result = new TradeLogItem
             {
                 TradeId = tradeId,
                 DateTime = model.DateTime,
                 UserId = userId,
                 WalletId = walletId,
-                Direction = model.Volume >= 0 ? "Buy" : "Sell",
                 Asset = model.AssetId,
                 Volume = (decimal)Math.Abs(model.Volume),
                 Price = (decimal)model.Price,
                 IsHidden = model.IsHidden,
             };
+            if (model.Volume > 0)
+                result.Direction = "Buy";
+            else if (model.Volume < 0)
+                result.Direction = "Sell";
+            else if (otherAssetTrade == null)
+                result.Direction = "Buy";
+            else if (otherAssetTrade.Volume > 0)
+                result.Direction = "Sell";
+            else
+                result.Direction = "Buy";
             if (!model.IsLimitOrderResult.HasValue || !string.IsNullOrWhiteSpace(model.MarketOrderId))
             {
                 result.OrderId = oppositeOrderId;
@@ -128,8 +139,6 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 result.OrderType = "Limit";
                 result.OppositeOrderId = oppositeOrderId;
             }
-            var otherAssetTrade = trades.FirstOrDefault(t =>
-                t.ClientId == model.ClientId && t.AssetId != model.AssetId);
             if (otherAssetTrade == null)
             {
                 int otherAssetsCount = trades.Where(t => t.AssetId != model.AssetId).Distinct().Count();
