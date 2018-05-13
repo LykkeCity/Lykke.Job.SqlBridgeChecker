@@ -17,17 +17,17 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions
             _storage = storage;
         }
 
-        public async Task<List<T>> GetItemsFromYesterdayAsync()
+        public async Task<List<T>> GetItemsFromYesterdayAsync(DateTime start)
         {
-            string queryText = GetQueryText();
+            string queryText = GetQueryText(start);
             var query = new TableQuery<T>().Where(queryText);
             var items = await _storage.WhereAsync(query);
             return items.ToList();
         }
 
-        protected virtual string GetQueryText()
+        protected virtual string GetQueryText(DateTime start)
         {
-            var to = DateTime.UtcNow.Date;
+            var to = start;
             var from = to.AddDays(-1);
             string dateColumn = GetDateColumn();
             string fromFilter = TableQuery.GenerateFilterConditionForDate(dateColumn, QueryComparisons.LessThan, to);

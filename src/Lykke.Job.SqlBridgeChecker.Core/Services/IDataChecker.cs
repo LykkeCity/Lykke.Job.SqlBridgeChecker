@@ -1,10 +1,11 @@
-﻿using System.Threading.Tasks;
+﻿using System;
+using System.Threading.Tasks;
 
 namespace Lykke.Job.SqlBridgeChecker.Core.Services
 {
     public interface IDataChecker
     {
-        Task CheckAndFixDataAsync();
+        Task CheckAndFixDataAsync(DateTime start);
 
         string Name { get; }
     }

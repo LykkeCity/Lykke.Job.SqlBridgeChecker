@@ -13,9 +13,9 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
         {
         }
 
-        protected override string GetQueryText()
+        protected override string GetQueryText(DateTime start)
         {
-            var today = DateTime.UtcNow.Date;
+            var today = start;
             var yesterday = today.AddDays(-1);
             string startStr = GenerateRowKey(yesterday);
             string finishStr = GenerateRowKey(today);

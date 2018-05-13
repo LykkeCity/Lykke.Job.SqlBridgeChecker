@@ -20,7 +20,8 @@ namespace Lykke.Job.SqlBridgeChecker.PeriodicalHandlers
 
         public override  Task Execute()
         {
-            Task.Run(() => _checker.CheckAndFixDataAsync().GetAwaiter().GetResult());
+            var today = DateTime.UtcNow.Date;
+            Task.Run(() => _checker.CheckAndFixDataAsync(today).GetAwaiter().GetResult());
             return Task.CompletedTask;
         }
     }

@@ -33,9 +33,9 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             _log = log.CreateComponentScope(Name);
         }
 
-        public virtual async Task CheckAndFixDataAsync()
+        public virtual async Task CheckAndFixDataAsync(DateTime start)
         {
-            var items = await _repository.GetItemsFromYesterdayAsync();
+            var items = await _repository.GetItemsFromYesterdayAsync(start);
             await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), "Fetched", $"Fetched {items.Count} items from Azure.");
             var sqlItems = await ConvertItemsToSqlTypesAsync(items);
             await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), "Converted", $"Converted to {sqlItems.Count} items.");

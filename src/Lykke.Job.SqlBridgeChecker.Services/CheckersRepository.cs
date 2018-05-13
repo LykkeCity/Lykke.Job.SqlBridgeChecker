@@ -31,7 +31,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services
             _checkers.Add(checker);
         }
 
-        public async Task CheckAndFixDataAsync()
+        public async Task CheckAndFixDataAsync(DateTime start)
         {
             await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), "AllStart", "Checking work has been started");
 
@@ -43,7 +43,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services
                     try
                     {
                         await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), "CheckerStart", $"{checker.Name} started.");
-                        await checker.CheckAndFixDataAsync();
+                        await checker.CheckAndFixDataAsync(start);
                         await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), "CheckerFinish", $"{checker.Name} finished.");
                         break;
                     }
