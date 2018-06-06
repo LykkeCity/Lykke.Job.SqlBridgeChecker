@@ -58,7 +58,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
         public static async Task<LimitOrder> FromModelAsync(
             LimitOrderEntity model,
             List<ClientTradeEntity> tradeItems,
-            Func<string, Task<LimitOrderEntity>> limitOrderGetterAsync,
+            Func<string, string, Task<LimitOrderEntity>> limitOrderGetterAsync,
             Func<string, Task<MarketOrderEntity>> marketOrderGetterAsync,
             ILog log)
         {
@@ -157,7 +157,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                     }
                     else
                     {
-                        var otherLimitOrder = await limitOrderGetterAsync(first.OppositeLimitOrderId);
+                        var otherLimitOrder = await limitOrderGetterAsync(first.ClientId, first.OppositeLimitOrderId);
                         if (otherLimitOrder != null)
                         {
                             trade.OppositeClientId = otherLimitOrder.ClientId;

@@ -117,9 +117,9 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return null;
         }
 
-        private async Task<LimitOrderEntity> GetLimitOrderAsync(string limitOrderId)
+        private async Task<LimitOrderEntity> GetLimitOrderAsync(string clientId, string limitOrderId)
         {
-            var result = await ((ILimitOrdersRepository)_repository).GetLimitOrderByIdAsync(limitOrderId);
+            var result = await ((ILimitOrdersRepository)_repository).GetLimitOrderByIdAsync(clientId, limitOrderId);
             if (result != null)
                 return result;
             var loFromSql = OrdersFinder.GetLimitOrder(limitOrderId, _sqlConnectionString);

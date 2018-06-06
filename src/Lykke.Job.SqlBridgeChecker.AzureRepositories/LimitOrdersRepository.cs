@@ -9,16 +9,16 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 {
     public class LimitOrdersRepository : ItemsRepositoryBase<LimitOrderEntity>, ILimitOrdersRepository
     {
-        private readonly string _orderKey = LimitOrderEntity.ByOrderId.GeneratePartitionKey();
+        //private readonly string _orderKey = LimitOrderEntity.ByOrderId.GeneratePartitionKey();
 
         public LimitOrdersRepository(INoSQLTableStorage<LimitOrderEntity> storage)
             : base(storage)
         {
         }
 
-        public async Task<LimitOrderEntity> GetLimitOrderByIdAsync(string limitOrderId)
+        public async Task<LimitOrderEntity> GetLimitOrderByIdAsync(string clientId, string limitOrderId)
         {
-            var result = await _storage.GetDataAsync(_orderKey, limitOrderId);
+            var result = await _storage.GetDataAsync(LimitOrderEntity.ByClientId.GeneratePartitionKey(clientId), limitOrderId);
             return result;
         }
 
