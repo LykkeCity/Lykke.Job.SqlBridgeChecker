@@ -119,10 +119,10 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         private async Task<LimitOrderEntity> GetLimitOrderAsync(string clientId, string limitOrderId)
         {
-            var clientIdByLimitOrder = await GetClientIdByLimitOrderAsync(limitOrderId, clientId);
+            var clientIdByLimitOrder = await ((ITradesRepository)_repository).GetClientIdByLimitOrderAsync(limitOrderId, clientId);
             if (string.IsNullOrEmpty(clientIdByLimitOrder))
                 return null;
-            var result = await ((ILimitOrdersRepository)_repository).GetLimitOrderByIdAsync(clientId, limitOrderId);
+            var result = await ((ILimitOrdersRepository)_repository).GetLimitOrderByIdAsync(clientIdByLimitOrder, limitOrderId);
             if (result != null)
                 return result;
             var loFromSql = OrdersFinder.GetLimitOrder(limitOrderId, _sqlConnectionString);
@@ -136,10 +136,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 };
             return null;
         }
-        private async Task<string> GetClientIdByLimitOrderAsync(string limitOrderId, string clientId)
-        {
-            return await ((ITradesRepository)_repository).GetClientIdByLimitOrderAsync(limitOrderId, clientId);
-        }
+
         private async Task<bool> UpdateChildrenAsync(LimitOrder inSql, LimitOrder converted, DataContext context)
         {
             if (converted.Trades == null || converted.Trades.Count == 0)
