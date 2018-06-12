@@ -7,6 +7,7 @@ using AzureStorage;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Helpers;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions;
+using System.Linq;
 
 namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 {
@@ -63,6 +64,15 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
                 result.AddRange(items);
             }
             return result;
+        }
+
+        public async Task<string> GetClientIdByLimitOrderAsync(string limitorderId, string clientId)
+        {
+            var result = await _storage.GetDataAsync(limitorderId);
+            var entity = result.FirstOrDefault(x => x.ClientId != clientId);
+            if (entity != null)
+                return entity.ClientId;
+            return null;
         }
 
         protected override string GetDateColumn()

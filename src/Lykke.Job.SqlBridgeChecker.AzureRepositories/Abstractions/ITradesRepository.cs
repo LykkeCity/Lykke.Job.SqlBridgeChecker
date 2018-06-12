@@ -11,5 +11,6 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions
         Task<List<ClientTradeEntity>> GetTradesByMarketOrdersAsync(IEnumerable<(string, string)> userMarketOrders);
 
         Task<List<ClientTradeEntity>> GetTradesByLimitOrderKeysAsync(IEnumerable<string> limitOrderIds);
+        Task<string> GetClientIdByLimitOrderAsync(string limitorderId, string clientId);
     }
 }
