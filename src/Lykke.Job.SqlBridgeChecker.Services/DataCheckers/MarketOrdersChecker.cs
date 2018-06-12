@@ -53,7 +53,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 string key = item.Id ?? item.RowKey;
                 if (byOrders.ContainsKey(key))
                     children = byOrders[key];
-                var converted = await MarketOrder.FromModelAsync(item, children, GetLimitOrderAsync, GetClientIdByLimitOrderAsync, _log);
+                var converted = await MarketOrder.FromModelAsync(item, children, GetLimitOrderAsync, _log);
                 result.Add(converted);
 
                 clientIds.Add(item.ClientId);
@@ -94,13 +94,16 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             if (_addedTradesCount > 0)
                 await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), "TotalAddedChildren", $"Added {_addedTradesCount} LimitTradeInfos.");
         }
-        private async Task<string> GetClientIdByLimitOrderAsync(string clientId, string limitOrderId)
+        private async Task<string> GetClientIdByLimitOrderAsync(string limitOrderId, string clientId)
         {
-            return await ((ITradesRepository)_repository).GetClientIdByLimitOrderAsync(clientId, limitOrderId);
+            return await ((ITradesRepository)_repository).GetClientIdByLimitOrderAsync(limitOrderId, clientId);
         }
         private async Task<LimitOrderEntity> GetLimitOrderAsync(string clientId, string limitOrderId)
         {
-            var result = await _limitOrdersRepository.GetLimitOrderByIdAsync(clientId, limitOrderId);
+            var clientIdByLimitOrder = await GetClientIdByLimitOrderAsync(limitOrderId, clientId);
+            if (string.IsNullOrEmpty(clientIdByLimitOrder))
+                return null;
+            var result = await _limitOrdersRepository.GetLimitOrderByIdAsync(clientIdByLimitOrder, limitOrderId);
             if (result != null)
                 return result;
             var loFromSql = OrdersFinder.GetLimitOrder(limitOrderId, _sqlConnectionString);

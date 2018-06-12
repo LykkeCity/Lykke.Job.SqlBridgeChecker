@@ -66,9 +66,9 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
             return result;
         }
 
-        public async Task<string> GetClientIdByLimitOrderAsync(string clientId, string limitorderId)
+        public async Task<string> GetClientIdByLimitOrderAsync(string limitorderId, string clientId)
         {
-            var result = (await _storage.GetDataAsync(limitorderId)).ToList();
+            var result = await _storage.GetDataAsync(limitorderId);
             var entity = result.FirstOrDefault(x => x.ClientId != clientId);
             if (entity != null)
                 return entity.ClientId;

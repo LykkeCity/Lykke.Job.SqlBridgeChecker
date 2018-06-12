@@ -60,7 +60,6 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     children,
                     GetLimitOrderAsync,
                     GetMarketOrderAsync,
-                    GetClientIdByLimitOrderAsync,
                     _log);
                 result.Add(converted);
 
@@ -120,6 +119,9 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         private async Task<LimitOrderEntity> GetLimitOrderAsync(string clientId, string limitOrderId)
         {
+            var clientIdByLimitOrder = await GetClientIdByLimitOrderAsync(limitOrderId, clientId);
+            if (string.IsNullOrEmpty(clientIdByLimitOrder))
+                return null;
             var result = await ((ILimitOrdersRepository)_repository).GetLimitOrderByIdAsync(clientId, limitOrderId);
             if (result != null)
                 return result;
@@ -134,9 +136,9 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 };
             return null;
         }
-        private async Task<string> GetClientIdByLimitOrderAsync(string clientId, string limitOrderId)
+        private async Task<string> GetClientIdByLimitOrderAsync(string limitOrderId, string clientId)
         {
-            return await ((ITradesRepository)_repository).GetClientIdByLimitOrderAsync(clientId, limitOrderId);
+            return await ((ITradesRepository)_repository).GetClientIdByLimitOrderAsync(limitOrderId, clientId);
         }
         private async Task<bool> UpdateChildrenAsync(LimitOrder inSql, LimitOrder converted, DataContext context)
         {
