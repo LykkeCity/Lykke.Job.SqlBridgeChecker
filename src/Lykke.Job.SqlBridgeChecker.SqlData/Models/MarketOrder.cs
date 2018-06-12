@@ -58,6 +58,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             MarketOrderEntity model,
             List<ClientTradeEntity> tradeItems,
             Func<string, string, Task<LimitOrderEntity>> limitOrderGetterAsync,
+            Func<string, string, Task<string>> clientIdByLimitOrderAsync,
             ILog log)
         {
             var result = new MarketOrder
@@ -86,7 +87,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             foreach (var trades in tradeByLimitOrder)
             {
                 var first = trades.First();
-                var limitOrder = await limitOrderGetterAsync(model.ClientId, first.LimitOrderId);
+                var limitclientId = await clientIdByLimitOrderAsync(first.ClientId, first.LimitOrderId);
+                var limitOrder = await limitOrderGetterAsync(limitclientId, first.LimitOrderId);
                 var trade = new TradeInfo
                 {
                     MarketOrderId = result.Id,
