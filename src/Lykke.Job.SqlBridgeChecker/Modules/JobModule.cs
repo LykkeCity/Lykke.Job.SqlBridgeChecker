@@ -165,7 +165,6 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 _log);
             checkersRepository.AddChecker(limitOrdersChecker);
 
-            
             var tradesChecker = new TradesChecker(
                 _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
                 tradesRepository,

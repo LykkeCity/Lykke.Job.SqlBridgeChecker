@@ -20,19 +20,6 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Models
         public double RemainingVolume { get; set; }
         public string MatchingId { get; set; }
 
-        public static class ByOrderId
-        {
-            public static string GeneratePartitionKey()
-            {
-                return "OrderId";
-            }
-
-            public static string GenerateRowKey(string orderId)
-            {
-                return orderId;
-            }
-        }
-
         public static class ByClientId
         {
             public static string GeneratePartitionKey(string clientId)
@@ -51,6 +38,19 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Models
             public static string GeneratePartitionKey(string clientId)
             {
                 return "Active_" + clientId;
+            }
+
+            public static string GenerateRowKey(string orderId)
+            {
+                return orderId;
+            }
+        }
+
+        public static class ByDate
+        {
+            public static string GeneratePartitionKey(DateTime date)
+            {
+                return date.ToString("yyyy-MM-dd");
             }
 
             public static string GenerateRowKey(string orderId)

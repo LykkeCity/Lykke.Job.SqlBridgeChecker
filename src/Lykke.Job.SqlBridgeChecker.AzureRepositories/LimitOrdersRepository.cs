@@ -9,7 +9,7 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 {
     public class LimitOrdersRepository : ItemsRepositoryBase<LimitOrderEntity>, ILimitOrdersRepository
     {
-        //private readonly string _orderKey = LimitOrderEntity.ByOrderId.GeneratePartitionKey();
+        private const string _partitionKeyColumn = "PartitionKey";
 
         public LimitOrdersRepository(INoSQLTableStorage<LimitOrderEntity> storage)
             : base(storage)
@@ -24,9 +24,11 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 
         protected override string GetAdditionalConditions(DateTime from, DateTime to)
         {
-            string partitionFilter = TableQuery.GenerateFilterCondition(
-                "PartitionKey", QueryComparisons.Equal, LimitOrderEntity.ByOrderId.GeneratePartitionKey());
-            return partitionFilter;
+            string fromFilter = TableQuery.GenerateFilterCondition(
+                _partitionKeyColumn, QueryComparisons.GreaterThanOrEqual, LimitOrderEntity.ByDate.GeneratePartitionKey(from));
+            string toFilter = TableQuery.GenerateFilterCondition(
+                _partitionKeyColumn, QueryComparisons.LessThan, LimitOrderEntity.ByDate.GeneratePartitionKey(to));
+            return TableQuery.CombineFilters(fromFilter, TableOperators.And, toFilter);
         }
 
         protected override string GetDateColumn()

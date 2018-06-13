@@ -5,7 +5,7 @@
   </PropertyGroup>
   <ItemGroup>
     <PackageReference Include="Lykke.Common" Version="6.8.5" />
-    <PackageReference Include="Lykke.Service.ClientAccount.Client" Version="1.4.5" />
+    <PackageReference Include="Lykke.Service.ClientAccount.Client" Version="1.4.6" />
   </ItemGroup>
   <ItemGroup>
     <ProjectReference Include="..\Lykke.Job.SqlBridgeChecker.AzureRepositories\Lykke.Job.SqlBridgeChecker.AzureRepositories.csproj" />
