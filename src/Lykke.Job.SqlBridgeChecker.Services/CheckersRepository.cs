@@ -12,14 +12,12 @@ namespace Lykke.Job.SqlBridgeChecker.Services
         private const int _maxRetryCount = 5;
 
         private readonly List<IDataChecker> _checkers = new List<IDataChecker>();
-        private readonly IUserWalletsMapper _userWalletsMapper;
         private readonly ILog _log;
 
         public string Name => nameof(CheckersRepository);
 
-        public CheckersRepository(IUserWalletsMapper userWalletsMapper, ILog log)
+        public CheckersRepository(ILog log)
         {
-            _userWalletsMapper = userWalletsMapper;
             _log = log.CreateComponentScope(Name);
         }
 
@@ -55,8 +53,6 @@ namespace Lykke.Job.SqlBridgeChecker.Services
                 }
                 while (retryCount <= _maxRetryCount);
             }
-
-            _userWalletsMapper.ClearCaches();
 
             _log.WriteInfo(nameof(CheckAndFixDataAsync), "AllFinish", "Checking work is finished");
         }

@@ -3,7 +3,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
-using Lykke.Job.SqlBridgeChecker.Core.Services;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
 using Lykke.Job.SqlBridgeChecker.SqlData;
@@ -13,7 +12,6 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 {
     public class MarketOrdersChecker : DataCheckerBase<MarketOrderEntity, MarketOrder>
     {
-        private readonly IUserWalletsMapper _userWalletsMapper;
         private readonly ITradesRepository _tradesRepository;
         private readonly ILimitOrdersRepository _limitOrdersRepository;
 
@@ -21,14 +19,12 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         public MarketOrdersChecker(
             string sqlConnecctionString,
-            IUserWalletsMapper userWalletsMapper,
             IMarketOrdersRepository repository,
             ILimitOrdersRepository limitOrdersRepository,
             ITradesRepository tradesRepository,
             ILog log)
             : base(sqlConnecctionString, repository, log)
         {
-            _userWalletsMapper = userWalletsMapper;
             _limitOrdersRepository = limitOrdersRepository;
             _tradesRepository = tradesRepository;
         }
@@ -64,8 +60,6 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                         clientIds.Add(child.ClientId);
                     }
             }
-
-            await _userWalletsMapper.AddWalletsAsync(clientIds);
 
             return result;
         }

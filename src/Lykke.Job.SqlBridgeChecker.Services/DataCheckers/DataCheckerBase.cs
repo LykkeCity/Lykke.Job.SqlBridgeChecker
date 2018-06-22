@@ -41,7 +41,12 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             _addedCount = 0;
             _modifiedCount = 0;
 
-            await _repository.ProcessItemsFromYesterdayAsync(start, ProcessBatchAsync);
+            using (var dbContext = new DataContext(_sqlConnectionString))
+            {
+                dbContext.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
+
+                await _repository.ProcessItemsFromYesterdayAsync(start, batch => ProcessBatchAsync(batch, dbContext));
+            }
 
             if (_addedCount > 0)
                 LogAdded(_addedCount);
@@ -105,7 +110,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return one.Value.Subtract(two.Value).TotalMilliseconds <= 2;
         }
 
-        private async Task ProcessBatchAsync(IEnumerable<TIn> items)
+        private async Task ProcessBatchAsync(IEnumerable<TIn> items, DataContext dbContext)
         {
             if (!items.Any())
                 return;
@@ -114,35 +119,30 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             var sqlItems = await ConvertItemsToSqlTypesAsync(items);
             _log.WriteInfo(nameof(CheckAndFixDataAsync), "Converted", $"Converted to {sqlItems.Count} items.");
 
-            using (var dbContext = new DataContext(_sqlConnectionString))
+            foreach (var sqlItem in sqlItems)
             {
-                dbContext.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
-
-                foreach (var sqlItem in sqlItems)
+                try
                 {
-                    try
+                    var fromSql = await FindInSqlDbAsync(sqlItem, dbContext);
+                    if (fromSql == null)
                     {
-                        var fromSql = await FindInSqlDbAsync(sqlItem, dbContext);
-                        if (fromSql == null)
-                        {
-                            if (!sqlItem.IsValid())
-                                _log.WriteInfo(nameof(CheckAndFixDataAsync), "Invalid", $"Found invalid object - {sqlItem.ToJson()}!");
-                            await dbContext.Set<TOut>().AddAsync(sqlItem);
-                            ++_addedCount;
-                        }
-                        else if (UpdateItem(fromSql, sqlItem, dbContext))
-                        {
-                            dbContext.Set<TOut>().Update(fromSql);
-                            ++_modifiedCount;
-                        }
+                        if (!sqlItem.IsValid())
+                            _log.WriteInfo(nameof(CheckAndFixDataAsync), "Invalid", $"Found invalid object - {sqlItem.ToJson()}!");
+                        await dbContext.Set<TOut>().AddAsync(sqlItem);
+                        ++_addedCount;
                     }
-                    catch (Exception exc)
+                    else if (UpdateItem(fromSql, sqlItem, dbContext))
                     {
-                        _log.WriteError(Name, sqlItem.ToJson(), exc);
+                        dbContext.Set<TOut>().Update(fromSql);
+                        ++_modifiedCount;
                     }
                 }
-                await dbContext.SaveChangesAsync();
+                catch (Exception exc)
+                {
+                    _log.WriteError(Name, sqlItem.ToJson(), exc);
+                }
             }
+            await dbContext.SaveChangesAsync();
 
             ClearCaches(true);
         }

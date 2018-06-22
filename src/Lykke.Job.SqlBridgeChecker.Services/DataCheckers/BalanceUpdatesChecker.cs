@@ -4,7 +4,6 @@ using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common;
 using Common.Log;
-using Lykke.Job.SqlBridgeChecker.Core.Services;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
 using Lykke.Job.SqlBridgeChecker.SqlData;
@@ -14,19 +13,15 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 {
     public class BalanceUpdatesChecker : DataCheckerBase<ClientBalanceChangeLogRecordEntity, BalanceUpdate>
     {
-        private readonly IUserWalletsMapper _userWalletsMapper;
-
         public BalanceUpdatesChecker(
             string sqlConnecctionString,
-            IUserWalletsMapper userWalletsMapper,
             ITableEntityRepository<ClientBalanceChangeLogRecordEntity> repository,
             ILog log)
             : base(sqlConnecctionString, repository, log)
         {
-            _userWalletsMapper = userWalletsMapper;
         }
 
-        protected override async Task<List<BalanceUpdate>> ConvertItemsToSqlTypesAsync(IEnumerable<ClientBalanceChangeLogRecordEntity> items)
+        protected override Task<List<BalanceUpdate>> ConvertItemsToSqlTypesAsync(IEnumerable<ClientBalanceChangeLogRecordEntity> items)
         {
             var result = items
                 .GroupBy(m => m.TransactionId)
@@ -34,9 +29,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 .Select(g => BalanceUpdate.FromModel(g))
                 .ToList();
 
-            await _userWalletsMapper.AddWalletsAsync(items.Select(i => i.ClientId).ToHashSet());
-
-            return result;
+            return Task.FromResult(result);
         }
 
         protected override bool UpdateItem(BalanceUpdate inSql, BalanceUpdate convertedItem, DataContext context)
