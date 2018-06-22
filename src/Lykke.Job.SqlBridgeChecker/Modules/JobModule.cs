@@ -37,7 +37,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
-            using (var context = new DataContext(settings.SqlDbConnectionString))
+            using (var context = new DataContext(_appSettings.SqlBridgeCheckerJob.SqlDbConnectionString))
             {
                 context.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
                 context.Database.Migrate();
