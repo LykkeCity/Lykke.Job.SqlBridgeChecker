@@ -146,7 +146,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
             _log.WriteInfo(nameof(GetChildrenAsync), "FetchedChildren", $"Initially fetched {result.Count} trades.");
 
-            var missingClientsDict = new Dictionary<string, List<ClientTradeEntity>>();
+            var missingLimitOrderTradesDict = new Dictionary<string, List<ClientTradeEntity>>();
             var groupsByMarketOrderId = result.GroupBy(t => t.MarketOrderId);
             foreach (var marketIdgroup in groupsByMarketOrderId)
             {
@@ -157,30 +157,30 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     if (clients.Count == 1)
                     {
                         var trade = group.First();
-                        if (missingClientsDict.ContainsKey(trade.LimitOrderId))
+                        if (missingLimitOrderTradesDict.ContainsKey(trade.LimitOrderId))
                         {
-                            var trades = missingClientsDict[trade.LimitOrderId];
+                            var trades = missingLimitOrderTradesDict[trade.LimitOrderId];
                             if (!trades.Any(t => t.MarketOrderId == trade.MarketOrderId))
                                 trades.Add(trade);
                         }
                         else
                         {
-                            missingClientsDict.Add(trade.LimitOrderId, new List<ClientTradeEntity> { trade });
+                            missingLimitOrderTradesDict.Add(trade.LimitOrderId, new List<ClientTradeEntity> { trade });
                         }
                     }
                 }
             }
 
-            var missingTrades = await _tradesRepository.GetTradesByLimitOrderKeysAsync(missingClientsDict.Keys);
+            var missingTrades = await _tradesRepository.GetTradesByLimitOrderKeysAsync(missingLimitOrderTradesDict.Keys);
 
-            _log.WriteInfo(nameof(GetChildrenAsync), "ThenFetchedChildren", $"Then fetched {missingTrades.Count} trades for missing clients.");
+            _log.WriteInfo(nameof(GetChildrenAsync), "ThenFetchedChildren", $"Then fetched {missingTrades.Count} trades for missing limit orders.");
 
             foreach (var trade in missingTrades)
             {
                 if (!string.IsNullOrWhiteSpace(trade.MarketOrderId))
                     continue;
 
-                var clientTrades = missingClientsDict[trade.LimitOrderId];
+                var clientTrades = missingLimitOrderTradesDict[trade.LimitOrderId];
                 var matchingTrade = clientTrades.FirstOrDefault(t =>
                     trade.OppositeLimitOrderId == t.MarketOrderId
                     && t.ClientId != trade.ClientId);
