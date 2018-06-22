@@ -37,7 +37,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
-            using (var context = new DataContext(_appSettings.SqlBridgeCheckerJob.SqlDbConnectionString))
+            using (var context = new DataContext(settings.SqlDbConnectionString))
             {
                 context.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
                 context.Database.Migrate();
@@ -91,6 +91,8 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 .As<IDataChecker>()
                 .SingleInstance();
 
+            var settings = _appSettings.SqlBridgeCheckerJob;
+
             var balanceUpdatesStorage = AzureTableStorage<ClientBalanceChangeLogRecordEntity>.Create(
                 _settingsManager.ConnectionString(i => i.BalanceLogWriterMainConnection),
                 "UpdateBalanceLog",
@@ -98,7 +100,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 _timeout);
             var balanceUpdatesRepository = new BalanceUpdatesRepository(balanceUpdatesStorage);
             var balanceUpdatesChecker = new BalanceUpdatesChecker(
-                _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
+                settings.SqlDbConnectionString,
                 balanceUpdatesRepository,
                 _log);
             checkersRepository.AddChecker(balanceUpdatesChecker);
@@ -110,7 +112,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 _timeout);
             var cashOperationsRepository = new CashOperationsRepository(cashOperationsStorage);
             var cashOperationsChecker = new CashOperationsChecker(
-                _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
+                settings.SqlDbConnectionString,
                 cashOperationsRepository,
                 _log);
             checkersRepository.AddChecker(cashOperationsChecker);
@@ -122,7 +124,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 _timeout);
             var transfersRepository = new TransfersRepository(transfersStorage);
             var transfersChecker = new TransfersChecker(
-                _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
+                settings.SqlDbConnectionString,
                 transfersRepository,
                 _log);
             checkersRepository.AddChecker(transfersChecker);
@@ -147,7 +149,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
             var tradesRepository = new TradesRepository(tradesStorage, _log);
 
             var marketOrdersChecker = new MarketOrdersChecker(
-                _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
+                settings.SqlDbConnectionString,
                 marketOrdersRepository,
                 limitOrdersRepository,
                 tradesRepository,
@@ -155,7 +157,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
             checkersRepository.AddChecker(marketOrdersChecker);
 
             var limitOrdersChecker = new LimitOrdersChecker(
-                _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
+                settings.SqlDbConnectionString,
                 limitOrdersRepository,
                 tradesRepository,
                 marketOrdersRepository,
@@ -163,7 +165,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
             checkersRepository.AddChecker(limitOrdersChecker);
 
             var tradesChecker = new TradesChecker(
-                _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
+                settings.SqlDbConnectionString,
                 tradesRepository,
                 clientAccountClient,
                 _log);
@@ -176,7 +178,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 _timeout);
             var candlesticksRepository = new CandlestiсksRepository(candlesticksStorage, assetsServiceClient, _log);
             var candlesticksChecker = new CandlesticksChecker(
-                _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
+                settings.SqlDbConnectionString,
                 candlesticksRepository,
                 _log);
             checkersRepository.AddChecker(candlesticksChecker);
