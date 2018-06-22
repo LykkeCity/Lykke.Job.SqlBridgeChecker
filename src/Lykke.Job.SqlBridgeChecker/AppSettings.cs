@@ -9,6 +9,8 @@ namespace Lykke.Job.SqlBridgeChecker
         public SlackNotificationsSettings SlackNotifications { get; set; }
 
         public ClientAccountClientSettings ClientAccountServiceClient { get; set; }
+
+        public AssetServiceClientSettings AssetsServiceClient { get; set; }
     }
 
     public class ClientAccountClientSettings
@@ -27,6 +29,12 @@ namespace Lykke.Job.SqlBridgeChecker
         public string ConnectionString { get; set; }
 
         public string QueueName { get; set; }
+    }
+
+    public class AssetServiceClientSettings
+    {
+        [HttpCheck("api/isalive")]
+        public string ServiceUrl { get; set; }
     }
 
     public class SqlBridgeCheckerSettings

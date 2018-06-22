@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Net.Http;
 using Microsoft.EntityFrameworkCore;
 using Autofac;
 using Common.Log;
@@ -6,6 +7,7 @@ using AzureStorage.Tables;
 using Lykke.Common;
 using Lykke.SettingsReader;
 using Lykke.Service.ClientAccount.Client;
+using Lykke.Service.Assets.Client;
 using Lykke.Job.SqlBridgeChecker.Core.Services;
 using Lykke.Job.SqlBridgeChecker.Services;
 using Lykke.Job.SqlBridgeChecker.Services.DataCheckers;
@@ -62,6 +64,11 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 .As<IClientAccountClient>()
                 .SingleInstance();
 
+            var assetsServiceClient = new AssetsService(new Uri(_appSettings.AssetsServiceClient.ServiceUrl), new HttpClient());
+            builder.RegisterInstance(assetsServiceClient)
+                .As<IAssetsService>()
+                .SingleInstance();
+
             var userWalletsMapper = new UserWalletsMapper(clientAccountClient, _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString);
             builder.RegisterInstance(userWalletsMapper)
                 .As<IUserWalletsMapper>()
@@ -70,7 +77,8 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
             RegisterCheckers(
                 builder,
                 userWalletsMapper,
-                clientAccountClient);
+                clientAccountClient,
+                assetsServiceClient);
 
             builder.RegisterType<PeriodicalHandler>()
                 .As<IStartable>()
@@ -81,7 +89,8 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
         private void RegisterCheckers(
             ContainerBuilder builder,
             IUserWalletsMapper userWalletsMapper,
-            IClientAccountClient clientAccountClient)
+            IClientAccountClient clientAccountClient,
+            IAssetsService assetsServiceClient)
         {
             var checkersRepository = new CheckersRepository(userWalletsMapper, _log);
             builder
@@ -177,7 +186,7 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 "FeedHistory",
                 _log,
                 _timeout);
-            var candlesticksRepository = new CandlestiсksRepository(candlesticksStorage);
+            var candlesticksRepository = new CandlestiсksRepository(candlesticksStorage, assetsServiceClient, _log);
             var candlesticksChecker = new CandlesticksChecker(
                 _appSettings.SqlBridgeCheckerJob.SqlDbConnectionString,
                 candlesticksRepository,
