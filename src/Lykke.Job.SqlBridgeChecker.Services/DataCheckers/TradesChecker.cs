@@ -21,7 +21,11 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             ITradesRepository repository,
             IClientAccountClient clientAccountClient,
             ILog log)
-            : base(sqlConnecctionString, repository, log)
+            : base(
+                sqlConnecctionString,
+                false,
+                repository,
+                log)
         {
             _clientAccountClient = clientAccountClient;
         }

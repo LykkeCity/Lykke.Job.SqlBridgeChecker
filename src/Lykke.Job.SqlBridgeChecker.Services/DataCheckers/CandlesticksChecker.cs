@@ -18,7 +18,11 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             string sqlConnectionString,
             ITableEntityRepository<FeedHistoryEntity> repository,
             ILog log)
-            : base(sqlConnectionString, repository, log)
+            : base(
+                  sqlConnectionString,
+                  true,
+                  repository,
+                  log)
         {
         }
 

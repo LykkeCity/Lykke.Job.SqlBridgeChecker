@@ -23,7 +23,11 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             ITradesRepository tradesRepository,
             IMarketOrdersRepository marketOrdersRepository,
             ILog log)
-            : base(sqlConnecctionString, repository, log)
+            : base(
+                sqlConnecctionString,
+                true,
+                repository,
+                log)
         {
             _tradesRepository = tradesRepository;
             _marketOrdersRepository = marketOrdersRepository;

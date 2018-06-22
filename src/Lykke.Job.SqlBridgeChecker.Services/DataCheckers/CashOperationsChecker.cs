@@ -14,7 +14,11 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             string sqlConnecctionString,
             ITableEntityRepository<CashInOutOperationEntity> repository,
             ILog log)
-            : base(sqlConnecctionString, repository, log)
+            : base(
+                sqlConnecctionString,
+                true,
+                repository,
+                log)
         {
         }
 

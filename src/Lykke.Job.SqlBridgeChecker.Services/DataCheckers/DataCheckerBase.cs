@@ -17,6 +17,8 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         where TIn : TableEntity
         where TOut : class, IDbEntity, IValidatable
     {
+        private readonly bool _canBeProcessedByBatches;
+
         private int _addedCount;
         private int _modifiedCount;
 
@@ -28,10 +30,12 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         public DataCheckerBase(
             string sqlConnecctionString,
+            bool canBeProcessedByBatches,
             ITableEntityRepository<TIn> repository,
             ILog log)
         {
             _sqlConnectionString = sqlConnecctionString;
+            _canBeProcessedByBatches = canBeProcessedByBatches;
             _repository = repository;
             _log = log.CreateComponentScope(Name);
         }
@@ -45,7 +49,16 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             {
                 dbContext.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
 
-                await _repository.ProcessItemsFromYesterdayAsync(start, batch => ProcessBatchAsync(batch, dbContext));
+                if (_canBeProcessedByBatches)
+                {
+                    await _repository.ProcessItemsFromYesterdayAsync(start, batch => ProcessBatchAsync(batch, dbContext));
+                }
+                else
+                {
+                    var items = new List<TIn>();
+                    await _repository.ProcessItemsFromYesterdayAsync(start, batch => { items.AddRange(batch); return Task.CompletedTask});
+                    await ProcessBatchAsync(items, dbContext);
+                }
 
                 await dbContext.SaveChangesAsync();
             }
