@@ -86,13 +86,13 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             {
                 int clientCount = trades.Select(t => t.ClientId).Distinct().Count();
                 if (clientCount > 1)
-                    await log.WriteWarningAsync(
+                    log.WriteWarning(
                         nameof(FromModelAsync),
                         nameof(LimitOrder),
                         $"Found {clientCount} clients in trades for LimitOrder {model.Id ?? model.RowKey}");
                 int tradesCount = trades.Count();
                 if (tradesCount > 2)
-                    await log.WriteWarningAsync(
+                    log.WriteWarning(
                         nameof(FromModelAsync),
                         nameof(LimitOrder),
                         $"Found {tradesCount} trades for LimitOrder {model.Id ?? model.RowKey} with OppositeOrderId { trades.Key.OppositeOrderId } on {trades.Key.DateTime}");
@@ -178,7 +178,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 }
                 if (trade.OppositeClientId == null)
                 {
-                    await log.WriteWarningAsync(
+                    log.WriteWarning(
                         nameof(FromModelAsync),
                         nameof(LimitOrder),
                         $"For order {result.ExternalId} other order is not found for key {first.OppositeLimitOrderId ?? first.MarketOrderId}");
@@ -186,7 +186,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 }
                 if (string.IsNullOrWhiteSpace(trade.Asset))
                 {
-                    await log.WriteWarningAsync(
+                    log.WriteWarning(
                         nameof(FromModelAsync),
                         nameof(LimitOrder),
                         $"Asset not found for LimitOrder {result.Id}");
@@ -194,7 +194,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 }
                 if (string.IsNullOrWhiteSpace(trade.OppositeAsset))
                 {
-                    await log.WriteWarningAsync(
+                    log.WriteWarning(
                         nameof(FromModelAsync),
                         nameof(LimitOrder),
                         $"OppositeAsset not found for LimitOrder {result.Id}");

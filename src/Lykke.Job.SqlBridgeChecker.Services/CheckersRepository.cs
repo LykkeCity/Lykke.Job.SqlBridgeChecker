@@ -33,7 +33,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services
 
         public async Task CheckAndFixDataAsync(DateTime start)
         {
-            await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), "AllStart", "Checking work has been started");
+            _log.WriteInfo(nameof(CheckAndFixDataAsync), "AllStart", "Checking work has been started");
 
             foreach (var checker in _checkers)
             {
@@ -42,14 +42,14 @@ namespace Lykke.Job.SqlBridgeChecker.Services
                 {
                     try
                     {
-                        await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), "CheckerStart", $"{checker.Name} started.");
+                        _log.WriteInfo(nameof(CheckAndFixDataAsync), "CheckerStart", $"{checker.Name} started.");
                         await checker.CheckAndFixDataAsync(start);
-                        await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), "CheckerFinish", $"{checker.Name} finished.");
+                        _log.WriteInfo(nameof(CheckAndFixDataAsync), "CheckerFinish", $"{checker.Name} finished.");
                         break;
                     }
                     catch (Exception exc)
                     {
-                        await _log.WriteErrorAsync("CheckersRepository.CheckAndFixDataAsync", checker.Name, exc);
+                        _log.WriteError("CheckersRepository.CheckAndFixDataAsync", checker.Name, exc);
                     }
                     ++retryCount;
                 }
@@ -58,7 +58,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services
 
             _userWalletsMapper.ClearCaches();
 
-            await _log.WriteInfoAsync(nameof(CheckAndFixDataAsync), "AllFinish", "Checking work is finished");
+            _log.WriteInfo(nameof(CheckAndFixDataAsync), "AllFinish", "Checking work is finished");
         }
 
         public ReadOnlyCollection<IDataChecker> GetCheckers()

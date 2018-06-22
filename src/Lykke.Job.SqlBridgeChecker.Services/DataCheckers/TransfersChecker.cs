@@ -31,7 +31,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 .GroupBy(m => m.TransactionId ?? m.RowKey);
             foreach (var group in toConvert)
             {
-                var converted = await CashTransferOperation.FromModelAsync(group, _log);
+                var converted = CashTransferOperation.FromModel(group, _log);
                 result.Add(converted);
             }
 

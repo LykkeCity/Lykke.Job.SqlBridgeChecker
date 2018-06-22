@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Microsoft.WindowsAzure.Storage.Table;
@@ -17,12 +16,11 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions
             _storage = storage;
         }
 
-        public async Task<List<T>> GetItemsFromYesterdayAsync(DateTime start)
+        public async Task ProcessItemsFromYesterdayAsync(DateTime start, Func<IEnumerable<T>, Task> batchHandler)
         {
             string queryText = GetQueryText(start);
             var query = new TableQuery<T>().Where(queryText);
-            var items = await _storage.WhereAsync(query);
-            return items.ToList();
+            await _storage.GetDataByChunksAsync(query, batchHandler);
         }
 
         protected virtual string GetQueryText(DateTime start)

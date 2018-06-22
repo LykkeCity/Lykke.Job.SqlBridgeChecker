@@ -43,21 +43,21 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return result;
         }
 
-        protected override async Task<TradeLogItem> FindInSqlDbAsync(TradeLogItem item, DataContext context)
+        protected override Task<TradeLogItem> FindInSqlDbAsync(TradeLogItem item, DataContext context)
         {
-            var inSql = await TradeSqlFinder.FindInDbAsync(item, context, _log);
+            var inSql = TradeSqlFinder.FindInDb(item, context, _log);
             if (inSql == null)
-                await _log.WriteInfoAsync(nameof(FindInSqlDbAsync), $"{item.OrderId}", $"{item.ToJson()}");
-            return inSql;
+                _log.WriteInfo(nameof(FindInSqlDbAsync), $"{item.OrderId}", $"{item.ToJson()}");
+            return Task.FromResult(inSql);
         }
 
-        protected override async Task<bool> UpdateItemAsync(TradeLogItem inSql, TradeLogItem convertedItem, DataContext context)
+        protected override bool UpdateItem(TradeLogItem inSql, TradeLogItem convertedItem, DataContext context)
         {
             var changed = (inSql.Direction != convertedItem.Direction && convertedItem.Volume != 0)
                 || inSql.IsHidden != convertedItem.IsHidden;
             if (!changed)
                 return false;
-            await _log.WriteInfoAsync(nameof(UpdateItemAsync), $"{convertedItem.Asset}_{convertedItem.OppositeAsset}", $"{inSql.ToJson()}");
+            _log.WriteInfo(nameof(UpdateItem), $"{convertedItem.Asset}_{convertedItem.OppositeAsset}", $"{inSql.ToJson()}");
             if (convertedItem.Volume != 0)
                 inSql.Direction = convertedItem.Direction;
             inSql.IsHidden = convertedItem.IsHidden;

@@ -1,5 +1,4 @@
 ﻿using System;
-using System.Collections.Generic;
 using System.Threading.Tasks;
 using Autofac;
 using Autofac.Extensions.DependencyInjection;
@@ -72,7 +71,7 @@ namespace Lykke.Job.SqlBridgeChecker
             }
             catch (Exception ex)
             {
-                _log?.WriteFatalErrorAsync(nameof(Startup), nameof(ConfigureServices), "", ex).GetAwaiter().GetResult();
+                _log?.WriteFatalError(nameof(Startup), nameof(ConfigureServices), ex);
                 throw;
             }
         }
@@ -97,11 +96,11 @@ namespace Lykke.Job.SqlBridgeChecker
 
                 appLifetime.ApplicationStarted.Register(() => StartApplication().GetAwaiter().GetResult());
                 appLifetime.ApplicationStopping.Register(() => StopApplication().GetAwaiter().GetResult());
-                appLifetime.ApplicationStopped.Register(() => CleanUp().GetAwaiter().GetResult());
+                appLifetime.ApplicationStopped.Register(() => CleanUp());
             }
             catch (Exception ex)
             {
-                _log?.WriteFatalErrorAsync(nameof(Startup), nameof(ConfigureServices), "", ex).GetAwaiter().GetResult();
+                _log?.WriteFatalError(nameof(Startup), nameof(ConfigureServices), ex);
                 throw;
             }
         }
@@ -111,11 +110,11 @@ namespace Lykke.Job.SqlBridgeChecker
             try
             {
                 await ApplicationContainer.Resolve<IStartupManager>().StartAsync();
-                await _log.WriteMonitorAsync("", "", "Started");
+                _log.WriteMonitor("", "", "Started");
             }
             catch (Exception ex)
             {
-                await _log.WriteFatalErrorAsync(nameof(Startup), nameof(StartApplication), "", ex);
+                _log.WriteFatalError(nameof(Startup), nameof(StartApplication), ex);
                 throw;
             }
         }
@@ -128,23 +127,23 @@ namespace Lykke.Job.SqlBridgeChecker
             }
             catch (Exception ex)
             {
-                await _log?.WriteFatalErrorAsync(nameof(Startup), nameof(StopApplication), "", ex);
+                _log?.WriteFatalError(nameof(Startup), nameof(StopApplication), ex);
                 throw;
             }
         }
 
-        private async Task CleanUp()
+        private void CleanUp()
         {
             try
             {
-                await _log?.WriteMonitorAsync("", "", "Terminating");
+                _log?.WriteMonitor("", "", "Terminating");
                 ApplicationContainer.Dispose();
             }
             catch (Exception ex)
             {
                 if (_log != null)
                 {
-                    await _log.WriteFatalErrorAsync(nameof(Startup), nameof(CleanUp), "", ex);
+                    _log.WriteFatalError(nameof(Startup), nameof(CleanUp), ex);
                     (_log as IDisposable)?.Dispose();
                 }
                 throw;
@@ -163,7 +162,7 @@ namespace Lykke.Job.SqlBridgeChecker
 
             if (string.IsNullOrEmpty(dbLogConnectionString))
             {
-                consoleLogger.WriteWarningAsync(nameof(Startup), nameof(CreateLogWithSlack), "Table loggger is not inited").Wait();
+                consoleLogger.WriteWarning(nameof(Startup), nameof(CreateLogWithSlack), "Table loggger is not inited");
                 return aggregateLogger;
             }
 

@@ -7,6 +7,6 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Abstractions
 {
     public interface ITableEntityRepository<T> where T : TableEntity
     {
-        Task<List<T>> GetItemsFromYesterdayAsync(DateTime start);
+        Task ProcessItemsFromYesterdayAsync(DateTime start, Func<IEnumerable<T>, Task> batchHandler);
     }
 }

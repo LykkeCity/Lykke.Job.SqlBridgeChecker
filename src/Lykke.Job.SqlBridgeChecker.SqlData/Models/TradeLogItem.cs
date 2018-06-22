@@ -78,7 +78,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                     walletInfoCache.Add(trade.ClientId, (userId, walletId));
                 }
                 var walletInfo = walletInfoCache[trade.ClientId];
-                var item = await CreateInstanceAsync(
+                var item = CreateInstance(
                     trade,
                     trades,
                     walletInfo.Item1,
@@ -94,7 +94,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             return id1.CompareTo(id2) <= 0 ? $"{id1}_{id2}" : $"{id2}_{id1}";
         }
 
-        private static async Task<TradeLogItem> CreateInstanceAsync(
+        private static TradeLogItem CreateInstance(
             ClientTradeEntity model,
             IEnumerable<ClientTradeEntity> trades,
             string userId,
@@ -151,13 +151,13 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 result.OppositeVolume = (decimal)Math.Abs(otherAssetTrade.Volume);
             }
             if (result.OppositeAsset == null)
-                await log.WriteWarningAsync(
-                    nameof(CreateInstanceAsync),
+                log.WriteWarning(
+                    nameof(CreateInstance),
                     nameof(TradeLogItem),
                     $"Could not determine opposite asset for {model.ToJson()}!");
             else if (result.OppositeVolume == null)
-                await log.WriteWarningAsync(
-                    nameof(CreateInstanceAsync),
+                log.WriteWarning(
+                    nameof(CreateInstance),
                     nameof(TradeLogItem),
                     $"Could not determine opposite volume for {model.ToJson()}!");
             return result;

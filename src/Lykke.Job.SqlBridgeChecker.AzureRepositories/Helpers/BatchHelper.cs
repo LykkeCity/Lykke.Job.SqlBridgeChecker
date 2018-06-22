@@ -80,7 +80,7 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Helpers
             var data = await storage.WhereAsync(query);
             items.AddRange(data);
             /*if (items.Count - countBefore > 0)
-                await log.WriteInfoAsync(
+                log.WriteInfo(
                     nameof(BatchHelper),
                     nameof(BatchGetDataAsync),
                     $"Fetched batch of {items.Count - countBefore} items. Processed {allCount}.");*/

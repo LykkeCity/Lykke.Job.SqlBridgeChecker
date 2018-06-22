@@ -33,7 +33,7 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
             _log = log;
         }
 
-        public async Task<List<FeedHistoryEntity>> GetItemsFromYesterdayAsync(DateTime start)
+        public async Task ProcessItemsFromYesterdayAsync(DateTime start, Func<IEnumerable<FeedHistoryEntity>, Task> batchHandler)
         {
             try
             {
@@ -48,14 +48,12 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
                 _log.WriteWarning(nameof(CandlestiсksRepository), start, ex.Message);
             }
 
-            var result = new List<FeedHistoryEntity>();
-
             if (_lastAssetPairIds == null || _lastAssetPairIds.Count == 0)
             {
                 string queryText = GenerateQueryWithoutPartition(start);
                 var query = new TableQuery<FeedHistoryEntity>().Where(queryText);
                 var items = await _storage.WhereAsync(query);
-                result.AddRange(items);
+                await batchHandler(items);
             }
             else
             {
@@ -66,16 +64,16 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
                     string queryText = GenerateQueryForPartition(start, pk1);
                     var query = new TableQuery<FeedHistoryEntity>().Where(queryText);
                     var items = await _storage.WhereAsync(query);
-                    result.AddRange(items);
+                    if (items.Any())
+                        await batchHandler(items);
 
                     queryText = GenerateQueryForPartition(start, pk2);
                     query = new TableQuery<FeedHistoryEntity>().Where(queryText);
                     items = await _storage.WhereAsync(query);
-                    result.AddRange(items);
+                    if (items.Any())
+                        await batchHandler(items);
                 }
             }
-
-            return result;
         }
 
         private string GenerateQueryForPartition(DateTime start, string partitionKey)

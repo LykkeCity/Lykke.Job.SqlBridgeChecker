@@ -13,9 +13,6 @@
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>
   </PropertyGroup>
   <ItemGroup>
-    <DotNetCliToolReference Include="Microsoft.EntityFrameworkCore.Tools.DotNet" Version="2.0.1" />
-  </ItemGroup>
-  <ItemGroup>
     <ProjectReference Include="..\Lykke.Job.SqlBridgeChecker.AzureRepositories\Lykke.Job.SqlBridgeChecker.AzureRepositories.csproj" />
   </ItemGroup>
 </Project>

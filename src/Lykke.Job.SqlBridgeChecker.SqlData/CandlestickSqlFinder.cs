@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Common;
 using Common.Log;
@@ -15,13 +14,13 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
         private static DateTime? _cacheDate;
         private static Dictionary<string, List<Candlestick>> _dict;
 
-        public static async Task<Candlestick> FindInDbAsync(Candlestick item, DataContext context, ILog log)
+        public static Candlestick FindInDb(Candlestick item, DataContext context, ILog log)
         {
             if (_dict == null
                 || !_cacheDate.HasValue
                 || item.Start.Date != _cacheDate.Value
                 || !_dict.ContainsKey(item.AssetPair))
-                await FillAssetPairCacheAsync(item, context, log);
+                FillAssetPairCache(item, context, log);
 
             if (!_dict.ContainsKey(item.AssetPair))
                 return null;
@@ -36,10 +35,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             _dict?.Clear();
         }
 
-        private static async Task FillAssetPairCacheAsync(Candlestick item, DataContext context, ILog log)
+        private static void FillAssetPairCache(Candlestick item, DataContext context, ILog log)
         {
-            context.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
-
             DateTime from = item.Start.Date;
             DateTime to = from.AddDays(1);
             string query = $"SELECT * FROM dbo.{DataContext.CandlesticksTable} WHERE AssetPair = '{item.AssetPair}' AND Start >= '{from.ToString(_format)}' AND Start < '{to.ToString(_format)}'";
@@ -48,8 +45,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
                 _dict = new Dictionary<string, List<Candlestick>>();
             _dict[item.AssetPair] = items;
             _cacheDate = from;
-            await log.WriteInfoAsync(
-                nameof(FillAssetPairCacheAsync),
+            log.WriteInfo(
+                nameof(FillAssetPairCache),
                 nameof(CandlestickSqlFinder),
                 $"Cached {items.Count} items from sql for {item.AssetPair} on {from.ToString(_format)}.");
         }

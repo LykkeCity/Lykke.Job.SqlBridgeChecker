@@ -84,8 +84,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             }
             if (start == 61 || finish == -1)
             {
-                log.WriteWarningAsync(nameof(Candlestick), models.ToList().ToJson(), $"Could not set time mark for a candle")
-                    .GetAwaiter().GetResult();
+                log.WriteWarning(nameof(Candlestick), models.ToList().ToJson(), $"Could not set time mark for a candle");
                 return null;
             }
 

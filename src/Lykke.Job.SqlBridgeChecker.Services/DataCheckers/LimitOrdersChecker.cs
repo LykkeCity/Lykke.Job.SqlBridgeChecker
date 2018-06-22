@@ -76,28 +76,28 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return result;
         }
 
-        protected override async Task<bool> UpdateItemAsync(LimitOrder inSql, LimitOrder converted, DataContext context)
+        protected override bool UpdateItem(LimitOrder inSql, LimitOrder converted, DataContext context)
         {
             bool changed = inSql.Status != converted.Status
                 || !AreEqual(inSql.LastMatchTime, converted.LastMatchTime)
                 || inSql.RemainingVolume != converted.RemainingVolume;
             if (changed)
             {
-                await _log.WriteInfoAsync(nameof(UpdateItemAsync), converted.AssetPairId, $"{inSql.ToJson()}");
+                _log.WriteInfo(nameof(UpdateItem), converted.AssetPairId, $"{inSql.ToJson()}");
                 inSql.Status = converted.Status;
                 inSql.LastMatchTime = converted.LastMatchTime;
                 inSql.RemainingVolume = converted.RemainingVolume;
             }
-            bool childrenUpdated = await UpdateChildrenAsync(inSql, converted, context);
+            bool childrenUpdated = UpdateChildren(inSql, converted, context);
 
             return changed || childrenUpdated;
         }
 
-        protected override async Task LogAddedAsync(int addedCount)
+        protected override void LogAdded(int addedCount)
         {
-            await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), "TotalAdded", $"Added {addedCount} item(s).");
+            _log.WriteWarning(nameof(CheckAndFixDataAsync), "TotalAdded", $"Added {addedCount} item(s).");
             if (_addedTradesCount > 0)
-                await _log.WriteWarningAsync(nameof(CheckAndFixDataAsync), "TotalAddedChildren", $"Added {_addedTradesCount} LimitTradeInfos.");
+                _log.WriteWarning(nameof(CheckAndFixDataAsync), "TotalAddedChildren", $"Added {_addedTradesCount} LimitTradeInfos.");
         }
 
         private async Task<MarketOrderEntity> GetMarketOrderAsync(string marketOrderId)
@@ -137,7 +137,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return null;
         }
 
-        private async Task<bool> UpdateChildrenAsync(LimitOrder inSql, LimitOrder converted, DataContext context)
+        private bool UpdateChildren(LimitOrder inSql, LimitOrder converted, DataContext context)
         {
             if (converted.Trades == null || converted.Trades.Count == 0)
                 return false;
@@ -157,8 +157,8 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     continue;
 
                 if (!child.IsValid())
-                    await _log.WriteWarningAsync(nameof(UpdateChildrenAsync), "Invalid", $"Found invalid child object - {child.ToJson()}!");
-                await _log.WriteInfoAsync(nameof(UpdateChildrenAsync), $"{child.LimitOrderId}", $"Added trade {child.ToJson()} for LimitOrder {inSql.Id} with trades {childrenFromDb.ToJson()}");
+                    _log.WriteWarning(nameof(UpdateChildren), "Invalid", $"Found invalid child object - {child.ToJson()}!");
+                _log.WriteInfo(nameof(UpdateChildren), $"{child.LimitOrderId}", $"Added trade {child.ToJson()} for LimitOrder {inSql.Id} with trades {childrenFromDb.ToJson()}");
                 context.LimitTradeInfos.Add(child);
                 ++_addedTradesCount;
                 added = true;
@@ -170,7 +170,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         {
             var result = await _tradesRepository.GetTradesByLimitOrderKeysAsync(parentIds);
 
-            await _log.WriteInfoAsync(nameof(GetChildrenAsync), "FetchedChildren", $"Fetched {result.Count} trades.");
+            _log.WriteInfo(nameof(GetChildrenAsync), "FetchedChildren", $"Fetched {result.Count} trades.");
 
             return result;
         }

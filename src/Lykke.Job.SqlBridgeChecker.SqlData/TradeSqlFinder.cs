@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Microsoft.EntityFrameworkCore;
 using Common.Log;
 using Lykke.Job.SqlBridgeChecker.SqlData.Models;
@@ -14,12 +13,12 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
         private static DateTime _cacheDate = DateTime.MinValue;
         private static Dictionary<string, List<TradeLogItem>> _dict;
 
-        public static async Task<TradeLogItem> FindInDbAsync(TradeLogItem item, DataContext context, ILog log)
+        public static TradeLogItem FindInDb(TradeLogItem item, DataContext context, ILog log)
         {
             if (_dict == null
                 || _dict.Count == 0 && item.DateTime.Date != _cacheDate
                 || _dict.Count > 0 && _dict.First().Value.First().DateTime.Date != item.DateTime.Date)
-                await InitCacheAsync(item, context, log);
+                InitCache(item, context, log);
 
             if (!_dict.ContainsKey(item.TradeId))
                 return null;
@@ -36,7 +35,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             _dict?.Clear();
         }
 
-        private static async Task InitCacheAsync(TradeLogItem item, DataContext context, ILog log)
+        private static void InitCache(TradeLogItem item, DataContext context, ILog log)
         {
             _dict?.Clear();
 
@@ -47,8 +46,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             var items = context.Trades.AsNoTracking().FromSql(query).ToList();
             _dict = items.GroupBy(i => i.TradeId).ToDictionary(g => g.Key, g => g.ToList());
             _cacheDate = from;
-            await log.WriteInfoAsync(
-                nameof(InitCacheAsync),
+            log.WriteInfo(
+                nameof(InitCache),
                 nameof(TradeSqlFinder),
                 $"Cached {items.Count} items from sql for {from.ToString(_format)}.");
         }

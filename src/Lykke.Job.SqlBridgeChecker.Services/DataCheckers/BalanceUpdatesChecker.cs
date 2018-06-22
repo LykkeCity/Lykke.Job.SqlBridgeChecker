@@ -39,7 +39,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return result;
         }
 
-        protected override async Task<bool> UpdateItemAsync(BalanceUpdate inSql, BalanceUpdate convertedItem, DataContext context)
+        protected override bool UpdateItem(BalanceUpdate inSql, BalanceUpdate convertedItem, DataContext context)
         {
             if (convertedItem.Balances == null || convertedItem.Balances.Count == 0)
                 return false;
@@ -67,10 +67,10 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     continue;
 
                 if (!child.IsValid())
-                    await _log.WriteWarningAsync(nameof(UpdateItemAsync), "Invalid", $"Found invalid child object - {child.ToJson()}!");
+                    _log.WriteWarning(nameof(UpdateItem), "Invalid", $"Found invalid child object - {child.ToJson()}!");
                 context.ClientBalanceUpdates.Add(child);
                 added = true;
-                await _log.WriteInfoAsync(nameof(UpdateItemAsync), child.Asset, $"Added update {child.ToJson()} for BalanceUpdate {convertedItem.Id}");
+                _log.WriteInfo(nameof(UpdateItem), child.Asset, $"Added update {child.ToJson()} for BalanceUpdate {convertedItem.Id}");
             }
             return added;
         }

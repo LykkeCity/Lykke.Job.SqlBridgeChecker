@@ -1,7 +1,6 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using System.Threading.Tasks;
 using Common;
 using Common.Log;
 using Lykke.Job.SqlBridgeChecker.Core.Repositories;
@@ -40,7 +39,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             return Id;
         }
 
-        public static async Task<CashTransferOperation> FromModelAsync(IEnumerable<TransferEventEntity> models, ILog log)
+        public static CashTransferOperation FromModel(IEnumerable<TransferEventEntity> models, ILog log)
         {
             var first = models.First();
             var result = new CashTransferOperation
@@ -60,7 +59,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 buy = models.FirstOrDefault(m => m.Amount == 0);
                 if (buy == null)
                 {
-                    await log.WriteWarningAsync(
+                    log.WriteWarning(
                         "CashTransferOperation.FromModelAsync",
                         models.ToList().ToJson(),
                         $"Buy part is not found for client {first.ClientId} transfer {result.Id}");
@@ -79,7 +78,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 sell = models.FirstOrDefault(m => m.Amount == 0 && m != buy);
                 if (sell == null)
                 {
-                    await log.WriteWarningAsync(
+                    log.WriteWarning(
                         "CashTransferOperation.FromModelAsync",
                         models.ToList().ToJson(),
                         $"Sell part is not found for client {first.ClientId} transfer {result.Id}");
