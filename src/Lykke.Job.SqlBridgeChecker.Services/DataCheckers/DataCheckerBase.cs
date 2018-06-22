@@ -95,6 +95,9 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         private async Task ProcessBatchAsync(IEnumerable<TIn> items)
         {
+            if (!items.Any())
+                return;
+
             _log.WriteInfo(nameof(CheckAndFixDataAsync), "Fetched", $"Fetched {items.Count()} items from Azure.");
             var sqlItems = await ConvertItemsToSqlTypesAsync(items);
             _log.WriteInfo(nameof(CheckAndFixDataAsync), "Converted", $"Converted to {sqlItems.Count} items.");
