@@ -46,6 +46,8 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 dbContext.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
 
                 await _repository.ProcessItemsFromYesterdayAsync(start, batch => ProcessBatchAsync(batch, dbContext));
+
+                await dbContext.SaveChangesAsync();
             }
 
             if (_addedCount > 0)
@@ -142,7 +144,6 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     _log.WriteError(Name, sqlItem.ToJson(), exc);
                 }
             }
-            await dbContext.SaveChangesAsync();
 
             ClearCaches(true);
         }
