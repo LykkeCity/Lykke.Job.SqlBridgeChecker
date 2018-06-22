@@ -33,9 +33,10 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             _tradesRepository = tradesRepository;
         }
 
-        protected override void ClearCaches()
+        protected override void ClearCaches(bool isDuringProcessing)
         {
-            _addedTradesCount = 0;
+            if (!isDuringProcessing)
+                _addedTradesCount = 0;
         }
 
         protected override async Task<List<MarketOrder>> ConvertItemsToSqlTypesAsync(IEnumerable<MarketOrderEntity> items)

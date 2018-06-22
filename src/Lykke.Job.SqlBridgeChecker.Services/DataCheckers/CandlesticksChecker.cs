@@ -22,10 +22,11 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         {
         }
 
-        protected override void ClearCaches()
+        protected override void ClearCaches(bool isDuringProcessing)
         {
             CandlestickSqlFinder.ClearCache();
-            _missingPairs.Clear();
+            if (!isDuringProcessing)
+                _missingPairs.Clear();
         }
 
         protected override Task<List<Candlestick>> ConvertItemsToSqlTypesAsync(IEnumerable<FeedHistoryEntity> items)

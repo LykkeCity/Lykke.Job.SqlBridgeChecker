@@ -17,10 +17,12 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         where TIn : TableEntity
         where TOut : class, IDbEntity, IValidatable
     {
-        protected internal readonly string _sqlConnectionString;
-        
+        private int _addedCount;
+        private int _modifiedCount;
+
         protected readonly ITableEntityRepository<TIn> _repository;
         protected readonly ILog _log;
+        protected readonly string _sqlConnectionString;
 
         public string Name => GetType().Name;
 
@@ -36,12 +38,22 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         public virtual async Task CheckAndFixDataAsync(DateTime start)
         {
+            _addedCount = 0;
+            _modifiedCount = 0;
+
             await _repository.ProcessItemsFromYesterdayAsync(start, ProcessBatchAsync);
+
+            if (_addedCount > 0)
+                LogAdded(_addedCount);
+            if (_modifiedCount > 0)
+                LogModified(_modifiedCount);
+
+            ClearCaches(false);
         }
 
         protected abstract Task<List<TOut>> ConvertItemsToSqlTypesAsync(IEnumerable<TIn> items);
 
-        protected virtual void ClearCaches()
+        protected virtual void ClearCaches(bool isDuringProcessing)
         {
         }
 
@@ -102,8 +114,6 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             var sqlItems = await ConvertItemsToSqlTypesAsync(items);
             _log.WriteInfo(nameof(CheckAndFixDataAsync), "Converted", $"Converted to {sqlItems.Count} items.");
 
-            int modifiedCount = 0;
-            int addedCount = 0;
             using (var dbContext = new DataContext(_sqlConnectionString))
             {
                 dbContext.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
@@ -118,12 +128,12 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                             if (!sqlItem.IsValid())
                                 _log.WriteInfo(nameof(CheckAndFixDataAsync), "Invalid", $"Found invalid object - {sqlItem.ToJson()}!");
                             await dbContext.Set<TOut>().AddAsync(sqlItem);
-                            ++addedCount;
+                            ++_addedCount;
                         }
                         else if (UpdateItem(fromSql, sqlItem, dbContext))
                         {
                             dbContext.Set<TOut>().Update(fromSql);
-                            ++modifiedCount;
+                            ++_modifiedCount;
                         }
                     }
                     catch (Exception exc)
@@ -133,12 +143,8 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 }
                 await dbContext.SaveChangesAsync();
             }
-            if (addedCount > 0)
-                LogAdded(addedCount);
-            if (modifiedCount > 0)
-                LogModified(modifiedCount);
 
-            ClearCaches();
+            ClearCaches(true);
         }
     }
 }
