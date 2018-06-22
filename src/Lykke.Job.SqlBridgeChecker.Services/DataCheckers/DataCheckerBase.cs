@@ -56,7 +56,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 else
                 {
                     var items = new List<TIn>();
-                    await _repository.ProcessItemsFromYesterdayAsync(start, batch => { items.AddRange(batch); return Task.CompletedTask});
+                    await _repository.ProcessItemsFromYesterdayAsync(start, batch => { items.AddRange(batch); return Task.CompletedTask; });
                     await ProcessBatchAsync(items, dbContext);
                 }
 
