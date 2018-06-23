@@ -19,6 +19,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
     {
         private readonly bool _canBeProcessedByBatches;
 
+        private int _fetchedCount;
         private int _addedCount;
         private int _modifiedCount;
 
@@ -42,6 +43,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
 
         public virtual async Task CheckAndFixDataAsync(DateTime start)
         {
+            _fetchedCount = 0;
             _addedCount = 0;
             _modifiedCount = 0;
 
@@ -67,6 +69,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 LogAdded(_addedCount);
             if (_modifiedCount > 0)
                 LogModified(_modifiedCount);
+            _log.WriteInfo(nameof(CheckAndFixDataAsync), "TotalFetched", $"Fetched {_fetchedCount} item(s).");
 
             ClearCaches(false);
         }
@@ -130,7 +133,10 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             if (!items.Any())
                 return;
 
-            _log.WriteInfo(nameof(CheckAndFixDataAsync), "Fetched", $"Fetched {items.Count()} items from Azure.");
+            int batchCount = items.Count();
+            _fetchedCount += batchCount;
+
+            _log.WriteInfo(nameof(CheckAndFixDataAsync), "Fetched", $"Fetched {batchCount} items from Azure.");
             var sqlItems = await ConvertItemsToSqlTypesAsync(items);
             _log.WriteInfo(nameof(CheckAndFixDataAsync), "Converted", $"Converted to {sqlItems.Count} items.");
 

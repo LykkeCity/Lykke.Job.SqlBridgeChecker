@@ -1,4 +1,7 @@
 ﻿using System;
+using System.Linq;
+using System.Collections.Generic;
+using Common.Log;
 using Lykke.Job.SqlBridgeChecker.Core.Repositories;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
 
@@ -31,8 +34,15 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                 && Volume != 0;
         }
 
-        public static CashOperation FromModel(CashInOutOperationEntity model)
+        public static CashOperation FromModel(IEnumerable<CashInOutOperationEntity> models, ILog log)
         {
+            var model = models.First();
+            var otherAssetModel = models.FirstOrDefault(m => m.AssetId != model.AssetId);
+            if (otherAssetModel != null)
+                log.WriteWarning(
+                    nameof(CashOperation),
+                    nameof(FromModel),
+                    $"For tx {model.TransactionId} found 2 assets - '{model.AssetId}' and '{otherAssetModel.AssetId}'");
             return new CashOperation
             {
                 Id = model.TransactionId ?? model.RowKey,

@@ -49,7 +49,6 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 .Where(i => !i.IsHidden)
                 .GroupBy(c => c.PartitionKey)
                 .ToDictionary(i => i.Key, i => new List<ClientTradeEntity>(i));
-            var clientIds = new HashSet<string>();
             foreach (var item in items)
             {
                 List<ClientTradeEntity> children = null;
@@ -63,13 +62,6 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     GetMarketOrderAsync,
                     _log);
                 result.Add(converted);
-
-                clientIds.Add(item.ClientId);
-                if (children != null)
-                    foreach (var child in children)
-                    {
-                        clientIds.Add(child.ClientId);
-                    }
             }
 
             return result;

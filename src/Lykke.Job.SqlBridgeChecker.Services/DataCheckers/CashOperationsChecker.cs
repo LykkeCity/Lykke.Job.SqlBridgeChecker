@@ -16,7 +16,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             ILog log)
             : base(
                 sqlConnecctionString,
-                true,
+                false,
                 repository,
                 log)
         {
@@ -27,7 +27,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             var result = items
                 .Where(i => !i.IsHidden)
                 .GroupBy(i => i.TransactionId ?? i.RowKey)
-                .Select(group => CashOperation.FromModel(group.First()))
+                .Select(group => CashOperation.FromModel(group, _log))
                 .ToList();
 
             return Task.FromResult(result);
