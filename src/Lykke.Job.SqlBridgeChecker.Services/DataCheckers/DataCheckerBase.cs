@@ -2,7 +2,6 @@
 using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
-using Microsoft.EntityFrameworkCore;
 using Microsoft.WindowsAzure.Storage.Table;
 using Common;
 using Common.Log;
@@ -47,22 +46,26 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             _addedCount = 0;
             _modifiedCount = 0;
 
-            using (var dbContext = new DataContext(_sqlConnectionString))
+            if (_canBeProcessedByBatches)
             {
-                dbContext.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
-
-                if (_canBeProcessedByBatches)
+                await _repository.ProcessItemsFromYesterdayAsync(start, async batch =>
                 {
-                    await _repository.ProcessItemsFromYesterdayAsync(start, batch => ProcessBatchAsync(batch, dbContext));
-                }
-                else
+                    using (var dbContext = new DataContext(_sqlConnectionString))
+                    {
+                        await ProcessBatchAsync(batch, dbContext);
+                        await dbContext.SaveChangesAsync();
+                    }
+                });
+            }
+            else
+            {
+                using (var dbContext = new DataContext(_sqlConnectionString))
                 {
                     var items = new List<TIn>();
                     await _repository.ProcessItemsFromYesterdayAsync(start, batch => { items.AddRange(batch); return Task.CompletedTask; });
                     await ProcessBatchAsync(items, dbContext);
+                    await dbContext.SaveChangesAsync();
                 }
-
-                await dbContext.SaveChangesAsync();
             }
 
             if (_addedCount > 0)

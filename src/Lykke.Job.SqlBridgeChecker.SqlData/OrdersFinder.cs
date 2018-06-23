@@ -1,5 +1,4 @@
-﻿using System;
-using System.Linq;
+﻿using System.Linq;
 using Microsoft.EntityFrameworkCore;
 using Lykke.Job.SqlBridgeChecker.SqlData.Models;
 
@@ -11,7 +10,6 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
         {
             using (var context = new DataContext(sqlConnectionString))
             {
-                context.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
                 string query = $"SELECT * FROM dbo.{DataContext.LimitOrdersTable} WHERE ExternalId = '{orderId}'";
                 var items = context.LimitOrders.AsNoTracking().FromSql(query);
                 return items.FirstOrDefault();
@@ -22,7 +20,6 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
         {
             using (var context = new DataContext(sqlConnectionString))
             {
-                context.Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
                 string query = $"SELECT * FROM dbo.{DataContext.MarketOrdersTable} WHERE ExternalId = '{orderId}'";
                 var items = context.MarketOrders.AsNoTracking().FromSql(query);
                 return items.FirstOrDefault();

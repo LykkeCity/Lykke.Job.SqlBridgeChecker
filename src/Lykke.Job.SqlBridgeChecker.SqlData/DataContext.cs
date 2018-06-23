@@ -1,4 +1,5 @@
-﻿using Microsoft.EntityFrameworkCore;
+﻿using System;
+using Microsoft.EntityFrameworkCore;
 using Lykke.Job.SqlBridgeChecker.SqlData.Models;
 
 namespace Lykke.Job.SqlBridgeChecker.SqlData
@@ -26,6 +27,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
         public DataContext(string connectionString)
         {
             _connectionString = connectionString;
+
+            Database.SetCommandTimeout(TimeSpan.FromMinutes(15));
         }
 
         public DataContext()
