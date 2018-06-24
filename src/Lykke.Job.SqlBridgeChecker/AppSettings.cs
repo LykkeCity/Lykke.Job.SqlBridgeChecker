@@ -11,6 +11,8 @@ namespace Lykke.Job.SqlBridgeChecker
         public ClientAccountClientSettings ClientAccountServiceClient { get; set; }
 
         public AssetServiceClientSettings AssetsServiceClient { get; set; }
+
+        public MonitoringServiceClientSettings MonitoringServiceClient { get; set; }
     }
 
     public class ClientAccountClientSettings
@@ -35,6 +37,12 @@ namespace Lykke.Job.SqlBridgeChecker
     {
         [HttpCheck("api/isalive")]
         public string ServiceUrl { get; set; }
+    }
+
+    public class MonitoringServiceClientSettings
+    {
+        [HttpCheck("api/isalive", false)]
+        public string MonitoringServiceUrl { get; set; }
     }
 
     public class SqlBridgeCheckerSettings

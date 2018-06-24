@@ -11,6 +11,7 @@ using Lykke.Job.SqlBridgeChecker.Core.Services;
 using Lykke.Job.SqlBridgeChecker.Modules;
 using Lykke.Logs;
 using Lykke.Logs.Slack;
+using Lykke.MonitoringServiceApiCaller;
 using Lykke.SettingsReader;
 using Lykke.SlackNotification.AzureQueue;
 using Microsoft.AspNetCore.Builder;
@@ -22,10 +23,11 @@ namespace Lykke.Job.SqlBridgeChecker
 {
     public class Startup
     {
+        private ILog _log;
+        private string _monitoringServiceUrl;
+
         public IContainer ApplicationContainer { get; private set; }
         public IConfigurationRoot Configuration { get; }
-
-        private ILog _log;
 
         public Startup(IHostingEnvironment env)
         {
@@ -54,6 +56,7 @@ namespace Lykke.Job.SqlBridgeChecker
 
                 var builder = new ContainerBuilder();
                 var settingsManager = Configuration.LoadSettings<AppSettings>();
+                _monitoringServiceUrl = settingsManager.CurrentValue.MonitoringServiceClient.MonitoringServiceUrl;
 
                 _log = CreateLogWithSlack(services, settingsManager);
 
@@ -111,6 +114,10 @@ namespace Lykke.Job.SqlBridgeChecker
             {
                 await ApplicationContainer.Resolve<IStartupManager>().StartAsync();
                 _log.WriteMonitor("", "", "Started");
+
+#if (!DEBUG)
+                await AutoRegistrationInMonitoring.RegisterAsync(Configuration, _monitoringServiceUrl, _log);
+#endif
             }
             catch (Exception ex)
             {
