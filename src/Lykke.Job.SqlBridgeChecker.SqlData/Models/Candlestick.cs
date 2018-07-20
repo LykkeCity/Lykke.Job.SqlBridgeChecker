@@ -46,7 +46,12 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
 
         public bool IsValid()
         {
-            return !string.IsNullOrEmpty(AssetPair) && AssetPair.Length <= MaxStringFieldsLength;
+            return !string.IsNullOrEmpty(AssetPair)
+                && AssetPair.Length <= MaxStringFieldsLength
+                && Open > 0
+                && Close > 0
+                && High > 0
+                && Low > 0;
         }
 
         public static Candlestick FromModel(IEnumerable<FeedHistoryEntity> models, ILog log)

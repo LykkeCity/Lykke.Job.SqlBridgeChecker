@@ -70,19 +70,20 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         protected override bool UpdateItem(Candlestick inSql, Candlestick convertedItem, DataContext context)
         {
             var changed = inSql.Start > convertedItem.Start
-                || inSql.High < convertedItem.High
-                || inSql.Low > convertedItem.Low;
+                || convertedItem.High > 0 && inSql.High < convertedItem.High
+                || convertedItem.Low > 0 && inSql.Low > convertedItem.Low;
             if (!changed)
                 return false;
             _log.WriteInfo(nameof(UpdateItem), convertedItem.AssetPair, $"{inSql.ToJson()}");
             if (inSql.Start > convertedItem.Start)
             {
                 inSql.Start = convertedItem.Start;
-                inSql.Open = convertedItem.Open;
+                if (convertedItem.Open > 0)
+                    inSql.Open = convertedItem.Open;
             }
-            if (inSql.High < convertedItem.High)
+            if (convertedItem.High > 0 && inSql.High < convertedItem.High)
                 inSql.High = convertedItem.High;
-            if (inSql.Low > convertedItem.Low)
+            if (convertedItem.Low > 0 && inSql.Low > convertedItem.Low)
                 inSql.Low = convertedItem.Low;
             return true;
         }

@@ -37,11 +37,6 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
 
         protected override void Load(ContainerBuilder builder)
         {
-            using (var context = new DataContext(_appSettings.SqlBridgeCheckerJob.SqlDbConnectionString))
-            {
-                context.Database.Migrate();
-            }
-
             builder.RegisterInstance(_log)
                 .As<ILog>()
                 .SingleInstance();
@@ -50,11 +45,14 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 .As<IHealthService>()
                 .SingleInstance();
 
-            builder.RegisterType<StartupManager>()
-                .As<IStartupManager>();
+            var startupManager = new StartupManager();
+            builder.RegisterInstance(startupManager)
+                .As<IStartupManager>()
+                .SingleInstance();
 
             builder.RegisterType<ShutdownManager>()
-                .As<IShutdownManager>();
+                .As<IShutdownManager>()
+                .SingleInstance();
 
             builder.RegisterResourcesMonitoring(_log);
 
@@ -68,18 +66,19 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 .As<IAssetsService>()
                 .SingleInstance();
 
-            RegisterCheckers(
+            IDataChecker checker = RegisterCheckers(
                 builder,
                 clientAccountClient,
                 assetsServiceClient);
 
-            builder.RegisterType<PeriodicalHandler>()
-                .As<IStartable>()
-                .AutoActivate()
+            var periodicalHandler = new PeriodicalHandler(checker, _log);
+            builder.RegisterInstance(periodicalHandler)
                 .SingleInstance();
+
+            startupManager.Register(periodicalHandler);
         }
 
-        private void RegisterCheckers(
+        private IDataChecker RegisterCheckers(
             ContainerBuilder builder,
             IClientAccountClient clientAccountClient,
             IAssetsService assetsServiceClient)
@@ -181,6 +180,8 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 candlesticksRepository,
                 _log);
             checkersRepository.AddChecker(candlesticksChecker);
+
+            return checkersRepository;
         }
     }
 }

@@ -147,15 +147,16 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             {
                 try
                 {
+                    bool isValid = sqlItem.IsValid();
+                    if (!isValid)
+                        _log.WriteInfo(nameof(CheckAndFixDataAsync), "Invalid", $"Found invalid object - {sqlItem.ToJson()}!");
                     var fromSql = await FindInSqlDbAsync(sqlItem, dbContext);
                     if (fromSql == null)
                     {
-                        if (!sqlItem.IsValid())
-                            _log.WriteInfo(nameof(CheckAndFixDataAsync), "Invalid", $"Found invalid object - {sqlItem.ToJson()}!");
                         await dbContext.Set<TOut>().AddAsync(sqlItem);
                         ++_addedCount;
                     }
-                    else if (UpdateItem(fromSql, sqlItem, dbContext))
+                    else if (isValid && UpdateItem(fromSql, sqlItem, dbContext))
                     {
                         dbContext.Set<TOut>().Update(fromSql);
                         ++_modifiedCount;
