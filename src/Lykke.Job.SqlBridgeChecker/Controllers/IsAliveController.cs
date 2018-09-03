@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Linq;
 using System.Net;
+using Lykke.Common;
 using Microsoft.AspNetCore.Mvc;
 using Swashbuckle.AspNetCore.SwaggerGen;
 using Lykke.Common.Api.Contract.Responses;
@@ -22,7 +23,6 @@ namespace Lykke.Job.SqlBridgeChecker.Controllers
         /// <summary>
         /// Checks service is alive
         /// </summary>
-        /// <returns></returns>
         [HttpGet]
         [SwaggerOperation("IsAlive")]
         [ProducesResponseType(typeof(IsAliveResponse), (int)HttpStatusCode.OK)]
@@ -41,8 +41,8 @@ namespace Lykke.Job.SqlBridgeChecker.Controllers
             // NOTE: Feel free to extend IsAliveResponse, to display job-specific indicators
             return Ok(new IsAliveResponse
             {
-                Name = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationName,
-                Version = Microsoft.Extensions.PlatformAbstractions.PlatformServices.Default.Application.ApplicationVersion,
+                Name = AppEnvironment.Name,
+                Version = AppEnvironment.Version,
                 Env = Environment.GetEnvironmentVariable("ENV_INFO"),
 #if DEBUG
                 IsDebug = true,

@@ -1,10 +1,11 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using Common;
 using Common.Log;
+using Dapper;
 using Lykke.Job.SqlBridgeChecker.SqlData.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lykke.Job.SqlBridgeChecker.SqlData
 {
@@ -40,7 +41,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             DateTime from = item.Start.Date;
             DateTime to = from.AddDays(1);
             string query = $"SELECT * FROM dbo.{DataContext.CandlesticksTable} WHERE AssetPair = '{item.AssetPair}' AND Start >= '{from.ToString(_format)}' AND Start < '{to.ToString(_format)}'";
-            var items = context.Candlesticks.FromSql(query).AsNoTracking().ToList();
+            var items = context.Database.GetDbConnection().Query<Candlestick>(query).ToList();
             if (_dict == null)
                 _dict = new Dictionary<string, List<Candlestick>>();
             _dict[item.AssetPair] = items;

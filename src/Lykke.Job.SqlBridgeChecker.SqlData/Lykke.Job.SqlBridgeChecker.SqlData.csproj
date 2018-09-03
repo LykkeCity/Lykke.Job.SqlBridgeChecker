@@ -4,10 +4,11 @@
     <Version>1.0.1</Version>
   </PropertyGroup>
   <ItemGroup>
-    <PackageReference Include="Lykke.Common" Version="7.0.2" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.1.1" />
-    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.1" />
+    <PackageReference Include="Dapper" Version="1.50.5" />
+    <PackageReference Include="Lykke.Common" Version="7.0.4" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore" Version="2.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.Design" Version="2.1.2" />
+    <PackageReference Include="Microsoft.EntityFrameworkCore.SqlServer" Version="2.1.2" />
   </ItemGroup>
   <PropertyGroup>
     <GenerateRuntimeConfigurationFiles>true</GenerateRuntimeConfigurationFiles>

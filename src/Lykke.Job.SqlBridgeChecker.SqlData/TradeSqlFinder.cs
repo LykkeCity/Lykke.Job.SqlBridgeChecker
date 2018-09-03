@@ -1,9 +1,10 @@
 ﻿using System;
 using System.Linq;
 using System.Collections.Generic;
-using Microsoft.EntityFrameworkCore;
 using Common.Log;
+using Dapper;
 using Lykke.Job.SqlBridgeChecker.SqlData.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lykke.Job.SqlBridgeChecker.SqlData
 {
@@ -13,7 +14,10 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
         private static DateTime _cacheDate = DateTime.MinValue;
         private static Dictionary<string, List<TradeLogItem>> _dict;
 
-        public static TradeLogItem FindInDb(TradeLogItem item, DataContext context, ILog log)
+        public static TradeLogItem FindInDb(
+            TradeLogItem item,
+            DataContext context,
+            ILog log)
         {
             if (_dict == null
                 || _dict.Count == 0 && item.DateTime.Date != _cacheDate
@@ -35,14 +39,18 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData
             _dict?.Clear();
         }
 
-        private static void InitCache(TradeLogItem item, DataContext context, ILog log)
+        private static void InitCache(
+            TradeLogItem item,
+            DataContext context,
+            ILog log)
         {
             _dict?.Clear();
 
             DateTime from = item.DateTime.Date;
             DateTime to = from.AddDays(1);
+
             string query = $"SELECT * FROM dbo.{DataContext.TradesTable} WHERE DateTime >= '{from.ToString(_format)}' AND DateTime < '{to.ToString(_format)}'";
-            var items = context.Trades.AsNoTracking().FromSql(query).ToList();
+            var items = context.Database.GetDbConnection().Query<TradeLogItem>(query).ToList();
             _dict = items.GroupBy(i => i.TradeId).ToDictionary(g => g.Key, g => g.ToList());
             _cacheDate = from;
             log.WriteInfo(
