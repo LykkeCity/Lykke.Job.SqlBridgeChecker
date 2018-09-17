@@ -130,7 +130,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                         }
                         else if (string.IsNullOrWhiteSpace(trade.Asset) && string.IsNullOrWhiteSpace(trade.OppositeAsset))
                         {
-                            if (model.Straight ^ model.AssetPairId.StartsWith(clientTrade.AssetId))
+                            if (model.Straight ^ (model.AssetPairId.StartsWith(clientTrade.AssetId) && !model.AssetPairId.EndsWith(clientTrade.AssetId)))
                             {
                                 trade.Asset = clientTrade.AssetId;
                                 trade.Volume = clientTrade.Volume;

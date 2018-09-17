@@ -124,7 +124,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                         }
                         else if (string.IsNullOrWhiteSpace(trade.MarketAsset) && string.IsNullOrWhiteSpace(trade.LimitAsset))
                         {
-                            if (model.Straight ^ model.AssetPairId.StartsWith(marketTrade.AssetId))
+                            if (model.Straight ^ (model.AssetPairId.StartsWith(marketTrade.AssetId) && !model.AssetPairId.EndsWith(marketTrade.AssetId)))
                             {
                                 trade.MarketAsset = marketTrade.AssetId;
                                 trade.MarketVolume = marketTrade.Volume;
@@ -171,7 +171,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                             }
                             else if (string.IsNullOrWhiteSpace(trade.MarketAsset) && string.IsNullOrWhiteSpace(trade.LimitAsset))
                             {
-                                if (model.Straight ^ model.AssetPairId.StartsWith(limitTrade.AssetId))
+                                if (model.Straight ^ (model.AssetPairId.StartsWith(limitTrade.AssetId) && !model.AssetPairId.EndsWith(limitTrade.AssetId)))
                                 {
                                     trade.MarketAsset = limitTrade.AssetId;
                                     trade.MarketVolume = limitTrade.Volume;
