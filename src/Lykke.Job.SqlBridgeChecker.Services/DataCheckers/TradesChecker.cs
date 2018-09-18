@@ -59,7 +59,8 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
         protected override bool UpdateItem(TradeLogItem inSql, TradeLogItem convertedItem, DataContext context)
         {
             var changed = (inSql.Direction != convertedItem.Direction && convertedItem.Volume != 0)
-                || inSql.IsHidden != convertedItem.IsHidden;
+                || (inSql.IsHidden.HasValue && inSql.IsHidden.Value != (convertedItem.IsHidden ?? false)
+                || (!inSql.IsHidden.HasValue && convertedItem.IsHidden.HasValue && convertedItem.IsHidden.Value));
             if (!changed)
                 return false;
             _log.WriteInfo(nameof(UpdateItem), $"{convertedItem.Asset}_{convertedItem.OppositeAsset}", $"{inSql.ToJson()}");
