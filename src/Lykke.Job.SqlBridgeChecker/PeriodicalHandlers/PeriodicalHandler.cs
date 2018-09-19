@@ -8,7 +8,7 @@ using Lykke.Job.SqlBridgeChecker.Core.Services;
 namespace Lykke.Job.SqlBridgeChecker.PeriodicalHandlers
 {
     [UsedImplicitly]
-    public class PeriodicalHandler : TimerPeriod
+    public class PeriodicalHandler : TimerPeriod, IStartStop
     {
         private readonly IDataChecker _checker;
 
