@@ -4,7 +4,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
 {
     public class ClientBalanceUpdate : IValidatable
     {
-        public static int MaxStringFieldsLength { get { return 255; } }
+        public static int MaxStringFieldsLength => 255;
 
         public long Id { get; set; }
 

@@ -3,14 +3,14 @@ using System.Linq;
 using System.Collections.Generic;
 using System.Threading.Tasks;
 using Common.Log;
-using Lykke.Job.SqlBridgeChecker.Core.Repositories;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
+using Lykke.Job.SqlBridgeChecker.Core.Repositories;
 
 namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
 {
     public class MarketOrder : IDbEntity, IValidatable
     {
-        public static int MaxStringFieldsLength { get { return 255; } }
+        public static int MaxStringFieldsLength => 255;
 
         public string Id { get; set; }
 
