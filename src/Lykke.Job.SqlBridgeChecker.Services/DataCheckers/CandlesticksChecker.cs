@@ -67,24 +67,24 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return Task.FromResult(inSql);
         }
 
-        protected override bool UpdateItem(Candlestick inSql, Candlestick convertedItem, DataContext context)
+        protected override bool UpdateItem(Candlestick fromSql, Candlestick convertedItem, DataContext context)
         {
-            var changed = inSql.Start > convertedItem.Start
-                || convertedItem.High > 0 && inSql.High < convertedItem.High
-                || convertedItem.Low > 0 && inSql.Low > convertedItem.Low;
+            var changed = fromSql.Start > convertedItem.Start
+                || convertedItem.High > 0 && fromSql.High < convertedItem.High
+                || convertedItem.Low > 0 && fromSql.Low > convertedItem.Low;
             if (!changed)
                 return false;
-            _log.WriteInfo(nameof(UpdateItem), convertedItem.AssetPair, $"{inSql.ToJson()}");
-            if (inSql.Start > convertedItem.Start)
+            _log.WriteInfo(nameof(UpdateItem), convertedItem.AssetPair, $"{fromSql.ToJson()}");
+            if (fromSql.Start > convertedItem.Start)
             {
-                inSql.Start = convertedItem.Start;
+                fromSql.Start = convertedItem.Start;
                 if (convertedItem.Open > 0)
-                    inSql.Open = convertedItem.Open;
+                    fromSql.Open = convertedItem.Open;
             }
-            if (convertedItem.High > 0 && inSql.High < convertedItem.High)
-                inSql.High = convertedItem.High;
-            if (convertedItem.Low > 0 && inSql.Low > convertedItem.Low)
-                inSql.Low = convertedItem.Low;
+            if (convertedItem.High > 0 && fromSql.High < convertedItem.High)
+                fromSql.High = convertedItem.High;
+            if (convertedItem.Low > 0 && fromSql.Low > convertedItem.Low)
+                fromSql.Low = convertedItem.Low;
             return true;
         }
 

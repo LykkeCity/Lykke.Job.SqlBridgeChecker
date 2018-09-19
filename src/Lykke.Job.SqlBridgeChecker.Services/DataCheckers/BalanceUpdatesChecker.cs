@@ -36,14 +36,14 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return Task.FromResult(result);
         }
 
-        protected override bool UpdateItem(BalanceUpdate inSql, BalanceUpdate convertedItem, DataContext context)
+        protected override bool UpdateItem(BalanceUpdate fromSql, BalanceUpdate convertedItem, DataContext context)
         {
             if (convertedItem.Balances == null || convertedItem.Balances.Count == 0)
                 return false;
 
             var clientBalanceUpdates = context
                 .Set<ClientBalanceUpdate>()
-                .Where(t => t.BalanceUpdateId == inSql.Id)
+                .Where(t => t.BalanceUpdateId == fromSql.Id)
                 .ToList();
 
             if (clientBalanceUpdates.Count == convertedItem.Balances.Count)

@@ -67,19 +67,20 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return result;
         }
 
-        protected override bool UpdateItem(LimitOrder inSql, LimitOrder converted, DataContext context)
+        protected override bool UpdateItem(LimitOrder fromSql, LimitOrder converted, DataContext context)
         {
-            bool changed = inSql.Status != converted.Status
-                || !AreEqual(inSql.LastMatchTime, converted.LastMatchTime)
-                || inSql.RemainingVolume != converted.RemainingVolume;
+            bool changed = fromSql.Status != converted.Status
+                || fromSql.RemainingVolume != converted.RemainingVolume
+                || !fromSql.LastMatchTime.HasValue && converted.LastMatchTime.HasValue
+                || fromSql.LastMatchTime.HasValue && converted.LastMatchTime.HasValue && converted.LastMatchTime.Value.Subtract(fromSql.LastMatchTime.Value).TotalMilliseconds >= 3;
             if (changed)
             {
-                _log.WriteInfo(nameof(UpdateItem), converted.AssetPairId, $"{inSql.ToJson()}");
-                inSql.Status = converted.Status;
-                inSql.LastMatchTime = converted.LastMatchTime;
-                inSql.RemainingVolume = converted.RemainingVolume;
+                _log.WriteInfo(nameof(UpdateItem), converted.AssetPairId, $"{fromSql.ToJson()}");
+                fromSql.Status = converted.Status;
+                fromSql.LastMatchTime = converted.LastMatchTime;
+                fromSql.RemainingVolume = converted.RemainingVolume;
             }
-            bool childrenUpdated = UpdateChildren(inSql, converted, context);
+            bool childrenUpdated = UpdateChildren(fromSql, converted, context);
 
             return changed || childrenUpdated;
         }

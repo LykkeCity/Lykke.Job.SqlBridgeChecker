@@ -56,17 +56,17 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return Task.FromResult(inSql);
         }
 
-        protected override bool UpdateItem(TradeLogItem inSql, TradeLogItem convertedItem, DataContext context)
+        protected override bool UpdateItem(TradeLogItem fromSql, TradeLogItem convertedItem, DataContext context)
         {
-            var changed = (inSql.Direction != convertedItem.Direction && convertedItem.Volume != 0)
-                || (inSql.IsHidden.HasValue && inSql.IsHidden.Value != (convertedItem.IsHidden ?? false)
-                || (!inSql.IsHidden.HasValue && convertedItem.IsHidden.HasValue && convertedItem.IsHidden.Value));
+            var changed = (fromSql.Direction != convertedItem.Direction && convertedItem.Volume != 0)
+                || (fromSql.IsHidden.HasValue && fromSql.IsHidden.Value != (convertedItem.IsHidden ?? false)
+                || (!fromSql.IsHidden.HasValue && convertedItem.IsHidden.HasValue && convertedItem.IsHidden.Value));
             if (!changed)
                 return false;
-            _log.WriteInfo(nameof(UpdateItem), $"{convertedItem.Asset}_{convertedItem.OppositeAsset}", $"{inSql.ToJson()}");
+            _log.WriteInfo(nameof(UpdateItem), $"{convertedItem.Asset}_{convertedItem.OppositeAsset}", $"{fromSql.ToJson()}");
             if (convertedItem.Volume != 0)
-                inSql.Direction = convertedItem.Direction;
-            inSql.IsHidden = convertedItem.IsHidden;
+                fromSql.Direction = convertedItem.Direction;
+            fromSql.IsHidden = convertedItem.IsHidden;
             return true;
         }
 

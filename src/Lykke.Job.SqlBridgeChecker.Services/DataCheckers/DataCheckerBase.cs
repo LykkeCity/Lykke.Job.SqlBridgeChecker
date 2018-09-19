@@ -107,7 +107,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return result;
         }
 
-        protected virtual bool UpdateItem(TOut inSql, TOut convertedItem, DataContext context)
+        protected virtual bool UpdateItem(TOut fromSql, TOut convertedItem, DataContext context)
         {
             return false;
         }
@@ -122,13 +122,13 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return one.Value.Equals(two.Value);
         }
 
-        protected bool AreEqual(DateTime? one, DateTime? two)
+        protected bool AreEqual(DateTime? old, DateTime? @new)
         {
-            if (!one.HasValue)
-                return !two.HasValue || two.Value.Equals(default(DateTime));
-            if (!two.HasValue)
-                return one.Value.Equals(default(DateTime));
-            return one.Value.Subtract(two.Value).TotalMilliseconds <= 2;
+            if (!old.HasValue)
+                return !@new.HasValue || @new.Value.Equals(default(DateTime));
+            if (!@new.HasValue)
+                return old.Value.Equals(default(DateTime));
+            return Math.Abs(old.Value.Subtract(@new.Value).TotalMilliseconds) <= 3;
         }
 
         private async Task ProcessBatchAsync(IEnumerable<TIn> items, DataContext dbContext)

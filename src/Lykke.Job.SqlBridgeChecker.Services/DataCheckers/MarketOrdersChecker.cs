@@ -60,21 +60,21 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             return result;
         }
 
-        protected override bool UpdateItem(MarketOrder inSql, MarketOrder converted, DataContext context)
+        protected override bool UpdateItem(MarketOrder fromSql, MarketOrder converted, DataContext context)
         {
-            bool changed = !AreEqual(inSql.Price, converted.Price)
-                || inSql.Status != converted.Status
-                || !AreEqual(inSql.MatchedAt, converted.MatchedAt)
-                || !AreEqual(inSql.ReservedLimitVolume, converted.ReservedLimitVolume);
+            bool changed = !AreEqual(fromSql.Price, converted.Price)
+                || fromSql.Status != converted.Status
+                || !AreEqual(fromSql.MatchedAt, converted.MatchedAt)
+                || !AreEqual(fromSql.ReservedLimitVolume, converted.ReservedLimitVolume);
             if (changed)
             {
-                _log.WriteInfo(nameof(UpdateItem), converted.AssetPairId, $"{inSql.ToJson()}");
-                inSql.Price = converted.Price;
-                inSql.Status = converted.Status;
-                inSql.MatchedAt = converted.MatchedAt;
-                inSql.ReservedLimitVolume = converted.ReservedLimitVolume;
+                _log.WriteInfo(nameof(UpdateItem), converted.AssetPairId, $"{fromSql.ToJson()}");
+                fromSql.Price = converted.Price;
+                fromSql.Status = converted.Status;
+                fromSql.MatchedAt = converted.MatchedAt;
+                fromSql.ReservedLimitVolume = converted.ReservedLimitVolume;
             }
-            bool childrenUpdated = UpdateChildren(inSql, converted, context);
+            bool childrenUpdated = UpdateChildren(fromSql, converted, context);
 
             return changed || childrenUpdated;
         }
