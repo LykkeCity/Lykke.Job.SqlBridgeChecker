@@ -75,9 +75,10 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 || fromSql.LastMatchTime.HasValue && converted.LastMatchTime.HasValue && converted.LastMatchTime.Value.Subtract(fromSql.LastMatchTime.Value).TotalMilliseconds >= 3;
             if (changed)
             {
-                _log.WriteInfo(nameof(UpdateItem), converted.AssetPairId, $"{fromSql.ToJson()}");
+                _log.WriteInfo(nameof(UpdateItem), converted.AssetPairId, fromSql.ToJson());
                 fromSql.Status = converted.Status;
-                fromSql.LastMatchTime = converted.LastMatchTime;
+                if (converted.LastMatchTime.HasValue)
+                    fromSql.LastMatchTime = converted.LastMatchTime;
                 fromSql.RemainingVolume = converted.RemainingVolume;
             }
             bool childrenUpdated = UpdateChildren(fromSql, converted, context);

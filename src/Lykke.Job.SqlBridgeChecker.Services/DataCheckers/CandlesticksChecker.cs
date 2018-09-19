@@ -57,7 +57,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 if (!_missingPairs.ContainsKey(key))
                 {
                     _missingPairs.Add(key, true);
-                    _log.WriteInfo(nameof(FindInSqlDbAsync), key, $"{item.ToJson()}");
+                    _log.WriteInfo(nameof(FindInSqlDbAsync), key, item.ToJson());
                 }
             }
             else if (_missingPairs.ContainsKey(key) && _missingPairs[key])
@@ -74,7 +74,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 || convertedItem.Low > 0 && fromSql.Low > convertedItem.Low;
             if (!changed)
                 return false;
-            _log.WriteInfo(nameof(UpdateItem), convertedItem.AssetPair, $"{fromSql.ToJson()}");
+            _log.WriteInfo(nameof(UpdateItem), convertedItem.AssetPair, fromSql.ToJson());
             if (fromSql.Start > convertedItem.Start)
             {
                 fromSql.Start = convertedItem.Start;

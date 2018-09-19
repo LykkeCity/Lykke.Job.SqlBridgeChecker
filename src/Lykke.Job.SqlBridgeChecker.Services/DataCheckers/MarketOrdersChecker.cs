@@ -68,7 +68,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 || !AreEqual(fromSql.ReservedLimitVolume, converted.ReservedLimitVolume);
             if (changed)
             {
-                _log.WriteInfo(nameof(UpdateItem), converted.AssetPairId, $"{fromSql.ToJson()}");
+                _log.WriteInfo(nameof(UpdateItem), converted.AssetPairId, fromSql.ToJson());
                 fromSql.Price = converted.Price;
                 fromSql.Status = converted.Status;
                 fromSql.MatchedAt = converted.MatchedAt;
