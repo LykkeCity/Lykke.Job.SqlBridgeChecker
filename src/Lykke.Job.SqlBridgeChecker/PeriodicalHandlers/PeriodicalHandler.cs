@@ -1,8 +1,8 @@
 ﻿using System;
 using System.Threading.Tasks;
-using JetBrains.Annotations;
 using Common;
 using Common.Log;
+using JetBrains.Annotations;
 using Lykke.Job.SqlBridgeChecker.Core.Services;
 
 namespace Lykke.Job.SqlBridgeChecker.PeriodicalHandlers

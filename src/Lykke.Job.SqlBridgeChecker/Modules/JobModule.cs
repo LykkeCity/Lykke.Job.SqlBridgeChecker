@@ -1,20 +1,18 @@
 ﻿using System;
 using System.Net.Http;
-using Microsoft.EntityFrameworkCore;
 using Autofac;
-using Common.Log;
 using AzureStorage.Tables;
+using Common.Log;
 using Lykke.Common;
-using Lykke.SettingsReader;
-using Lykke.Service.ClientAccount.Client;
-using Lykke.Service.Assets.Client;
-using Lykke.Job.SqlBridgeChecker.Core.Services;
-using Lykke.Job.SqlBridgeChecker.Services;
-using Lykke.Job.SqlBridgeChecker.Services.DataCheckers;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories;
 using Lykke.Job.SqlBridgeChecker.AzureRepositories.Models;
-using Lykke.Job.SqlBridgeChecker.SqlData;
+using Lykke.Job.SqlBridgeChecker.Core.Services;
 using Lykke.Job.SqlBridgeChecker.PeriodicalHandlers;
+using Lykke.Job.SqlBridgeChecker.Services;
+using Lykke.Job.SqlBridgeChecker.Services.DataCheckers;
+using Lykke.Service.Assets.Client;
+using Lykke.Service.ClientAccount.Client;
+using Lykke.SettingsReader;
 
 namespace Lykke.Job.SqlBridgeChecker.Modules
 {
@@ -45,13 +43,13 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
                 .As<IHealthService>()
                 .SingleInstance();
 
-            var startupManager = new StartupManager();
-            builder.RegisterInstance(startupManager)
+            builder.RegisterType<StartupManager>()
                 .As<IStartupManager>()
                 .SingleInstance();
 
             builder.RegisterType<ShutdownManager>()
                 .As<IShutdownManager>()
+                .AutoActivate()
                 .SingleInstance();
 
             builder.RegisterResourcesMonitoring(_log);
@@ -73,9 +71,8 @@ namespace Lykke.Job.SqlBridgeChecker.Modules
 
             var periodicalHandler = new PeriodicalHandler(checker, _log);
             builder.RegisterInstance(periodicalHandler)
+                .As<IStartStop>()
                 .SingleInstance();
-
-            startupManager.Register(periodicalHandler);
         }
 
         private IDataChecker RegisterCheckers(

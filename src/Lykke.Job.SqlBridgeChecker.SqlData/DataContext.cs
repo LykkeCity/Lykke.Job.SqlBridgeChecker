@@ -1,6 +1,6 @@
 ﻿using System;
-using Microsoft.EntityFrameworkCore;
 using Lykke.Job.SqlBridgeChecker.SqlData.Models;
+using Microsoft.EntityFrameworkCore;
 
 namespace Lykke.Job.SqlBridgeChecker.SqlData
 {
