@@ -47,11 +47,13 @@ namespace Lykke.Job.SqlBridgeChecker.Services
                     }
                     catch (Exception exc)
                     {
-                        _log.WriteError("CheckersRepository.CheckAndFixDataAsync", checker.Name, exc);
+                        _log.WriteWarning("CheckersRepository.CheckAndFixDataAsync", checker.Name, $"Retrying after facing this error: {exc.Message}");
+                        ++retryCount;
                     }
-                    ++retryCount;
                 }
                 while (retryCount <= _maxRetryCount);
+                if (retryCount > _maxRetryCount)
+                    _log.WriteError("CheckersRepository.CheckAndFixDataAsync", checker.Name, new Exception($"Couldn't successfully validate after {_maxRetryCount} retries"));
             }
 
             _log.WriteInfo(nameof(CheckAndFixDataAsync), "AllFinish", "Checking work is finished");
