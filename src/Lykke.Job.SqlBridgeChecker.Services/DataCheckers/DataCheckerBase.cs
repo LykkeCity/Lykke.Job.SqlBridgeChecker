@@ -175,6 +175,8 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 }
             }
 
+            _log.WriteInfo(nameof(CheckAndFixDataAsync), "Processed", $"Processed converted items.");
+
             ClearCaches(true);
         }
     }
