@@ -31,18 +31,5 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Models
                 return id;
             }
         }
-
-        public static class ByMultisig
-        {
-            public static string GeneratePartitionKey(string multisig)
-            {
-                return multisig;
-            }
-
-            internal static string GenerateRowKey(string id)
-            {
-                return id;
-            }
-        }
     }
 }

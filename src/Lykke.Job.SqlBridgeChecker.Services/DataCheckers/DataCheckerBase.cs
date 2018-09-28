@@ -143,6 +143,8 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
             var sqlItems = await ConvertItemsToSqlTypesAsync(items);
             _log.WriteInfo(nameof(CheckAndFixDataAsync), "Converted", $"Converted to {sqlItems.Count} items.");
 
+            int invalidAdded = 0;
+            int invalidSkipped = 0;
             foreach (var sqlItem in sqlItems)
             {
                 try
@@ -152,7 +154,10 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     if (fromSql == null)
                     {
                         if (!isValid)
+                        {
+                            ++invalidAdded;
                             _log.WriteInfo(nameof(CheckAndFixDataAsync), "Adding Invalid", $"Adding invalid object - {sqlItem.ToJson()}!");
+                        }
                         await dbContext.Set<TOut>().AddAsync(sqlItem);
                         ++_addedCount;
                     }
@@ -160,6 +165,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                     {
                         if (!isValid)
                         {
+                            ++invalidSkipped;
                             _log.WriteInfo(nameof(CheckAndFixDataAsync), "Skipping Invalid", $"Skipping invalid object - {sqlItem.ToJson()}!");
                         }
                         else if (UpdateItem(fromSql, sqlItem, dbContext))
@@ -175,7 +181,7 @@ namespace Lykke.Job.SqlBridgeChecker.Services.DataCheckers
                 }
             }
 
-            _log.WriteInfo(nameof(CheckAndFixDataAsync), "Processed", $"Processed converted items.");
+            _log.WriteInfo(nameof(CheckAndFixDataAsync), "Processed", $"Processed items. Added invalid - {invalidAdded}. Skipped invalid - {invalidSkipped}");
 
             ClearCaches(true);
         }

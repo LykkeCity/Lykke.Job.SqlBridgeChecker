@@ -33,19 +33,6 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories.Models
             }
         }
 
-        public static class ByClientIdActive
-        {
-            public static string GeneratePartitionKey(string clientId)
-            {
-                return "Active_" + clientId;
-            }
-
-            public static string GenerateRowKey(string orderId)
-            {
-                return orderId;
-            }
-        }
-
         public static class ByDate
         {
             public static string GeneratePartitionKey(DateTime date)
