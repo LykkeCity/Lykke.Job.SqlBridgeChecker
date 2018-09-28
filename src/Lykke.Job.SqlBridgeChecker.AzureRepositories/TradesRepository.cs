@@ -68,11 +68,12 @@ namespace Lykke.Job.SqlBridgeChecker.AzureRepositories
 
         public async Task<string> GetClientIdByLimitOrderAsync(string limitorderId, string clientId)
         {
-            var result = await _storage.GetDataAsync(limitorderId);
-            var entity = result.FirstOrDefault(x => x.ClientId != clientId);
-            if (entity != null)
-                return entity.ClientId;
-            return null;
+            var partitionFilter = TableQuery.GenerateFilterCondition(_partitionKey, QueryComparisons.Equal, limitorderId);
+            var clientIdFilter = TableQuery.GenerateFilterCondition(_partitionKey, QueryComparisons.NotEqual, clientId);
+            var filter = TableQuery.CombineFilters(partitionFilter, TableOperators.And, clientIdFilter);
+            var query = new TableQuery<ClientTradeEntity>().Where(filter);
+            var entity = await _storage.GetTopRecordAsync(query);
+            return entity?.ClientId;
         }
 
         protected override string GetDateColumn()
