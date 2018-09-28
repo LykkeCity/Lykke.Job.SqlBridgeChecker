@@ -45,8 +45,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
 
         public bool IsValid()
         {
-            return !string.IsNullOrEmpty(UserId) && UserId.Length <= MaxStringFieldsLength
-                && !string.IsNullOrEmpty(WalletId) && WalletId.Length <= MaxStringFieldsLength
+            return !string.IsNullOrEmpty(UserId) && UserId.Length <= MaxStringFieldsLength && Guid.TryParse(UserId, out _)
+                && !string.IsNullOrEmpty(WalletId) && WalletId.Length <= MaxStringFieldsLength && Guid.TryParse(WalletId, out _)
                 && !string.IsNullOrEmpty(OrderId) && OrderId.Length <= MaxStringFieldsLength
                 && !string.IsNullOrEmpty(OrderType) && OrderType.Length <= MaxStringFieldsLength
                 && !string.IsNullOrEmpty(Direction) && Direction.Length <= MaxStringFieldsLength

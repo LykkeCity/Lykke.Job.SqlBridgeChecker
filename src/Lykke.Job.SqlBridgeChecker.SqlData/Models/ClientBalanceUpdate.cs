@@ -1,4 +1,5 @@
-﻿using Lykke.Job.SqlBridgeChecker.Core.Repositories;
+﻿using System;
+using Lykke.Job.SqlBridgeChecker.Core.Repositories;
 
 namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
 {
@@ -24,7 +25,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
 
         public bool IsValid()
         {
-            return !string.IsNullOrEmpty(ClientId) && ClientId.Length <= MaxStringFieldsLength
+            return !string.IsNullOrEmpty(ClientId) && ClientId.Length <= MaxStringFieldsLength && Guid.TryParse(ClientId, out _)
                 && !string.IsNullOrEmpty(Asset) && Asset.Length <= MaxStringFieldsLength
                 && (OldBalance != NewBalance || OldReserved != NewReserved);
         }

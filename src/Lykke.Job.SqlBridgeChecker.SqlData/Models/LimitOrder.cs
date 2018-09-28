@@ -48,7 +48,7 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             return !string.IsNullOrEmpty(Id) && Id.Length <= MaxStringFieldsLength
                 && !string.IsNullOrEmpty(ExternalId) && ExternalId.Length <= MaxStringFieldsLength
                 && !string.IsNullOrEmpty(AssetPairId) && AssetPairId.Length <= MaxStringFieldsLength
-                && !string.IsNullOrEmpty(ClientId) && ClientId.Length <= MaxStringFieldsLength
+                && !string.IsNullOrEmpty(ClientId) && ClientId.Length <= MaxStringFieldsLength && Guid.TryParse(ClientId, out _)
                 && !string.IsNullOrEmpty(Status) && Status.Length <= MaxStringFieldsLength
                 && Volume != 0
                 && Price > 0
