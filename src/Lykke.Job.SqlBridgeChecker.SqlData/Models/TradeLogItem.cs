@@ -84,7 +84,8 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
                     walletInfo.Item1,
                     walletInfo.Item2,
                     log);
-                result.Add(item);
+                if (item != null)
+                    result.Add(item);
             }
             return result;
         }
@@ -147,19 +148,34 @@ namespace Lykke.Job.SqlBridgeChecker.SqlData.Models
             }
             if (otherAssetTrade != null)
             {
+                if (Math.Sign(model.Volume) == Math.Sign(otherAssetTrade.Volume))
+                {
+                    log.WriteWarning(
+                        nameof(CreateInstance),
+                        nameof(TradeLogItem),
+                        $"Same direction for {model.ToJson()} as in pair trade {otherAssetTrade.ToJson()}! Skipping.");
+                    return null;
+                }
                 result.OppositeAsset = otherAssetTrade.AssetId;
                 result.OppositeVolume = (decimal)Math.Abs(otherAssetTrade.Volume);
             }
+
             if (result.OppositeAsset == null)
+            {
                 log.WriteWarning(
                     nameof(CreateInstance),
                     nameof(TradeLogItem),
-                    $"Could not determine opposite asset for {model.ToJson()}!");
-            else if (result.OppositeVolume == null)
+                    $"Could not determine opposite asset for {model.ToJson()}! Skipping.");
+                return null;
+            }
+            if (result.OppositeVolume == null)
+            {
                 log.WriteWarning(
                     nameof(CreateInstance),
                     nameof(TradeLogItem),
-                    $"Could not determine opposite volume for {model.ToJson()}!");
+                    $"Could not determine opposite volume for {model.ToJson()}! Skipping.");
+            }
+
             return result;
         }
     }
